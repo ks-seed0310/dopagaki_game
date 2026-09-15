@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOPAGAKI ULTRA∞</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{background:radial-gradient(circle at 50% 0%,#32105f 0,#120b27 42%,#05030c 100%);color:#fff;overflow-x:hidden}
+button{font:inherit;border:0;cursor:pointer;color:#fff}
+#app{max-width:1150px;margin:auto;padding:18px}
+header{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{font-size:clamp(24px,5vw,48px);font-weight:1000;letter-spacing:.04em;text-shadow:0 0 18px #ff38d1}
+.logo span{font-size:.38em;display:block;color:#a7fffb}
+.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#151126;border:1px solid #514277;border-radius:999px;padding:9px 13px;font-weight:800}
+nav{display:flex;gap:8px;overflow:auto;margin:15px 0;padding-bottom:3px}
+nav button,.tab{background:#1a1330;padding:10px 14px;border-radius:12px;border:1px solid #3e315d;white-space:nowrap}
+nav button.active,.tab.active{background:linear-gradient(135deg,#812cff,#ff2fb3);box-shadow:0 0 22px #a22cff66}
+.panel{background:#0e0a1cdd;border:1px solid #38294f;border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 15px 50px #0007}
+.hero{text-align:center;padding:30px 18px;position:relative;overflow:hidden}
+.hero h1{font-size:clamp(38px,9vw,82px);margin:0;line-height:.95;font-weight:1000}
+.hero p{font-weight:800;color:#c9bfe1}
+.big{font-size:clamp(26px,6vw,55px);font-weight:1000;margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.action{min-height:92px;border-radius:18px;background:linear-gradient(135deg,#21144a,#45155b);border:1px solid #69409a;transition:.12s;position:relative;overflow:hidden}
+.action:hover{transform:translateY(-2px);filter:brightness(1.15)}.action:active{transform:scale(.96)}
+.action b{display:block;font-size:22px}.action small{opacity:.8}
+.progress{height:14px;background:#080610;border-radius:99px;overflow:hidden;margin:10px 0}.progress i{display:block;height:100%;background:linear-gradient(90deg,#00eaff,#ff27c8,#ffe25c);width:0}
+.shop{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.card{background:#171028;border:1px solid #40325d;border-radius:17px;padding:14px}
+.card button{width:100%;margin-top:10px;background:#302052;border-radius:10px;padding:9px}.card button:disabled{opacity:.4;cursor:not-allowed}
+.end{background:linear-gradient(135deg,#24113b,#10152e);border:1px solid #5e3b7e;border-radius:18px;padding:15px}
+.end.lock{opacity:.45}.end h3{margin:0 0 6px}.tag{display:inline-block;padding:4px 7px;border-radius:8px;background:#33215a;font-size:12px;margin:2px}
+.toast{position:fixed;left:50%;top:16%;transform:translate(-50%,-50%) scale(.8);opacity:0;pointer-events:none;background:#11101bdd;border:2px solid #ff42d0;border-radius:18px;padding:14px 20px;font-weight:1000;z-index:50;text-align:center;transition:.2s}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#floaters{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}.floater{position:absolute;font-weight:1000;font-size:22px;animation:fly 900ms ease-out forwards}
+@keyframes fly{from{transform:translateY(0) scale(.8);opacity:1}to{transform:translateY(-120px) scale(1.35);opacity:0}}
+.hidden{display:none!important}.muted{color:#aaa0bd}.danger{background:#4b162d!important}.good{color:#72ffd7}.gold{color:#ffe06b}
+.combo{font-size:30px;font-weight:1000;color:#ff54db;text-shadow:0 0 15px #ff2cba}.tiny{font-size:12px}
+footer{text-align:center;color:#756b8b;padding:20px}
+select{background:#151126;color:#fff;border:1px solid #4b3c69;border-radius:9px;padding:8px}
+</style>
+</head>
+<body>
+<div id="floaters"></div><div id="toast" class="toast"></div>
+<div id="app">
+<header>
+  <div class="logo">DOPAGAKI ULTRA∞<span>100% DOPAGAKI SPECIAL EDITION</span></div>
+  <div class="stats">
+    <div class="pill">⚡ <span id="energy">0</span></div>
+    <div class="pill">🧠 <span id="dopamine">0</span></div>
+    <div class="pill">💎 <span id="crystals">0</span></div>
+    <div class="pill">🔥 Lv.<span id="level">1</span></div>
+  </div>
+</header>
+
+<nav id="nav">
+ <button class="active" data-tab="home">ホーム</button><button data-tab="tap">連打</button><button data-tab="shop">ショップ</button>
+ <button data-tab="missions">ミッション</button><button data-tab="ends">END図鑑</button><button data-tab="casino">運試し</button>
+ <button data-tab="story">ストーリー</button><button data-tab="settings">設定</button>
+</nav>
+
+<section id="home" class="tabview">
+<div class="panel hero">
+ <div class="tiny">注意：このゲームは「気持ちよく数字が増える」ことに全振りしています。</div>
+ <h1>DOPA<br>GAKI</h1>
+ <p>押す。増える。褒められる。たまに世界が壊れる。</p>
+ <div class="big"><span id="score">0</span> DOPA</div>
+ <div class="progress"><i id="xpbar"></i></div>
+ <div>次のレベルまで <b id="nextxp">100</b></div>
+ <br><button class="action" style="width:min(520px,100%);height:125px" id="mainBtn"><b>💥 DOPAる 💥</b><small>クリック / Space</small></button>
+</div>
+<div class="grid">
+ <div class="panel"><b>コンボ</b><div class="combo" id="combo">×1.00</div><small>連続で押すと上昇！</small></div>
+ <div class="panel"><b>総DOPA</b><div class="big" id="total">0</div><small>人生の累計</small></div>
+ <div class="panel"><b>今日の称号</b><div id="title">駆け出しドパガキ</div></div>
+</div>
+<div class="panel"><h2>🎯 今日のおすすめ</h2><div id="recommend"></div></div>
+</section>
+
+<section id="tap" class="tabview hidden">
+<div class="panel"><h2>⚡ 超連打モード</h2><p class="muted">10秒間、好きなだけDOPAれ！</p>
+<button id="rush" class="action" style="width:100%;height:130px"><b id="rushText">START RUSH</b><small>10秒間</small></button>
+<div class="big">RUSH SCORE: <span id="rushScore">0</span></div></div>
+<div class="panel"><h2>🎹 キーボード連打</h2><p>Space / Enter / D / F / J / K のどれでもDOPAれます。</p><div id="keylog" class="muted">入力待ち……</div></div>
+</section>
+
+<section id="shop" class="tabview hidden"><div class="panel"><h2>🛒 DOPA SHOP</h2><div class="shop" id="shopGrid"></div></div></section>
+
+<section id="missions" class="tabview hidden"><div class="panel"><h2>🎯 ミッション</h2><div id="missionGrid" class="grid"></div></div></section>
+
+<section id="ends" class="tabview hidden"><div class="panel"><h2>🏁 END図鑑 <span class="gold" id="endCount"></span></h2><p class="muted">ゲームオーバーだけがENDじゃない。選択と偶然で結末が変わる。</p><div id="endGrid" class="grid"></div></div></section>
+
+<section id="casino" class="tabview hidden">
+<div class="panel hero"><h2>🎰 DOPA運試し</h2><p>1回100 DOPA。結果は完全ランダム……ではなく、努力も少し影響する。</p>
+<button id="gacha" class="action" style="width:100%;height:115px"><b>🎲 運命を回す</b><small>100 DOPA</small></button><div class="big" id="gachaResult">？？？</div></div>
+<div class="panel"><h3>連続記録</h3><div id="streak">0</div></div>
+</section>
+
+<section id="story" class="tabview hidden"><div class="panel"><h2>📖 DOPAストーリー</h2><div id="storyText"></div><div class="grid" style="margin-top:12px"><button class="action storyChoice" data-c="0"><b>さらにDOPAる</b></button><button class="action storyChoice" data-c="1"><b>ちょっと休む</b></button><button class="action storyChoice" data-c="2"><b>世界を観察する</b></button></div></div></section>
+
+<section id="settings" class="tabview hidden"><div class="panel"><h2>⚙️ 設定・データ</h2>
+<p>エフェクト <select id="fx"><option value="on">ON</option><option value="off">OFF</option></select></p>
+<p>テーマ <select id="theme"><option value="neon">NEON</option><option value="dark">DARK</option></select></p>
+<button id="save" class="action" style="padding:15px;width:100%;height:auto"><b>💾 今すぐ保存</b></button><br><br>
+<button id="reset" class="action danger" style="padding:15px;width:100%;height:auto"><b>🧨 セーブを初期化</b><small>※確認が出ます</small></button>
+</div></section>
+<footer>DOPAGAKI ULTRA∞ / single-file HTML / localStorage save enabled</footer>
+</div>
+
+<script>
+"use strict";
+const SAVE_KEY="dopagaki_game/chatgpt/5.6Luna/001/saves/main";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const defaultState={
+ score:0,total:0,energy:100,dopamine:0,crystals:0,xp:0,level:1,combo:1,lastTap:0,
+ upgrades:{tap:0,mult:0,auto:0,luck:0,energy:0,crit:0},
+ missions:{tap:0,score:0,rush:0,gacha:0,level:0},
+ ends:[],gachaStreak:0,story:0,storySeen:0,settings:{fx:"on",theme:"neon"},stats:{taps:0,rushBest:0}
+};
+let s=load(); let rushActive=false,rushUntil=0,rushPoints=0,rushTimer=null;
+
+function load(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x?deep(defaultState,x):deep(defaultState,{})}catch(e){return deep(defaultState,{})}}
+function deep(a,b){if(Array.isArray(a))return Array.isArray(b)?b:a;if(a&&typeof a==="object"){let o={};for(const k in a)o[k]=deep(a[k],b&&k in b?b[k]:undefined);return o}return b===undefined?a:b}
+function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(s));flash("💾 セーブしました！")}
+function fmt(n){return Math.floor(n).toLocaleString("ja-JP")}
+function levelNeed(){return Math.floor(100*Math.pow(s.level,1.32))}
+function gainXP(n){s.xp+=n;while(s.xp>=levelNeed()){s.xp-=levelNeed();s.level++;award("LEVEL UP!","レベル "+s.level+" 到達！",30);endCheck("level")}
+}
+function flash(t){const e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),900)}
+function float(t,x=50,y=45){if(s.settings.fx==="off")return;const e=document.createElement("div");e.className="floater";e.textContent=t;e.style.left=x+"%";e.style.top=y+"%";$("#floaters").appendChild(e);setTimeout(()=>e.remove(),950)}
+function award(a,b,cr=0){s.dopamine+=cr;flash(a+" / "+b);float("+"+cr+" 💎")}
+function calcGain(){let base=1+s.upgrades.tap*2;let mult=1+s.upgrades.mult*.35;let crit=1;if(Math.random()<Math.min(.5,s.upgrades.crit*.04))crit=5;let combo=s.combo;return Math.max(1,Math.floor(base*mult*combo*crit))}
+function tap(){
+ const now=Date.now(),dt=now-s.lastTap;s.lastTap=now;
+ if(dt<1300)s.combo=Math.min(12,s.combo+0.16);else s.combo=Math.max(1,s.combo*.78);
+ let g=calcGain();s.score+=g;s.total+=g;s.energy=Math.max(0,s.energy-1);s.stats.taps++;gainXP(Math.max(1,Math.ceil(g/2)));
+ s.missions.tap++;s.missions.score=s.score;
+ float("+"+g+" DOPA");
+ if(g>=20)float("CRITICAL!!");
+ if(s.stats.taps%20===0)flash("🔥 "+s.stats.taps+"回突破！");
+ missionCheck();endCheck("tap");render();
+}
+function missionCheck(){
+ const ms=[
+  [s.missions.tap>=50,"50回DOPA","tap50",20],[s.score>=1000,"1000 DOPA","score1000",30],
+  [s.missions.rush>=1,"RUSH初成功","rush1",25],[s.missions.gacha>=10,"運試し10回","gacha10",40],
+  [s.level>=5,"Lv.5","lv5",50]
+ ];
+ ms.forEach(([ok,name,id,rew])=>{if(ok&&!s.ends.includes("M:"+id)){s.ends.push("M:"+id);s.crystals+=rew;flash("🏆 MISSION CLEAR: "+name+" +"+rew+"💎")}});
+}
+const shops=[
+ ["tap","指先強化","1クリックの基本DOPA +2",100,n=>s.upgrades.tap++],
+ ["mult","脳内増幅器","獲得量 ×1.35",250,n=>s.upgrades.mult++],
+ ["auto","自動ドパ装置","10秒ごとにDOPA",500,n=>s.upgrades.auto++],
+ ["luck","幸運フィルター","運試しの当たり率UP",350,n=>s.upgrades.luck++],
+ ["energy","無限体力","エネルギー最大値 +25",180,n=>s.upgrades.energy++],
+ ["crit","クリティカル回路","5倍DOPAの確率UP",450,n=>s.upgrades.crit++]
+];
+function shopPrice(x){return Math.floor(x[3]*Math.pow(1.7,s.upgrades[x[0]]))}
+function buy(x){
+ const price=shopPrice(x);if(s.dopamine<price){flash("💎 が足りない！");return}
+ s.dopamine-=price;x[4]();flash("🛒 "+x[1]+" GET!");
+ render();
+}
+function doGacha(){
+ if(s.score<100){flash("100 DOPA必要！");return}
+ s.score-=100;s.missions.gacha++;
+ let r=Math.random()+s.upgrades.luck*.035;let msg,bonus;
+ if(r>.995){msg="🌌 超・超・大当たり";bonus=10000;s.gachaStreak++}
+ else if(r>.93){msg="🌈 大当たり";bonus=1500;s.gachaStreak++}
+ else if(r>.7){msg="✨ 当たり";bonus=350;s.gachaStreak++}
+ else if(r>.35){msg="🙂 ちょい当たり";bonus=120;s.gachaStreak++}
+ else {msg="🪨 まあまあ";bonus=20;s.gachaStreak=0}
+ s.score+=bonus;s.total+=bonus;s.missions.score=s.score;
+ $("#gachaResult").textContent=msg+" +"+bonus+" DOPA";
+ if(s.gachaStreak>=5){s.crystals+=50;endCheck("gacha")}
+ missionCheck();render();
+}
+function startRush(){
+ if(rushActive)return;
+ rushActive=true;rushPoints=0;rushUntil=Date.now()+10000;$("#rushText").textContent="🔥 RUSH中！";
+ rushTimer=setInterval(()=>{let left=Math.max(0,rushUntil-Date.now());$("#rushText").textContent="🔥 "+(left/1000).toFixed(1)+"s";if(left<=0){clearInterval(rushTimer);rushActive=false;s.missions.rush++;s.stats.rushBest=Math.max(s.stats.rushBest,rushPoints);s.score+=rushPoints;s.total+=rushPoints;gainXP(Math.ceil(rushPoints/4));$("#rushText").textContent="RUSH COMPLETE!";flash("RUSH終了 +"+rushPoints+" DOPA");missionCheck();render()}},50);
+}
+function rushTap(){if(!rushActive)return;let g=Math.max(1,calcGain());rushPoints+=g;$("#rushScore").textContent=fmt(rushPoints);float("+"+g,45+Math.random()*10,55+Math.random()*10)}
+function story(){
+ const texts=[
+ "あなたはDOPAを見つけた。小さな数字だった。だが、押すたびに数字が増えた。",
+ "数字は増え続けた。ショップが開き、謎の研究者が現れ、世界の設定ファイルまで見えるようになった。",
+ "研究者「DOPAとは何か？」 あなた「増えるもの。」 研究者「正解。」",
+ "空から巨大な『END』が降ってきた。どうやらこの世界では、終わることすらコンテンツらしい。",
+ "そして、まだ誰も見たことのないENDがある。あなたはさらにDOPAった。",
+ "……∞"
+ ];
+ $("#storyText").innerHTML="<p>"+texts[Math.min(s.story,texts.length-1)]+"</p><p class='muted'>Chapter "+(Math.min(s.story+1,texts.length))+"</p>";
+}
+function chooseStory(c){
+ s.story++;s.storySeen++;gainXP(10);
+ if(s.story>=6){s.ends.push("story∞");endCheck("story");}
+ if(c===0)s.score+=100; if(c===1)s.energy=Math.min(100+s.upgrades.energy*25,s.energy+30); if(c===2)s.crystals+=5;
+ story();render();
+}
+const ends=[
+ ["END 001","まだ始まったばかり","最初のDOPAを生み出した。","tap"],
+ ["END 002","連打の果て","50回DOPAった。","tap50"],
+ ["END 003","数字の奴隷","1000 DOPAに到達。","score1000"],
+ ["END 004","RUSH新人","初めてRUSHを完走。","rush1"],
+ ["END 005","運命の初心者","運試しを10回行った。","gacha10"],
+ ["END 006","レベルアップ","Lv.5に到達。","lv5"],
+ ["END 007","五連勝","運試しで5連続当たり。","gacha5"],
+ ["END 008","物欲の化身","全ショップ系統を1回ずつ購入。","shopall"],
+ ["END 009","コンボ神","コンボ×12を達成。","combo12"],
+ ["END 010","DOPA富豪","累計10000 DOPA。","total10000"],
+ ["END 011","RUSH王","RUSHで1000点以上。","rush1000"],
+ ["END 012","物語の終点","ストーリーを最後まで進めた。","story∞"],
+ ["END 013","完全体","レベル10に到達。","lv10"],
+ ["END 014","クリスタル中毒","💎を1000個獲得。","crystal1000"],
+ ["END 015","超越者","累計100000 DOPA。","total100000"],
+ ["END 016","無限の入口","すべての通常ENDを開放。","all"],
+ ["END 017","DOPAそのもの","全アップグレードがLv3以上。","upgrade3"],
+ ["END 018","偶然の神","超・超・大当たりを引いた。","jackpot"],
+ ["END 019","静かな勝利","一度もRUSHせずLv5。","quiet"],
+ ["END 020","∞ END","すべてを見届けた。","final"]
+];
+function endCheck(kind){
+ const set=new Set(s.ends);
+ const add=id=>{if(!set.has(id)){s.ends.push(id);flash("🏁 NEW END: "+id);}}
+ if(kind==="tap"&&s.stats.taps>=1)add("END 001");
+ if(s.stats.taps>=50)add("END 002");if(s.score>=1000)add("END 003");if(s.missions.rush>=1)add("END 004");
+ if(s.missions.gacha>=10)add("END 005");if(s.level>=5)add("END 006");if(s.gachaStreak>=5)add("END 007");
+ if(shops.every(x=>s.upgrades[x[0]]>=1))add("END 008");if(s.combo>=11.9)add("END 009");if(s.total>=10000)add("END 010");
+ if(s.stats.rushBest>=1000)add("END 011");if(s.story>=6)add("END 012");if(s.level>=10)add("END 013");
+ if(s.dopamine>=1000)add("END 014");if(s.total>=100000)add("END 015");
+ if(ends.slice(0,15).every(e=>s.ends.includes(e[0])))add("END 016");
+ if(shops.every(x=>s.upgrades[x[0]]>=3))add("END 017");
+ if(s.ends.includes("JACKPOT"))add("END 018");
+ if(s.missions.rush===0&&s.level>=5)add("END 019");
+ if(ends.slice(0,19).every(e=>s.ends.includes(e[0])))add("END 020");
+}
+function render(){
+ $("#score").textContent=fmt(s.score);$("#total").textContent=fmt(s.total);$("#energy").textContent=fmt(s.energy);
+ $("#dopamine").textContent=fmt(s.dopamine);$("#crystals").textContent=fmt(s.crystals);$("#level").textContent=s.level;
+ $("#combo").textContent="×"+s.combo.toFixed(2);$("#xpbar").style.width=Math.min(100,s.xp/levelNeed()*100)+"%";$("#nextxp").textContent=fmt(levelNeed()-s.xp);
+ $("#rushScore").textContent=fmt(rushPoints);$("#streak").textContent=s.gachaStreak+" 連続";
+ const titles=["駆け出しドパガキ","見習いドパガキ","中級ドパガキ","上級ドパガキ","超ドパガキ","伝説のドパガキ","概念ドパガキ","宇宙ドパガキ"];
+ $("#title").textContent=titles[Math.min(titles.length-1,Math.floor((s.level-1)/2))];
+ $("#recommend").textContent=s.combo<3?"まずは連打！コンボを伸ばせ！":s.level<5?"レベル5を目指そう！":"END図鑑を埋めよう！";
+ $("#shopGrid").innerHTML=shops.map(x=>{let p=shopPrice(x);return `<div class="card"><h3>${x[1]}</h3><p>${x[2]}</p><span class="tag">Lv.${s.upgrades[x[0]]}</span><span class="tag">💎 ${fmt(p)}</span><button ${s.dopamine<p?"disabled":""} onclick='buy(shops[${shops.indexOf(x)}])'>購入</button></div>`}).join("");
+ const ms=[["tap","50 TAP",""+s.missions.tap+"/50"],["score","1000 DOPA",""+fmt(s.score)+"/1,000"],["rush","RUSH",""+s.missions.rush+"/1"],["gacha","GACHA",""+s.missions.gacha+"/10"],["level","LEVEL","Lv."+s.level+"/5"]];
+ $("#missionGrid").innerHTML=ms.map(x=>`<div class="card"><h3>${x[1]}</h3><div>${x[2]}</div></div>`).join("");
+ $("#endCount").textContent=s.ends.filter(x=>x.startsWith("END")).length+"/"+ends.length;
+ $("#endGrid").innerHTML=ends.map((e,i)=>{let got=s.ends.includes(e[0]);return `<div class="end ${got?"":"lock"}"><h3>${got?"🏁":"🔒"} ${e[0]}</h3><b>${got?e[1]:"？？？？？？"}</b><p>${got?e[2]:"条件を満たすと解放されます。"}</p><span class="tag">${got?"UNLOCKED":"LOCKED"}</span></div>`}).join("");
+ story();s.settings.fx=$("#fx").value=s.settings.fx;s.settings.theme=$("#theme").value=s.settings.theme;
+}
+$("#mainBtn").onclick=tap;$("#rush").onclick=()=>rushActive?rushTap():startRush();$("#gacha").onclick=doGacha;
+$$(".storyChoice").forEach(b=>b.onclick=()=>chooseStory(+b.dataset.c));
+$$("nav button").forEach(b=>b.onclick=()=>{$$("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");$$(".tabview").forEach(x=>x.classList.add("hidden"));$("#"+b.dataset.tab).classList.remove("hidden")});
+window.addEventListener("keydown",e=>{if(["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;if([" ","Enter","d","D","f","F","j","J","k","K"].includes(e.key)){e.preventDefault();if(rushActive)rushTap();else tap();$("#keylog").textContent="⌨ "+e.key+" → DOPA!"}});
+$("#save").onclick=save;$("#reset").onclick=()=>{if(confirm("本当にセーブを消しますか？")){localStorage.removeItem(SAVE_KEY);s=deep(defaultState,{});render();flash("初期化しました")}};
+$("#fx").onchange=e=>{s.settings.fx=e.target.value;save()};$("#theme").onchange=e=>{s.settings.theme=e.target.value;document.body.style.filter=e.target.value==="dark"?"grayscale(.5)":"none";save()};
+setInterval(()=>{if(s.upgrades.auto){let g=s.upgrades.auto*2;s.score+=g;s.total+=g;gainXP(1);float("AUTO +"+g,80,80);render()}},10000);
+setInterval(()=>{if(Date.now()-s.lastTap>1800&&s.combo>1){s.combo=Math.max(1,s.combo*.92);render()}},500);
+setInterval(()=>{missionCheck();endCheck();},1500);
+setInterval(save,30000);
+render();
+</script>
+</body>
+</html>
