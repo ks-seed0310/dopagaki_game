@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ドパガキハクスラダンジョン：無限の神神神神装備と過剰スキルビルド</title>
+    <style>
+        :root {
+            --bg-dark: #07020d;
+            --panel-bg: rgba(20, 10, 35, 0.9);
+            --primary-pink: #ff007f;
+            --neon-blue: #00f6ff;
+            --neon-yellow: #ffe600;
+            --neon-green: #00ff66;
+            --rarity-common: #aaaaaa;
+            --rarity-rare: #00a2ff;
+            --rarity-epic: #a335ee;
+            --rarity-legendary: #ff8000;
+            --rarity-mythic: #ff0055;
+            --rarity-god: #ffe600;
+            --rarity-dopagaki: #00ffcc;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            font-family: 'Impact', 'Trebuchet MS', 'Arial Black', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* アニメーション演出 */
+        .shake { animation: shakeAnim 0.12s infinite; }
+        @keyframes shakeAnim {
+            0% { transform: translate(3px, 3px) rotate(0deg); }
+            20% { transform: translate(-4px, -2px) rotate(1deg); }
+            40% { transform: translate(2px, -3px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(3px, 2px) rotate(1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .flash-bg { animation: flashAnim 0.2s ease-out; }
+        @keyframes flashAnim {
+            0% { background-color: #ffffff; }
+            100% { background-color: var(--bg-dark); }
+        }
+
+        .rainbow-text {
+            background: linear-gradient(90deg, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            background-size: 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowBg 2s linear infinite;
+        }
+        @keyframes rainbowBg { 0% { background-position: 0%; } 100% { background-position: 400%; } }
+
+        /* トップステータスバー */
+        #top-bar {
+            width: 100%;
+            max-width: 700px;
+            background: #000;
+            border-bottom: 2px solid var(--primary-pink);
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 0 15px var(--primary-pink);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: #150826;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #3d156d;
+        }
+
+        .stat-val {
+            color: var(--neon-yellow);
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* ゲージ */
+        .bar-container {
+            width: 100%;
+            height: 12px;
+            background: #222;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 5px;
+            border: 1px solid #444;
+            position: relative;
+        }
+        .bar-fill { height: 100%; width: 0%; transition: width 0.1s linear; }
+        #exp-bar { background: linear-gradient(90deg, #00a2ff, #00ffcc); }
+        #hp-bar { background: linear-gradient(90deg, #ff0000, #ff5500); }
+        .bar-text {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* メイン戦闘エリア */
+        #battle-area {
+            width: 100%;
+            max-width: 700px;
+            height: 250px;
+            background: radial-gradient(circle, #2a0845 0%, #0d0221 100%);
+            border: 2px solid var(--neon-blue);
+            margin-top: 10px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            cursor: pointer;
+        }
+
+        #monster-avatar {
+            font-size: 5rem;
+            filter: drop-shadow(0 0 20px var(--primary-pink));
+            transition: transform 0.05s;
+            margin-top: 10px;
+        }
+
+        #monster-avatar:active {
+            transform: scale(0.85);
+        }
+
+        /* ダメージポップアップ */
+        .dmg-pop {
+            position: absolute;
+            pointer-events: none;
+            font-weight: 900;
+            font-size: 1.5rem;
+            animation: dmgFloat 0.7s forwards ease-out;
+            z-index: 50;
+            text-shadow: 0 0 5px #000;
+        }
+        @keyframes dmgFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { transform: translateY(-40px) scale(1.4); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+        }
+
+        /* アクティブスキルボタン群 */
+        #skill-bar {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .active-skill-btn {
+            flex: 1;
+            padding: 10px 5px;
+            background: #1a0033;
+            border: 2px solid var(--primary-pink);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .active-skill-btn:disabled {
+            border-color: #555;
+            color: #777;
+        }
+        .cd-overlay {
+            position: absolute;
+            top: 0; left: 0; height: 100%; width: 0%;
+            background: rgba(0,0,0,0.7);
+            pointer-events: none;
+        }
+
+        /* タブ */
+        #tabs {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            gap: 4px;
+            margin-top: 12px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 2px;
+            background: #100520;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-size: 0.75rem;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: var(--neon-blue);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .tab-content {
+            width: 100%;
+            max-width: 700px;
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            border-radius: 0 0 10px 10px;
+            padding: 15px;
+            min-height: 320px;
+            display: none;
+            margin-bottom: 30px;
+        }
+        .tab-content.active { display: block; }
+
+        /* 装備グリッド */
+        .equip-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .equip-slot {
+            background: #0d041a;
+            border: 2px dashed #444;
+            height: 70px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .equip-slot.has-item { border-style: solid; }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #05010a;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .inv-item {
+            aspect-ratio: 1;
+            background: #1a0833;
+            border: 1px solid #444;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* レアリティカラー設定 */
+        .r-common { border-color: var(--rarity-common) !important; color: var(--rarity-common); }
+        .r-rare { border-color: var(--rarity-rare) !important; color: var(--rarity-rare); }
+        .r-epic { border-color: var(--rarity-epic) !important; color: var(--rarity-epic); }
+        .r-legendary { border-color: var(--rarity-legendary) !important; color: var(--rarity-legendary); }
+        .r-mythic { border-color: var(--rarity-mythic) !important; color: var(--rarity-mythic); }
+        .r-god { border-color: var(--rarity-god) !important; color: var(--rarity-god); box-shadow: 0 0 8px var(--rarity-god); }
+        .r-dopagaki { border-color: var(--rarity-dopagaki) !important; color: var(--rarity-dopagaki); box-shadow: 0 0 12px var(--rarity-dopagaki); }
+
+        /* スキルツリー */
+        .skill-tree-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 10px;
+        }
+        .skill-card {
+            background: #120624;
+            border: 1px solid #3d156d;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ボタン */
+        .btn-action {
+            background: linear-gradient(45deg, var(--primary-pink), var(--neon-yellow));
+            border: none;
+            color: #000;
+            padding: 8px 12px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn-action:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+        /* モーダル */
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        #modal-card {
+            background: #110321;
+            border: 3px solid var(--neon-yellow);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 0 30px var(--neon-yellow);
+        }
+
+        /* 実績・エンディングカード */
+        .achieve-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .achieve-card {
+            background: #100420;
+            border: 1px solid #333;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+        .achieve-card.unlocked {
+            border-color: var(--neon-green);
+            background: #002b11;
+            color: var(--neon-green);
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .inventory-grid { grid-template-columns: repeat(6, 1fr); }
+            .achieve-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ステータスバー -->
+    <div id="top-bar">
+        <div class="stats-grid">
+            <div class="stat-card">Lv: <span id="val-lv" class="stat-val">1</span></div>
+            <div class="stat-card">階層: <span id="val-floor" class="stat-val">1</span>F</div>
+            <div class="stat-card">Gold: <span id="val-gold" class="stat-val">0</span></div>
+            <div class="stat-card">Soul: <span id="val-soul" class="stat-val">0</span></div>
+        </div>
+        <div class="bar-container">
+            <div id="exp-bar" class="bar-fill"></div>
+            <div class="bar-text" id="exp-text">EXP 0%</div>
+        </div>
+    </div>
+
+    <!-- 戦闘メイン画面 -->
+    <div id="battle-area" onclick="onTapBattle(event)">
+        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+            <span id="monster-name" style="font-size:1.1rem; color:var(--neon-yellow);">スライム</span>
+            <span id="dps-text" style="font-size:0.8rem; color:var(--neon-blue);">DPS: 0</span>
+        </div>
+        
+        <div id="monster-avatar">👾</div>
+
+        <div style="width:100%;">
+            <div class="bar-container" style="height:18px;">
+                <div id="hp-bar" class="bar-fill"></div>
+                <div class="bar-text" id="hp-text">HP 100/100</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- アクティブスキル -->
+    <div id="skill-bar">
+        <button class="active-skill-btn" id="askill-0" onclick="useActiveSkill(0)">
+            <div class="cd-overlay" id="cd-0"></div>
+            ⚡ 狂乱連打 (5s)
+        </button>
+        <button class="active-skill-btn" id="askill-1" onclick="useActiveSkill(1)">
+            <div class="cd-overlay" id="cd-1"></div>
+            💥 脳汁爆雷 (15s)
+        </button>
+        <button class="active-skill-btn" id="askill-2" onclick="useActiveSkill(2)">
+            <div class="cd-overlay" id="cd-2"></div>
+            🌀 オーバードライブ (30s)
+        </button>
+    </div>
+
+    <!-- ナビゲーションタブ -->
+    <div id="tabs">
+        <button class="tab-btn active" onclick="switchTab('equip')">🎒 装備・ハクスラ</button>
+        <button class="tab-btn" onclick="switchTab('skill')">🌳 スキルツリー</button>
+        <button class="tab-btn" onclick="switchTab('roulette')">🎰 脳汁ルーレット</button>
+        <button class="tab-btn" onclick="switchTab('rebirth')">🌀 転生ソウル</button>
+        <button class="tab-btn" onclick="switchTab('achieve')">🏆 実績(<span id="achieve-count">0</span>/12)</button>
+    </div>
+
+    <!-- タブ1: 装備・ハクスラ -->
+    <div id="tab-equip" class="tab-content active">
+        <h3 style="font-size:0.9rem; color:var(--neon-blue); margin-bottom:8px;">現在装備</h3>
+        <div class="equip-grid">
+            <div class="equip-slot" id="slot-weapon" onclick="clickSlot('weapon')">⚔️ 武器</div>
+            <div class="equip-slot" id="slot-armor" onclick="clickSlot('armor')">🛡️ 防具</div>
+            <div class="equip-slot" id="slot-accessory" onclick="clickSlot('accessory')">💍 アクセ</div>
+            <div class="equip-slot" id="slot-artifact" onclick="clickSlot('artifact')">🔮 神器</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="font-size:0.9rem; color:var(--neon-yellow);">所持インベントリ (<span id="inv-count">0</span>/32)</h3>
+            <button class="btn-action" style="padding:4px 8px; font-size:0.7rem;" onclick="dismantleAllLow()">一括分解(Common/Rare)</button>
+        </div>
+        <div class="inventory-grid" id="inv-grid"></div>
+        <div style="margin-top:10px; font-size:0.75rem; color:#aaa; display:flex; gap:15px;">
+            <span>強化石: <b id="mat-upgrade" style="color:#fff;">0</b></span>
+            <span>リロール石: <b id="mat-reroll" style="color:#fff;">0</b></span>
+        </div>
+    </div>
+
+    <!-- タブ2: スキルツリー -->
+    <div id="tab-skill" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <h3>パッシブスキル強化</h3>
+            <span style="color:var(--neon-yellow);">未割り当て SP: <b id="val-sp">0</b></span>
+        </div>
+        <div class="skill-tree-grid" id="skill-list"></div>
+    </div>
+
+    <!-- タブ3: 脳汁ルーレット -->
+    <div id="tab-roulette" class="tab-content" style="text-align:center;">
+        <h2 class="rainbow-text" style="font-size:1.8rem; margin-bottom:10px;">超脳汁ドパミンルーレット</h2>
+        <p style="font-size:0.8rem; color:#ccc; margin-bottom:15px;">1分ごとに1回挑戦可能！ジャックポットでGOD装備か全爆増バフ！</p>
+        <div id="roulette-display" style="font-size:3rem; margin:20px 0; height:60px;">🎰 READY 🎰</div>
+        <button class="btn-action" id="roulette-btn" style="font-size:1.2rem; padding:12px 30px;" onclick="spinRoulette()">ルーレットを回す！</button>
+        <div id="roulette-status" style="margin-top:15px; font-size:0.85rem; color:var(--neon-green);"></div>
+    </div>
+
+    <!-- タブ4: 転生ソウル -->
+    <div id="tab-rebirth" class="tab-content" style="text-align:center;">
+        <h2 style="color:var(--primary-pink); margin-bottom:10px;">ソウルリバース（転生）</h2>
+        <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">階層・ゴールドをリセットし、永続能力を獲得するための「魔界ソウル」に変換します。（装備・スキル・実績は維持されます）</p>
+        <p style="font-size:1.2rem; color:var(--neon-yellow); margin-bottom:15px;">獲得予想ソウル: +<span id="pending-souls">0</span></p>
+        <button class="btn-action" style="font-size:1rem; padding:10px 25px;" onclick="doRebirth()">全てを捧げて転生する</button>
+        
+        <hr style="margin:20px 0; border-color:#333;">
+        <h3 style="text-align:left; font-size:0.9rem; color:var(--neon-blue); margin-bottom:10px;">ソウル永続強化ツリー</h3>
+        <div class="skill-tree-grid" id="soul-skill-list"></div>
+    </div>
+
+    <!-- タブ5: 実績・エンディング -->
+    <div id="tab-achieve" class="tab-content">
+        <h3 style="margin-bottom:10px;">実績 ＆ 結末ギャラリー</h3>
+        <div class="achieve-grid" id="achieve-grid"></div>
+    </div>
+
+    <!-- 装備詳細・操作モーダル -->
+    <div id="modal-overlay">
+        <div id="modal-card">
+            <div id="modal-item-title" style="font-size:1.2rem; font-weight:bold; margin-bottom:5px;">アイテム名</div>
+            <div id="modal-item-type" style="font-size:0.75rem; color:#888; margin-bottom:10px;">部位 / レアリティ</div>
+            <div id="modal-item-stats" style="font-size:0.85rem; background:#000; padding:10px; border-radius:6px; margin-bottom:15px; line-height:1.4;"></div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn-action" id="mbtn-equip" onclick="modalEquip()">装備する</button>
+                <button class="btn-action" id="mbtn-upgrade" onclick="modalUpgrade()">強化</button>
+                <button class="btn-action" id="mbtn-reroll" onclick="modalReroll()">オプリロール</button>
+                <button class="btn-action" id="mbtn-dismantle" style="background:#ff3333; color:#fff;" onclick="modalDismantle()">分解</button>
+                <button class="btn-action" style="background:#555; color:#fff;" onclick="closeModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 定数 & 保存キー ---
+        const SAVE_KEY = "dopagaki_game/gemini/3.6Thinking/002/saves/saveData";
+
+        // Web Audio API 合成音源
+        let audioCtx = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSfx(freq, type = 'sine', duration = 0.1, gainVal = 0.1) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // --- ゲームステート ---
+        let GS = {
+            lv: 1, exp: 0, maxExp: 50,
+            floor: 1, maxFloor: 1,
+            gold: 0, soul: 0,
+            sp: 0,
+            upgradeMat: 0, rerollMat: 0,
+            totalKills: 0, totalClicks: 0,
+            
+            // 装備 [weapon, armor, accessory, artifact]
+            equipped: { weapon: null, armor: null, accessory: null, artifact: null },
+            inventory: [], // max 32
+            
+            // スキルレベル
+            skills: { atkBoost: 0, critRateBoost: 0, critDmgBoost: 0, autoAtkSpeed: 0, goldBoost: 0 },
+            soulSkills: { soulAtk: 0, soulDrop: 0, soulExp: 0, soulCritLimit: 0 },
+
+            // クールダウン / バフ
+            cd: [0, 0, 0],
+            buffs: { overdrive: 0 },
+
+            // ルーレットタイマー
+            rouletteCd: 0,
+
+            // 解放実績
+            achievements: []
+        };
+
+        // --- モンスター状態 ---
+        let currentMonster = { name: "スラドパ", hp: 30, maxHp: 30, avatar: "👾", gold: 10, exp: 15 };
+
+        // --- マスターデータ ---
+        const RARITIES = [
+            { id: 'common', name: 'Common', color: 'var(--rarity-common)', opts: 1, mult: 1 },
+            { id: 'rare', name: 'Rare', color: 'var(--rarity-rare)', opts: 2, mult: 1.5 },
+            { id: 'epic', name: 'Epic', color: 'var(--rarity-epic)', opts: 3, mult: 2.2 },
+            { id: 'legendary', name: 'Legendary', color: 'var(--rarity-legendary)', opts: 4, mult: 3.5 },
+            { id: 'mythic', name: 'MYTHIC', color: 'var(--rarity-mythic)', opts: 5, mult: 6.0 },
+            { id: 'god', name: 'GOD', color: 'var(--rarity-god)', opts: 6, mult: 12.0 },
+            { id: 'dopagaki', name: 'DOPAGAKI', color: 'var(--rarity-dopagaki)', opts: 6, mult: 30.0 }
+        ];
+
+        const OPTION_TYPES = [
+            { id: 'atk_flat', name: '攻撃力加算', base: 5 },
+            { id: 'atk_pct', name: '攻撃力%', base: 8 },
+            { id: 'crit_rate', name: 'クリティカル率%', base: 5 },
+            { id: 'crit_dmg', name: 'クリティカル被害%', base: 15 },
+            { id: 'gold_rate', name: 'ドロップゴールド%', base: 10 },
+            { id: 'exp_rate', name: '獲得経験値%', base: 10 },
+            { id: 'instant_kill', name: '即死確率%', base: 0.5 }
+        ];
+
+        const MONSTER_ICONS = ["👾", "🦔", "🧪", "👺", "🐉", "🤖", "👻", "👑", "💀", "👁️"];
+        const MONSTER_NAMES = ["脳汁スライム", "爆裂ウニ", "確定変異体", "サイバーゴブリン", "過剰ドーパミンドラゴン", "メカドパガキ", "異次元の幻影", "ドパミン魔王"];
+
+        const ACHIEVEMENTS = [
+            { id: 1, title: "ハクスラの第一歩", desc: "ダンジョン10階突破" },
+            { id: 2, title: "深層への到達", desc: "ダンジョン100階突破" },
+            { id: 3, title: "極限の果て", desc: "ダンジョン1000階突破" },
+            { id: 4, title: "神の引き", desc: "GODまたはDOPAGAKI装備を獲得" },
+            { id: 5, title: "OVER CRITICAL!", desc: "100%超えクリティカルを発動" },
+            { id: 6, title: "DOPAGAKI CRITICAL!!", desc: "300%超え次元超越クリティカルを発動" },
+            { id: 7, title: "連打の鬼", desc: "累計手動タップ1,000回達成" },
+            { id: 8, title: "ソウルリバース", desc: "初めて転生を行う" },
+            { id: 9, title: "ジャックポット！", desc: "脳汁ルーレットでJACKPOTを獲得" },
+            { id: 10, title: "フル装備完了", desc: "全部位に装備を装着" },
+            { id: 11, title: "一撃必殺", desc: "単発100万ダメージ達成" },
+            { id: 12, title: "【真エンド】脳汁神覚醒", desc: "1000階突破 ＆ 全実績コンプリート" }
+        ];
+
+        // --- セーブ＆ロード ---
+        function saveGame() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify(GS));
+            } catch(e) {}
+        }
+
+        function loadGame() {
+            try {
+                const data = localStorage.getItem(SAVE_KEY);
+                if (data) GS = { ...GS, ...JSON.parse(data) };
+            } catch(e) {}
+        }
+
+        // --- ステータス計算 ---
+        function getPlayerStats() {
+            let atk = 10 + GS.lv * 4;
+            let atkPct = 0;
+            let critRate = 5 + GS.skills.critRateBoost * 3;
+            let critDmg = 150 + GS.skills.critDmgBoost * 15;
+            let goldRate = 100 + GS.skills.goldBoost * 10;
+            let expRate = 100;
+            let instantKill = 0;
+
+            // パッシブ
+            atk += GS.skills.atkBoost * 10;
+            atk *= (1 + GS.soulSkills.soulAtk * 0.2);
+
+            // 装備計算
+            Object.values(GS.equipped).forEach(item => {
+                if (!item) return;
+                const rData = RARITIES.find(r => r.id === item.rarity);
+                const itemLevelMult = 1 + (item.enhance || 0) * 0.2;
+                
+                item.options.forEach(opt => {
+                    const val = opt.val * rData.mult * itemLevelMult;
+                    if (opt.id === 'atk_flat') atk += val;
+                    if (opt.id === 'atk_pct') atkPct += val;
+                    if (opt.id === 'crit_rate') critRate += val;
+                    if (opt.id === 'crit_dmg') critDmg += val;
+                    if (opt.id === 'gold_rate') goldRate += val;
+                    if (opt.id === 'exp_rate') expRate += val;
+                    if (opt.id === 'instant_kill') instantKill += val;
+                });
+            });
+
+            atk *= (1 + atkPct / 100);
+
+            // バフ
+            if (GS.buffs.overdrive > 0) {
+                atk *= 10;
+                critRate += 100;
+            }
+
+            return {
+                atk: Math.floor(atk),
+                critRate: Math.floor(critRate),
+                critDmg: Math.floor(critDmg),
+                goldRate: Math.floor(goldRate),
+                expRate: Math.floor(expRate),
+                instantKill: instantKill
+            };
+        }
+
+        // --- 戦闘＆攻撃 ---
+        function spawnMonster() {
+            const f = GS.floor;
+            const icon = MONSTER_ICONS[(f - 1) % MONSTER_ICONS.length];
+            const name = MONSTER_NAMES[(f - 1) % MONSTER_NAMES.length] + ` [${f}F]`;
+            const hp = Math.floor(25 * Math.pow(1.25, f - 1));
+            const gold = Math.floor(8 * Math.pow(1.21, f - 1));
+            const exp = Math.floor(12 * Math.pow(1.18, f - 1));
+
+            currentMonster = { name, hp, maxHp: hp, avatar: icon, gold, exp };
+            updateMonsterUI();
+        }
+
+        function onTapBattle(e) {
+            initAudio();
+            GS.totalClicks++;
+            if (GS.totalClicks >= 1000) unlockAchieve(7);
+            dealDamage(true, e.clientX, e.clientY);
+        }
+
+        function dealDamage(isManual = false, clickX = 0, clickY = 0) {
+            const stats = getPlayerStats();
+            let dmg = stats.atk;
+
+            // クリティカル判定 (100%毎に段階強化)
+            let critTier = 0;
+            let rollRate = stats.critRate;
+            while (rollRate > 0) {
+                if (Math.random() * 100 < rollRate) {
+                    critTier++;
+                }
+                rollRate -= 100;
+            }
+
+            // 即死発動
+            let isInstant = false;
+            if (Math.random() * 100 < stats.instantKill) {
+                isInstant = true;
+                dmg = currentMonster.hp;
+            }
+
+            if (!isInstant) {
+                if (critTier === 1) dmg *= (stats.critDmg / 100);
+                else if (critTier === 2) dmg *= (stats.critDmg / 100) * 2.5;
+                else if (critTier === 3) dmg *= (stats.critDmg / 100) * 6.0;
+                else if (critTier >= 4) dmg *= (stats.critDmg / 100) * 20.0;
+            }
+
+            dmg = Math.floor(dmg);
+            currentMonster.hp -= dmg;
+
+            // エフェクト & 音声
+            if (critTier === 1) {
+                playSfx(400, 'square', 0.08);
+                unlockAchieve(5);
+            } else if (critTier === 2) {
+                playSfx(700, 'sawtooth', 0.12);
+            } else if (critTier >= 3) {
+                playSfx(1200, 'sawtooth', 0.2, 0.2);
+                document.body.classList.add('flash-bg');
+                setTimeout(() => document.body.classList.remove('flash-bg'), 200);
+                unlockAchieve(6);
+            } else {
+                playSfx(200, 'sine', 0.05);
+            }
+
+            if (dmg >= 1000000) unlockAchieve(11);
+
+            // ポップアップ表示
+            showDmgPop(dmg, critTier, clickX, clickY);
+
+            // 撃破
+            if (currentMonster.hp <= 0) {
+                onMonsterKill();
+            } else {
+                updateMonsterUI();
+            }
+        }
+
+        function showDmgPop(dmg, critTier, x, y) {
+            const el = document.createElement('div');
+            el.className = 'dmg-pop';
+            
+            if (critTier === 0) {
+                el.innerText = dmg.toLocaleString();
+                el.style.color = '#fff';
+            } else if (critTier === 1) {
+                el.innerText = `CRIT! ${dmg.toLocaleString()}`;
+                el.style.color = 'var(--neon-yellow)';
+            } else if (critTier === 2) {
+                el.innerText = `OVER CRIT!! ${dmg.toLocaleString()}`;
+                el.style.color = 'var(--primary-pink)';
+            } else {
+                el.innerText = `DOPAGAKI CRIT!!! ${dmg.toLocaleString()}`;
+                el.className += ' rainbow-text';
+                el.style.fontSize = '2.2rem';
+            }
+
+            const area = document.getElementById('battle-area').getBoundingClientRect();
+            const posX = x ? (x - area.left) : (area.width / 2 + (Math.random() * 80 - 40));
+            const posY = y ? (y - area.top) : (area.height / 2 + (Math.random() * 40 - 20));
+
+            el.style.left = posX + 'px';
+            el.style.top = posY + 'px';
+            document.getElementById('battle-area').appendChild(el);
+            setTimeout(() => el.remove(), 700);
+        }
+
+        function onMonsterKill() {
+            GS.totalKills++;
+            const stats = getPlayerStats();
+            
+            // 報酬
+            const goldGain = Math.floor(currentMonster.gold * (stats.goldRate / 100));
+            const expGain = Math.floor(currentMonster.exp * (stats.expRate / 100));
+            
+            GS.gold += goldGain;
+            GS.exp += expGain;
+
+            // ドロップ判定
+            dropEquipment();
+
+            // レベルアップ
+            if (GS.exp >= GS.maxExp) {
+                GS.lv++;
+                GS.exp -= GS.maxExp;
+                GS.maxExp = Math.floor(GS.maxExp * 1.3);
+                GS.sp += 2;
+                playSfx(880, 'sine', 0.3);
+            }
+
+            // 階層進行
+            GS.floor++;
+            if (GS.floor > GS.maxFloor) GS.maxFloor = GS.floor;
+
+            // 実績チェック
+            if (GS.floor >= 10) unlockAchieve(1);
+            if (GS.floor >= 100) unlockAchieve(2);
+            if (GS.floor >= 1000) unlockAchieve(3);
+            if (GS.floor >= 1000 && GS.achievements.length >= 11) unlockAchieve(12);
+
+            spawnMonster();
+            updateUI();
+        }
+
+        // --- 装備ドロップ ---
+        function dropEquipment() {
+            if (GS.inventory.length >= 32) return; // インベントリ満タン
+
+            const rand = Math.random() * 100;
+            let rarity = RARITIES[0]; // Common
+
+            if (rand < 0.2 + (GS.floor * 0.01)) rarity = RARITIES[6]; // DOPAGAKI
+            else if (rand < 1.0 + (GS.floor * 0.02)) rarity = RARITIES[5]; // GOD
+            else if (rand < 4.0) rarity = RARITIES[4]; // MYTHIC
+            else if (rand < 12.0) rarity = RARITIES[3]; // Legendary
+            else if (rand < 30.0) rarity = RARITIES[2]; // Epic
+            else if (rand < 60.0) rarity = RARITIES[1]; // Rare
+
+            if (rarity.id === 'god' || rarity.id === 'dopagaki') unlockAchieve(4);
+
+            const types = ['weapon', 'armor', 'accessory', 'artifact'];
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            // オプション生成
+            const opts = [];
+            for (let i = 0; i < rarity.opts; i++) {
+                const optType = OPTION_TYPES[Math.floor(Math.random() * OPTION_TYPES.length)];
+                const val = Math.floor(optType.base * (1 + Math.random() * 0.5) * (1 + GS.floor * 0.05));
+                opts.push({ id: optType.id, name: optType.name, val });
+            }
+
+            const item = {
+                id: Date.now() + Math.random(),
+                name: getEquipmentName(type, rarity),
+                type,
+                rarity: rarity.id,
+                options: opts,
+                enhance: 0
+            };
+
+            GS.inventory.push(item);
+        }
+
+        function getEquipmentName(type, rarity) {
+            const prefixes = { weapon: "破滅の", armor: "不滅の", accessory: "狂乱の", artifact: "脳汁の" };
+            const bases = { weapon: "大剣", armor: "甲冑", accessory: "指輪", artifact: "宝珠" };
+            return `${rarity.name} ${prefixes[type]}${bases[type]}`;
+        }
+
+        // --- UI更新 ---
+        function updateUI() {
+            document.getElementById('val-lv').innerText = GS.lv;
+            document.getElementById('val-floor').innerText = GS.floor;
+            document.getElementById('val-gold').innerText = GS.gold.toLocaleString();
+            document.getElementById('val-soul').innerText = GS.soul.toLocaleString();
+            document.getElementById('val-sp').innerText = GS.sp;
+            document.getElementById('achieve-count').innerText = GS.achievements.length;
+
+            const expPct = Math.min(100, (GS.exp / GS.maxExp) * 100);
+            document.getElementById('exp-bar').style.width = expPct + "%";
+            document.getElementById('exp-text').innerText = `EXP ${Math.floor(expPct)}%`;
+
+            const stats = getPlayerStats();
+            document.getElementById('dps-text').innerText = `DPS: ${stats.atk.toLocaleString()}`;
+
+            renderInventory();
+            renderEquippedSlots();
+            renderSkillTree();
+            renderSoulTree();
+            renderAchievements();
+
+            // 転生見込み
+            const pending = Math.floor(Math.pow(GS.maxFloor / 10, 1.5));
+            document.getElementById('pending-souls').innerText = pending.toLocaleString();
+        }
+
+        function updateMonsterUI() {
+            document.getElementById('monster-name').innerText = currentMonster.name;
+            document.getElementById('monster-avatar').innerText = currentMonster.avatar;
+            
+            const hpPct = Math.max(0, (currentMonster.hp / currentMonster.maxHp) * 100);
+            document.getElementById('hp-bar').style.width = hpPct + "%";
+            document.getElementById('hp-text').innerText = `HP ${Math.floor(currentMonster.hp).toLocaleString()} / ${currentMonster.maxHp.toLocaleString()}`;
+        }
+
+        // --- インベントリ & 装備UI描画 ---
+        function renderEquippedSlots() {
+            ['weapon', 'armor', 'accessory', 'artifact'].forEach(slot => {
+                const el = document.getElementById(`slot-${slot}`);
+                const item = GS.equipped[slot];
+                if (item) {
+                    el.className = `equip-slot has-item r-${item.rarity}`;
+                    el.innerHTML = `<div>${item.name}</div><div style="font-size:0.6rem;">+${item.enhance}</div>`;
+                } else {
+                    el.className = `equip-slot`;
+                    el.innerHTML = slot === 'weapon' ? '⚔️ 武器' : slot === 'armor' ? '🛡️ 防具' : slot === 'accessory' ? '💍 アクセ' : '🔮 神器';
+                }
+            });
+
+            // フル装備実績
+            if (GS.equipped.weapon && GS.equipped.armor && GS.equipped.accessory && GS.equipped.artifact) {
+                unlockAchieve(10);
+            }
+        }
+
+        function renderInventory() {
+            const grid = document.getElementById('inv-grid');
+            grid.innerHTML = '';
+            document.getElementById('inv-count').innerText = GS.inventory.length;
+            document.getElementById('mat-upgrade').innerText = GS.upgradeMat;
+            document.getElementById('mat-reroll').innerText = GS.rerollMat;
+
+            GS.inventory.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `inv-item r-${item.rarity}`;
+                el.innerText = item.type === 'weapon' ? '⚔️' : item.type === 'armor' ? '🛡️' : item.type === 'accessory' ? '💍' : '🔮';
+                el.onclick = () => openModal(item);
+                grid.appendChild(el);
+            });
+        }
+
+        // --- モーダル & 装備操作 ---
+        let selectedItem = null;
+        function openModal(item) {
+            selectedItem = item;
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.getElementById('modal-item-title').innerText = `${item.name} (+${item.enhance})`;
+            document.getElementById('modal-item-title').className = `r-${item.rarity}`;
+            document.getElementById('modal-item-type').innerText = `部位: ${item.type.toUpperCase()} | レア: ${item.rarity.toUpperCase()}`;
+
+            let statsHtml = '';
+            const rData = RARITIES.find(r => r.id === item.rarity);
+            const itemLevelMult = 1 + (item.enhance || 0) * 0.2;
+
+            item.options.forEach(opt => {
+                const val = Math.floor(opt.val * rData.mult * itemLevelMult);
+                statsHtml += `<div>• ${opt.name}: +${val}</div>`;
+            });
+            document.getElementById('modal-item-stats').innerHTML = statsHtml;
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        function modalEquip() {
+            if (!selectedItem) return;
+            const type = selectedItem.type;
+            
+            // 付け替え
+            if (GS.equipped[type]) {
+                GS.inventory.push(GS.equipped[type]);
+            }
+            GS.equipped[type] = selectedItem;
+            GS.inventory = GS.inventory.filter(x => x.id !== selectedItem.id);
+
+            closeModal();
+            updateUI();
+        }
+
+        function modalUpgrade() {
+            if (!selectedItem) return;
+            const cost = (selectedItem.enhance + 1) * 5;
+            if (GS.upgradeMat < cost) {
+                alert(`強化石が不足しています (必要: ${cost})`);
+                return;
+            }
+            GS.upgradeMat -= cost;
+            selectedItem.enhance++;
+            playSfx(600, 'triangle', 0.15);
+            openModal(selectedItem);
+            updateUI();
+        }
+
+        function modalReroll() {
+            if (!selectedItem) return;
+            if (GS.rerollMat < 3) {
+                alert("リロール石が不足しています (必要: 3)");
+                return;
+            }
+            GS.rerollMat -= 3;
+            
+            // オプション再抽選
+            const rData = RARITIES.find(r => r.id === selectedItem.rarity);
+            selectedItem.options = [];
+            for (let i = 0; i < rData.opts; i++) {
+                const optType = OPTION_TYPES[Math.floor(Math.random() * OPTION_TYPES.length)];
+                const val = Math.floor(optType.base * (1 + Math.random() * 0.5) * (1 + GS.floor * 0.05));
+                selectedItem.options.push({ id: optType.id, name: optType.name, val });
+            }
+
+            playSfx(800, 'sawtooth', 0.2);
+            openModal(selectedItem);
+            updateUI();
+        }
+
+        function modalDismantle() {
+            if (!selectedItem) return;
+            GS.upgradeMat += (selectedItem.enhance + 1) * 3;
+            GS.rerollMat += 1;
+            GS.inventory = GS.inventory.filter(x => x.id !== selectedItem.id);
+            closeModal();
+            updateUI();
+        }
+
+        function dismantleAllLow() {
+            const keep = [];
+            GS.inventory.forEach(item => {
+                if (item.rarity === 'common' || item.rarity === 'rare') {
+                    GS.upgradeMat += 2;
+                } else {
+                    keep.push(item);
+                }
+            });
+            GS.inventory = keep;
+            updateUI();
+        }
+
+        function clickSlot(slot) {
+            if (GS.equipped[slot]) {
+                GS.inventory.push(GS.equipped[slot]);
+                GS.equipped[slot] = null;
+                updateUI();
+            }
+        }
+
+        // --- スキルツリー描画 & 割り当て ---
+        const SKILL_NODES = [
+            { id: 'atkBoost', name: '狂乱連打 (攻撃力+10/Lv)', max: 50 },
+            { id: 'critRateBoost', name: '会心眼 (クリ率+3%/Lv)', max: 30 },
+            { id: 'critDmgBoost', name: '超絶破壊 (クリダメ+15%/Lv)', max: 50 },
+            { id: 'goldBoost', name: '強欲の壺 (ゴールド+10%/Lv)', max: 30 }
+        ];
+
+        function renderSkillTree() {
+            const list = document.getElementById('skill-list');
+            list.innerHTML = '';
+            SKILL_NODES.forEach(node => {
+                const lv = GS.skills[node.id] || 0;
+                const card = document.createElement('div');
+                card.className = 'skill-card';
+                card.innerHTML = `
+                    <div>
+                        <div style="font-weight:bold; color:var(--neon-blue);">${node.name}</div>
+                        <div style="font-size:0.75rem; color:#aaa;">Lv. ${lv} / ${node.max}</div>
+                    </div>
+                    <button class="btn-action" ${GS.sp <= 0 || lv >= node.max ? 'disabled' : ''} onclick="addSkill('${node.id}')">強化 (+1 SP)</button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function addSkill(id) {
+            if (GS.sp > 0) {
+                GS.sp--;
+                GS.skills[id] = (GS.skills[id] || 0) + 1;
+                playSfx(523, 'triangle', 0.1);
+                updateUI();
+            }
+        }
+
+        // --- ソウル転生 & 永続ツリー ---
+        const SOUL_NODES = [
+            { id: 'soulAtk', name: '魔界の力 (全攻撃力+20%/Lv)', cost: 1 },
+            { id: 'soulExp', name: 'ソウル吸収 (獲得EXP+25%/Lv)', cost: 2 }
+        ];
+
+        function renderSoulTree() {
+            const list = document.getElementById('soul-skill-list');
+            list.innerHTML = '';
+            SOUL_NODES.forEach(node => {
+                const lv = GS.soulSkills[node.id] || 0;
+                const cost = node.cost * (lv + 1);
+                const card = document.createElement('div');
+                card.className = 'skill-card';
+                card.innerHTML = `
+                    <div>
+                        <div style="font-weight:bold; color:var(--primary-pink);">${node.name}</div>
+                        <div style="font-size:0.75rem; color:#aaa;">Lv. ${lv} | コスト: ${cost} ソウル</div>
+                    </div>
+                    <button class="btn-action" ${GS.soul < cost ? 'disabled' : ''} onclick="addSoulSkill('${node.id}', ${cost})">習得</button>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function addSoulSkill(id, cost) {
+            if (GS.soul >= cost) {
+                GS.soul -= cost;
+                GS.soulSkills[id] = (GS.soulSkills[id] || 0) + 1;
+                playSfx(784, 'sine', 0.2);
+                updateUI();
+            }
+        }
+
+        function doRebirth() {
+            const pending = Math.floor(Math.pow(GS.maxFloor / 10, 1.5));
+            if (pending <= 0) {
+                alert("転生するには階層をもっと進める必要があります！（目安: 10階以上）");
+                return;
+            }
+            if (confirm(`階層とゴールドをリセットし、+${pending} 魔界ソウルを得ますか？`)) {
+                GS.soul += pending;
+                GS.floor = 1;
+                GS.gold = 0;
+                spawnMonster();
+                unlockAchieve(8);
+                updateUI();
+            }
+        }
+
+        // --- ルーレット ---
+        function spinRoulette() {
+            initAudio();
+            const btn = document.getElementById('roulette-btn');
+            btn.disabled = true;
+            
+            let count = 0;
+            const disp = document.getElementById('roulette-display');
+            const timer = setInterval(() => {
+                count++;
+                disp.innerText = ["💰 10倍ゴールド", "🔮 大量強化石", "👑 GOD装備", "🔥 脳汁オーバードライブ"][count % 4];
+                playSfx(300 + count * 20, 'square', 0.05);
+
+                if (count > 20) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    
+                    // 結果確定
+                    const rand = Math.random();
+                    if (rand < 0.2) {
+                        disp.innerText = "🔥 脳汁オーバードライブ！";
+                        GS.buffs.overdrive = 30; // 30秒間全爆増
+                        unlockAchieve(9);
+                    } else if (rand < 0.5) {
+                        disp.innerText = "💰 大金獲得！";
+                        GS.gold += GS.floor * 500;
+                    } else {
+                        disp.innerText = "🔮 強化素材パック！";
+                        GS.upgradeMat += 20;
+                        GS.rerollMat += 10;
+                    }
+                    updateUI();
+                }
+            }, 100);
+        }
+
+        // --- アクティブスキル ---
+        function useActiveSkill(idx) {
+            initAudio();
+            if (idx === 0) {
+                // 狂乱連打: 10回高速ダメージ
+                for (let i = 0; i < 10; i++) {
+                    setTimeout(() => dealDamage(false), i * 80);
+                }
+            } else if (idx === 1) {
+                // 脳汁爆雷: 超特大1回ダメージ
+                dealDamage(false);
+            } else if (idx === 2) {
+                // オーバードライブ
+                GS.buffs.overdrive = 15;
+            }
+            updateUI();
+        }
+
+        // --- 実績 & タブ ---
+        function unlockAchieve(id) {
+            if (!GS.achievements.includes(id)) {
+                GS.achievements.push(id);
+                saveGame();
+                renderAchievements();
+            }
+        }
+
+        function renderAchievements() {
+            const grid = document.getElementById('achieve-grid');
+            grid.innerHTML = '';
+            ACHIEVEMENTS.forEach(a => {
+                const isUnlocked = GS.achievements.includes(a.id);
+                const card = document.createElement('div');
+                card.className = `achieve-card ${isUnlocked ? 'unlocked' : ''}`;
+                card.innerHTML = `
+                    <div style="font-weight:bold;">${isUnlocked ? '🏆 ' : '🔒 '}${a.title}</div>
+                    <div style="font-size:0.7rem; color:#aaa;">${a.desc}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tabId) {
+            initAudio();
+            playSfx(350, 'triangle', 0.05);
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        // --- メインゲームループ ---
+        setInterval(() => {
+            // バフタイマー減衰
+            if (GS.buffs.overdrive > 0) GS.buffs.overdrive--;
+
+            // 自動攻撃 (DPS)
+            const stats = getPlayerStats();
+            if (stats.atk > 0) {
+                currentMonster.hp -= stats.atk * 0.2;
+                if (currentMonster.hp <= 0) onMonsterKill();
+                else updateMonsterUI();
+            }
+
+            saveGame();
+        }, 200);
+
+        // 初期化
+        loadGame();
+        spawnMonster();
+        updateUI();
+    </script>
+</body>
+</html>
