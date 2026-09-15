@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ドパガキ・インフィニティ</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#090914;color:#fff}
+body{overflow-x:hidden}
+button{font:inherit}
+#app{min-height:100vh;background:
+radial-gradient(circle at 50% 20%,#3d176e 0,#160d32 32%,#090914 70%);
+padding-bottom:50px}
+header{position:sticky;top:0;z-index:20;background:#0b0b18e8;backdrop-filter:blur(10px);border-bottom:1px solid #ffffff18;padding:10px 14px}
+.top{display:flex;gap:10px;align-items:center;justify-content:space-between;max-width:1100px;margin:auto}
+.logo{font-weight:1000;font-size:20px;letter-spacing:.5px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.stat{background:#15152a;border:1px solid #ffffff15;border-radius:12px;padding:6px 10px;font-size:12px}
+.stat b{font-size:16px}
+main{max-width:1100px;margin:auto;padding:18px 14px}
+.screen{display:none}.screen.active{display:block}
+.hero{text-align:center;padding:22px 0 12px}
+h1{font-size:clamp(32px,7vw,72px);margin:8px 0;line-height:1;font-weight:1000;text-shadow:0 0 25px #c94cff}
+.subtitle{opacity:.75}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.card{background:#15152a;border:1px solid #ffffff16;border-radius:18px;padding:15px;box-shadow:0 8px 30px #0005}
+.btn{border:0;border-radius:14px;padding:13px 15px;background:#6c35ff;color:white;font-weight:900;cursor:pointer;box-shadow:0 6px 0 #3c188e;transition:.08s;min-height:48px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #3c188e}
+.btn.secondary{background:#292943;box-shadow:0 5px 0 #151526}
+.btn.good{background:#13a66a;box-shadow:0 5px 0 #075a3a}
+.btn.warn{background:#c24b22;box-shadow:0 5px 0 #722d16}
+.btn.gold{background:#d49b18;box-shadow:0 5px 0 #805b09}
+.bigbtn{font-size:26px;width:min(480px,100%);padding:24px;margin:14px auto}
+.meter{height:17px;background:#11111e;border-radius:99px;overflow:hidden;border:1px solid #ffffff16}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#6c35ff,#ff36bd,#ffe04b);transition:width .15s}
+.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}
+.tabs button{white-space:nowrap}
+#clicker{text-align:center}
+.orb{width:min(58vw,270px);height:min(58vw,270px);border-radius:50%;border:8px solid #ffffff2a;margin:20px auto;display:grid;place-items:center;
+background:radial-gradient(circle at 35% 28%,#fff 0 3%,#ff75ec 8%,#8c31ff 38%,#31105e 68%,#120b23 100%);
+box-shadow:0 0 35px #c32cff,0 0 100px #702bff66;cursor:pointer;user-select:none;transition:transform .08s}
+.orb:active{transform:scale(.93)}
+.orb span{font-size:60px;filter:drop-shadow(0 4px 4px #000)}
+.combo{font-size:28px;font-weight:1000}
+.float{position:fixed;pointer-events:none;font-weight:1000;font-size:24px;animation:float 900ms ease-out forwards;z-index:99;text-shadow:0 2px 5px #000}
+@keyframes float{to{transform:translateY(-100px) scale(1.4);opacity:0}}
+.pulse{animation:pulse .3s}@keyframes pulse{50%{filter:brightness(1.8)}}
+.sectionTitle{margin-top:25px}
+.quest{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.small{font-size:12px;opacity:.7}
+.locked{opacity:.48;filter:grayscale(.8)}
+.achievement{min-height:110px}
+.achievement b{display:block;margin-bottom:5px}
+.rarity{font-size:11px;opacity:.65}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#18182b;border:1px solid #ffffff22;border-radius:14px;padding:12px 18px;z-index:100;display:none;box-shadow:0 10px 40px #0008}
+.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;z-index:80;padding:20px}
+.modal.open{display:grid}.modalbox{max-width:520px;width:100%;background:#15152a;border:1px solid #ffffff20;border-radius:20px;padding:20px}
+.choice{display:grid;gap:9px;margin-top:12px}
+.choice .btn{text-align:left}
+.shopitem{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shopitem .desc{font-size:12px;opacity:.7}
+#log{max-height:190px;overflow:auto;font-size:12px;text-align:left;background:#0e0e19;border-radius:12px;padding:10px}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#0b0b18ee;border-top:1px solid #ffffff18;display:flex;justify-content:center;gap:4px;padding:6px}
+.nav button{background:transparent;color:#aaa;border:0;padding:7px 9px;font-size:11px;cursor:pointer;border-radius:9px}
+.nav button.active{background:#292943;color:#fff}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:70}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#292943;font-size:11px}
+@media(max-width:600px){.stats{gap:4px}.stat{padding:5px 7px}.stat:nth-child(n+4){display:none}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="top"><div class="logo">🧠💥 ドパガキ∞</div><div class="stats">
+<div class="stat">DP <b id="dp">0</b></div><div class="stat">Lv <b id="lv">1</b></div>
+<div class="stat">💎 <b id="gem">0</b></div><div class="stat">🔥 <b id="comboTop">0</b></div>
+</div></div></header>
+
+<main>
+<section id="home" class="screen active">
+<div class="hero"><div class="badge">刺激過多型・超高速・END大量搭載</div><h1>ドパガキ∞</h1><div class="subtitle">「あと1回」から始まる、終わらないクリック宇宙。</div>
+<button class="btn bigbtn" onclick="go('clicker')">⚡ 今すぐドーパミンを出す</button></div>
+<div class="grid">
+<div class="card"><b>今日の目標</b><p id="dailyText">DPを1000稼ぐ</p><div class="meter"><i id="dailyMeter"></i></div></div>
+<div class="card"><b>連続ログイン</b><p>🔥 <span id="streak">1</span> 日</p><small class="small">毎日ちょっとだけ遊ぼう</small></div>
+<div class="card"><b>称号</b><p id="titleName">新人ドパガキ</p></div>
+</div>
+<h2 class="sectionTitle">🎯 クイックメニュー</h2>
+<div class="grid">
+<button class="btn" onclick="go('clicker')">💥 連打</button>
+<button class="btn" onclick="go('gacha')">🎰 ガチャ</button>
+<button class="btn" onclick="go('quest')">📜 クエスト</button>
+<button class="btn" onclick="go('shop')">🛒 強化ショップ</button>
+<button class="btn" onclick="go('endings')">🚪 END図鑑</button>
+<button class="btn" onclick="go('collection')">🏆 実績</button>
+</div>
+</section>
+
+<section id="clicker" class="screen">
+<div class="hero"><h2>💥 ドパドパ・クリック炉</h2><p class="small">クリックするほど気持ちいい。コンボを切らすな。</p>
+<div class="combo">COMBO × <span id="combo">0</span></div>
+<div class="orb" id="orb"><span>⚡</span></div>
+<div class="meter"><i id="comboMeter"></i></div>
+<p>DP: <b id="dp2">0</b>　/　1クリック: <b id="power">1</b> DP</p>
+<div class="grid">
+<button class="btn good" onclick="fever()">🔥 FEVER!</button>
+<button class="btn gold" onclick="lucky()">🍀 LUCKY!</button>
+<button class="btn secondary" onclick="resetCombo()">コンボ休憩</button>
+</div></div>
+</section>
+
+<section id="gacha" class="screen">
+<div class="hero"><h2>🎰 超高速ガチャ</h2><p>💎を使って何が出るかはお楽しみ。</p></div>
+<div class="grid">
+<div class="card"><b>ノーマルガチャ</b><h2>💎 × 5</h2><p class="small">DP・強化素材・謎アイテム</p><button class="btn" onclick="gacha(5,1)">回す</button></div>
+<div class="card"><b>レアガチャ</b><h2>💎 × 20</h2><p class="small">高倍率・特殊イベント率UP</p><button class="btn gold" onclick="gacha(20,2)">回す</button></div>
+<div class="card"><b>ドパガキ福袋</b><h2>💎 × 50</h2><p class="small">大量DP＋END抽選</p><button class="btn warn" onclick="gacha(50,3)">開封</button></div>
+</div>
+</section>
+
+<section id="quest" class="screen">
+<h2>📜 クエスト</h2><div id="quests" class="grid"></div>
+<h2 class="sectionTitle">🎲 1日1回ミニイベント</h2>
+<div class="card"><p id="eventText">今日の運命を決めよう。</p><button class="btn" onclick="dailyEvent()">運命を回す</button></div>
+</section>
+
+<section id="shop" class="screen">
+<h2>🛒 強化ショップ</h2><div class="grid" id="shopGrid"></div>
+<h2 class="sectionTitle">⚙️ 放置エンジン</h2>
+<div class="card"><p>自動DP: <b id="autoPower">0</b>/秒</p><p class="small">画面を開いていなくても保存データ上で成長。</p></div>
+</section>
+
+<section id="endings" class="screen">
+<h2>🚪 END図鑑 <span class="badge" id="endCount">0/30</span></h2>
+<p class="small">このゲームには30個のENDがある。普通に遊ぶだけでは全部見つからない。</p>
+<div id="endingGrid" class="grid"></div>
+</section>
+
+<section id="collection" class="screen">
+<h2>🏆 実績</h2><div id="achievements" class="grid"></div>
+<h2 class="sectionTitle">📊 戦績</h2><div class="card" id="record"></div>
+</section>
+
+<section id="settings" class="screen">
+<h2>⚙️ システム</h2><div class="grid">
+<button class="btn" onclick="saveGame();toast('保存した！')">💾 手動セーブ</button>
+<button class="btn secondary" onclick="exportSave()">📤 セーブ文字列を出す</button>
+<button class="btn secondary" onclick="importSave()">📥 セーブ文字列を読み込む</button>
+<button class="btn warn" onclick="hardReset()">🧨 全データ消去</button>
+</div>
+<div class="card sectionTitle"><b>ゲーム内ログ</b><div id="log"></div></div>
+</section>
+</main>
+
+<div class="nav">
+<button onclick="go('home')">🏠<br>HOME</button><button onclick="go('clicker')">💥<br>連打</button><button onclick="go('gacha')">🎰<br>ガチャ</button><button onclick="go('quest')">📜<br>クエスト</button><button onclick="go('shop')">🛒<br>SHOP</button><button onclick="go('endings')">🚪<br>END</button><button onclick="go('collection')">🏆<br>実績</button><button onclick="go('settings')">⚙️<br>設定</button>
+</div>
+</div>
+<div id="toast"></div>
+<div id="modal" class="modal"><div class="modalbox"><h2 id="modalTitle"></h2><p id="modalText"></p><div id="modalChoices" class="choice"></div><button class="btn secondary" onclick="closeModal()">閉じる</button></div></div>
+<canvas id="fx"></canvas>
+
+<script>
+'use strict';
+const KEY='dopagaki_game/chatgpt/5.6Luna/002/saves/main';
+const END_NAMES=[
+'はじめての大歓喜','1000DP突破','コンボの神','ガチャ沼入門','ガチャ大当たり','FEVERの民',
+'深夜テンション','クリックしすぎ','放置の極み','買い物依存症','宝石長者','レベル10到達',
+'レベル25到達','DP百万長者','運命の選択','奇跡の1%','謎のEND','END収集家',
+'連打哲学','静寂のEND','逆転のEND','宇宙END','猫END','バグではないEND',
+'ドパガキ卒業（仮）','永遠の新人','ガチャ博士','コンボ1万','DP億万長者','∞ END'
+];
+const END_DESC=[
+'ゲームを初めて起動した。','累計DPが1000に到達。','コンボ100を達成。','初めてガチャを回した。','レアガチャで特大報酬。','FEVERを発動した。',
+'夜間イベントを引いた。','クリック1000回。','自動DPが100/秒以上。','ショップ購入50回。','宝石1000個所持。',
+'レベル10到達。','レベル25到達。','累計獲得DPが100万。','イベントで特殊選択をした。','1%の奇跡を引いた。',
+'秘密の条件を発見。','ENDを10個集めた。','クリック5000回。','コンボを自分から切った。','DPが少ない状態から一気に稼ぐ。',
+'DPが1億を超えた。','猫ボーナスを引いた。','謎のバグ風イベントを引いた。','一度ENDを30個集めた。',
+'レベル1のまま10000クリック。','ガチャ100回。','コンボ10000。','累計獲得DPが1億。','全END回収。'
+];
+const ACH=[
+['最初の一歩','初クリック',s=>s.clicks>=1,50],['連打屋','100クリック',s=>s.clicks>=100,100],
+['連打職人','1000クリック',s=>s.clicks>=1000,250],['コンボ職人','コンボ100',s=>s.bestCombo>=100,300],
+['億万長者','累計1億DP',s=>s.totalDP>=1e8,1000],['ガチャ博士','100回ガチャ',s=>s.gachas>=100,500],
+['END収集家','END10個',s=>s.endings.length>=10,500],['完全収集','END30個',s=>s.endings.length>=30,5000]
+];
+const SHOP=[
+['power','⚡ クリック出力','クリック1回のDP +1','10','costPower'],
+['crit','🎯 クリティカル率','クリティカル率 +2%','30','costCrit'],
+['auto','🤖 自動DP','毎秒 +2 DP','25','costAuto'],
+['gem','💎 宝石発見率','クリック時の宝石率UP','40','costGem'],
+['combo','🔥 コンボ安定','コンボ減衰を遅くする','50','costCombo'],
+['luck','🍀 ガチャ運','ガチャの大当たり率UP','80','costLuck']
+];
+function fresh(){
+ return {dp:0,gems:20,level:1,xp:0,clicks:0,totalDP:0,bestCombo:0,combo:0,gachas:0,
+ endings:[],achievements:[],powerLv:0,critLv:0,autoLv:0,gemLv:0,comboLv:0,luckLv:0,
+ daily:0,lastDay:'',eventUsed:false,streak:1,logs:['ゲーム開始！'],first:true,started:Date.now(),
+ luckyUsed:false,feverUsed:false};
+}
+let s=load(); let saveTimer=0;
+function load(){try{const x=localStorage.getItem(KEY);if(x)return Object.assign(fresh(),JSON.parse(x));}catch(e){}return fresh()}
+function saveGame(){localStorage.setItem(KEY,JSON.stringify(s));}
+function log(x){s.logs.unshift(new Date().toLocaleTimeString()+' '+x);s.logs=s.logs.slice(0,50)}
+function toast(x){const e=document.getElementById('toast');e.textContent=x;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',1600)}
+function fmt(n){if(n<1000)return Math.floor(n);let u=['K','M','B','T','Qa','Qi'];let i=-1;while(n>=1000&&i<u.length-1){n/=1000;i++}return n.toFixed(n<10?2:1)+u[i]}
+function xpNeed(){return 100+s.level*60}
+function gainDP(n,reason=''){
+ n=Math.max(0,Math.floor(n));s.dp+=n;s.totalDP+=n;s.xp+=Math.min(n,1000);s.daily+=n;
+ while(s.xp>=xpNeed()){s.xp-=xpNeed();s.level++;unlock(11,'LEVEL '+s.level+' 到達！');burst(18);toast('🎉 LEVEL UP! '+s.level)}
+ if(reason)log('+'+fmt(n)+' DP '+reason);
+ check();render();saveGame();
+}
+function unlock(i,msg=''){if(!s.endings.includes(i)){s.endings.push(i);log('🚪 END '+(i+1)+': '+END_NAMES[i]);toast('🚪 '+END_NAMES[i]);burst(28)}}
+function check(){
+ if(s.first){unlock(0);s.first=false}
+ if(s.totalDP>=1000)unlock(1);if(s.bestCombo>=100)unlock(2);if(s.gachas>=1)unlock(3);
+ if(s.clicks>=1000)unlock(7);if(s.autoLv*2>=100)unlock(8);if(s.gachaBig)unlock(4);
+ if(s.feverUsed)unlock(5);if(s.totalDP>=1e6)unlock(13);if(s.endings.length>=10)unlock(17);
+ if(s.clicks>=5000)unlock(18);if(s.totalDP>=1e8)unlock(28);if(s.endings.length>=30)unlock(29);
+ if(s.gems>=1000)unlock(10);if(s.level>=10)unlock(11);if(s.level>=25)unlock(12);
+ if(s.bestCombo>=10000)unlock(27);if(s.level===1&&s.clicks>=10000)unlock(25);
+ ACH.forEach((a,i)=>{if(a[2](s)&&!s.achievements.includes(i)){s.achievements.push(i);s.gems+=a[3];log('🏆 実績: '+a[0]+' +'+a[3]+'💎');toast('🏆 '+a[0]+' +'+a[3]+'💎')}})
+}
+function clickOrb(ev){
+ let mult=1;
+ s.combo++;s.clicks++;s.bestCombo=Math.max(s.bestCombo,s.combo);
+ mult+=s.powerLv;
+ if(Math.random()<(0.05+s.critLv*.02)){mult*=5;toast('🎯 CRITICAL ×5');burst(14)}
+ if(Math.random()<(0.015+s.gemLv*.006)){s.gems++;toast('💎 宝石GET!')}
+ if(s.combo%25===0)mult*=2;
+ gainDP(mult,'click');
+ const r=ev.currentTarget.getBoundingClientRect();floatText('+'+fmt(mult)+' DP',r.left+r.width/2,r.top+40);
+ document.getElementById('orb').classList.remove('pulse');void document.getElementById('orb').offsetWidth;document.getElementById('orb').classList.add('pulse');
+ if(s.combo>0&&s.combo%100===0){burst(45);toast('🔥 COMBO '+s.combo+'!!');}
+}
+document.getElementById('orb').addEventListener('click',clickOrb);
+function fever(){if(s.dp<100)return toast('DP100必要！');s.dp-=100;s.feverUsed=true;let n=(s.combo+1)*30+500;gainDP(n,'FEVER');s.combo+=10;burst(70);toast('🔥🔥🔥 FEVER +'+fmt(n)+' DP!');}
+function lucky(){if(s.luckyUsed)return toast('今日はもう使った！');s.luckyUsed=true;let r=Math.random();if(r<.1){s.gems+=100;unlock(15);toast('🍀 奇跡！ +100💎')}else{gainDP(300,'LUCKY');toast('🍀 LUCKY!')}}
+function resetCombo(){if(s.combo>=1)unlock(19);s.combo=0;render()}
+function gacha(cost,type){
+ if(s.gems<cost)return toast('💎が足りない！');
+ s.gems-=cost;s.gachas++;
+ let r=Math.random()+(s.luckLv*.02), n=0, msg='';
+ if(type===1){if(r>.94){n=3000;msg='🌟超当たり'}else if(r>.65){n=500;msg='✨当たり'}else{n=50+Math.floor(Math.random()*100);msg='通常'}}
+ if(type===2){if(r>.82){n=15000;msg='🌈大当たり';s.gachaBig=true}else if(r>.45){n=3000;msg='✨レア'}else{n=500;msg='普通'}}
+ if(type===3){n=5000+Math.floor(Math.random()*30000);msg='🎁福袋';if(Math.random()<.35){s.gems+=100;msg+=' +100💎'}if(Math.random()<.2){let locked=END_NAMES.map((_,i)=>i).filter(i=>!s.endings.includes(i));if(locked.length)unlock(locked[Math.floor(Math.random()*locked.length)])}}
+ gainDP(n,'GACHA '+msg);log('🎰 '+msg);burst(type===3?80:30);if(Math.random()<.01){unlock(15);toast('✨ 1%の奇跡！')}
+}
+function cost(item){return 10+({power:15,crit:35,auto:30,gem:45,combo:55,luck:90}[item])*s[item+'Lv']}
+function buy(item){
+ let c=cost(item);if(s.dp<c)return toast('DPが足りない！');s.dp-=c;s[item+'Lv']++;log('購入 '+item);toast('🛒 強化！');render();saveGame()
+}
+function dailyEvent(){
+ if(s.eventUsed)return toast('今日はもう運命を回した！');
+ s.eventUsed=true;let r=Math.random();let t=document.getElementById('eventText');
+ if(r<.01){t.textContent='🌌 時空が裂けた！ DPが100倍！';gainDP(Math.max(1000,s.dp*99),'時空');unlock(21);burst(100)}
+ else if(r<.08){t.textContent='🐱 猫が来た！ +7777 DP';gainDP(7777,'猫');unlock(22)}
+ else if(r<.2){t.textContent='🌀 謎の現象……';s.gems+=30;unlock(23);toast('謎のEND!')}
+ else if(r<.5){t.textContent='🍀 今日はツイている。+2000 DP';gainDP(2000,'運命');unlock(14)}
+ else {t.textContent='🙂 平凡な一日。でもDP +300';gainDP(300,'日課')}
+ render();saveGame()
+}
+function go(id){
+ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));render()
+}
+function render(){
+ document.getElementById('dp').textContent=fmt(s.dp);document.getElementById('dp2').textContent=fmt(s.dp);
+ document.getElementById('gem').textContent=fmt(s.gems);document.getElementById('lv').textContent=s.level;
+ document.getElementById('combo').textContent=s.combo;document.getElementById('comboTop').textContent=s.combo;
+ document.getElementById('power').textContent=1+s.powerLv;document.getElementById('streak').textContent=s.streak;
+ document.getElementById('comboMeter').style.width=(Math.min(100,s.combo%100))+'%';
+ document.getElementById('dailyMeter').style.width=Math.min(100,s.daily/10)+'%';
+ document.getElementById('dailyText').textContent='DPを1000稼ぐ ('+fmt(Math.min(1000,s.daily))+'/1000)';
+ document.getElementById('titleName').textContent=title();
+ renderQuests();renderShop();renderEndings();renderAchievements();
+ document.getElementById('record').innerHTML=`クリック: <b>${s.clicks.toLocaleString()}</b><br>累計DP: <b>${fmt(s.totalDP)}</b><br>最高コンボ: <b>${s.bestCombo.toLocaleString()}</b><br>ガチャ: <b>${s.gachas}</b>回<br>END: <b>${s.endings.length}/30</b><br>レベル: <b>${s.level}</b>`;
+ document.getElementById('log').innerHTML=s.logs.map(x=>'<div>'+escapeHTML(x)+'</div>').join('');
+ document.getElementById('autoPower').textContent=s.autoLv*2;
+ document.getElementById('endCount').textContent=s.endings.length+'/30';
+}
+function title(){if(s.endings.length===30)return'∞を見た者';if(s.bestCombo>=1000)return'コンボ狂';if(s.totalDP>=1e6)return'DP長者';if(s.gachas>=20)return'ガチャ戦士';return'新人ドパガキ'}
+function renderQuests(){
+ const q=[['100クリック',s.clicks,100,100],['1000DP',s.totalDP,1000,150],['コンボ100',s.bestCombo,100,200],['ガチャ5回',s.gachas,5,250],['END5個',s.endings.length,5,300],['レベル10',s.level,10,500]];
+ document.getElementById('quests').innerHTML=q.map((x,i)=>`<div class="card quest"><div><b>${x[0]}</b><div class="small">${Math.min(x[1],x[2])}/${x[2]}</div></div><button class="btn ${x[1]>=x[2]?'good':''}" onclick="quest(${i})">${x[1]>=x[2]?'受取':'進行中'}</button></div>`).join('');
+}
+let claimed=[];
+function quest(i){
+ let q=[100,1000,100,5,5,10],vals=[s.clicks,s.totalDP,s.bestCombo,s.gachas,s.endings.length,s.level];
+ if(vals[i]>=q[i]&&!claimed.includes(i)){claimed.push(i);s.gems+= [100,150,200,250,300,500][i];toast('📜 クエスト報酬！');saveGame();render()}else toast('まだ条件未達か受取済み！')
+}
+function renderShop(){
+ document.getElementById('shopGrid').innerHTML=SHOP.map(x=>{
+ let key=x[0],lv=s[key+'Lv'],c=cost(key);return `<div class="card shopitem"><div><b>${x[1]}</b><div class="desc">${x[2]}</div><span class="badge">Lv.${lv}</span></div><button class="btn" onclick="buy('${key}')">${c} DP</button></div>`
+ }).join('');
+}
+function renderEndings(){
+ document.getElementById('endingGrid').innerHTML=END_NAMES.map((n,i)=>s.endings.includes(i)?
+`<div class="card"><b>END ${i+1}: ${n}</b><p class="small">${END_DESC[i]}</p></div>`:
+`<div class="card locked"><b>END ${i+1}: ???</b><p class="small">条件不明</p></div>`).join('');
+}
+function renderAchievements(){
+ document.getElementById('achievements').innerHTML=ACH.map((a,i)=>{let ok=s.achievements.includes(i);return `<div class="card achievement ${ok?'':'locked'}"><b>${ok?'🏆':'🔒'} ${a[0]}</b><div class="small">${a[1]}</div>${ok?'<p>報酬受取済み</p>':''}</div>`}).join('');
+}
+function floatText(t,x,y){let e=document.createElement('div');e.className='float';e.textContent=t;e.style.left=x+'px';e.style.top=y+'px';document.body.appendChild(e);setTimeout(()=>e.remove(),900)}
+function escapeHTML(x){return x.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function burst(n=30){
+ const c=document.getElementById('fx'),ctx=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+ let a=[];for(let i=0;i<n;i++)a.push({x:innerWidth/2,y:innerHeight*.42,vx:(Math.random()-.5)*14,vy:(Math.random()-.8)*14,l:40+Math.random()*40});
+ function f(){ctx.clearRect(0,0,c.width,c.height);a.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.l--;ctx.font='22px sans-serif';ctx.fillText(['✨','⚡','💎','🔥','🎉'][Math.floor(Math.random()*5)],p.x,p.y)});a=a.filter(p=>p.l>0);if(a.length)requestAnimationFrame(f);else ctx.clearRect(0,0,c.width,c.height)}f()
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function exportSave(){prompt('この文字列を保存してください',btoa(unescape(encodeURIComponent(JSON.stringify(s)))))}
+function importSave(){let x=prompt('セーブ文字列');if(!x)return;try{s=Object.assign(fresh(),JSON.parse(decodeURIComponent(escape(atob(x)))));saveGame();render();toast('読み込み完了！')}catch(e){toast('読み込み失敗')}} 
+function hardReset(){if(confirm('本当に全部消しますか？')){localStorage.removeItem(KEY);location.reload()}}
+function updateDay(){
+ let d=new Date().toLocaleDateString('ja-JP');if(s.lastDay!==d){if(s.lastDay){s.streak++}s.lastDay=d;s.daily=0;s.eventUsed=false;s.luckyUsed=false;log('新しい一日！');saveGame()}
+}
+setInterval(()=>{if(s.autoLv>0)gainDP(s.autoLv*2,'自動');s.combo=Math.max(0,s.combo-Math.max(0,1-s.comboLv*.15));render()},1000);
+setInterval(saveGame,10000);updateDay();check();render();
+</script>
+</body>
+</html>
