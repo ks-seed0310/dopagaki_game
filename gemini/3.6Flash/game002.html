@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>超ドパガキ専用！ドーパミン・インフレ・クライシス</title>
+  <style>
+    :root {
+      --primary: #ff0055;
+      --secondary: #00ffff;
+      --accent: #ffff00;
+      --bg: #0a0a12;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      font-family: 'Impact', 'Arial Black', sans-serif, "Hiragino Kaku Gothic ProN";
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 激しい画面揺れのアニメーション */
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+
+    .shaking {
+      animation: shake 0.1s infinite;
+    }
+
+    /* ハイパーモード背景 */
+    .hyper-bg {
+      animation: hyperRainbow 0.2s infinite linear;
+    }
+
+    @keyframes hyperRainbow {
+      0% { background-color: #ff0000; }
+      20% { background-color: #ffff00; }
+      40% { background-color: #00ff00; }
+      60% { background-color: #00ffff; }
+      80% { background-color: #ff00ff; }
+      100% { background-color: #ff0000; }
+    }
+
+    #app {
+      width: 100%;
+      max-width: 800px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* ヘッダー・スコア表示 */
+    .header {
+      background: rgba(20, 20, 35, 0.9);
+      border: 3px solid var(--secondary);
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 0 20px var(--secondary);
+      position: relative;
+    }
+
+    .score-title {
+      font-size: 1.2rem;
+      color: #aaa;
+      letter-spacing: 2px;
+    }
+
+    .score-val {
+      font-size: 3rem;
+      color: var(--accent);
+      text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 40px #ffff00;
+      word-break: break-all;
+    }
+
+    .dps-val {
+      font-size: 1.2rem;
+      color: #00ffcc;
+    }
+
+    /* ドーパミンゲージ */
+    .gauge-container {
+      width: 100%;
+      height: 30px;
+      background: #222;
+      border-radius: 15px;
+      border: 2px solid #555;
+      overflow: hidden;
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff0055, #ffff00, #00ffff);
+      box-shadow: 0 0 15px #ffff00;
+      transition: width 0.1s ease-out;
+    }
+
+    .gauge-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 3px #000;
+      letter-spacing: 2px;
+    }
+
+    /* 超メイン連打ボタン */
+    .tap-zone {
+      position: relative;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .main-button {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff0055 0%, #880022 100%);
+      border: 6px solid #fff;
+      box-shadow: 0 0 30px #ff0055, inset 0 0 15px #fff;
+      color: #fff;
+      font-size: 2.2rem;
+      font-weight: 900;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.05s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      text-shadow: 0 0 10px #000;
+    }
+
+    .main-button:active {
+      transform: scale(0.88);
+      background: radial-gradient(circle, #ffff00 0%, #ff0055 100%);
+    }
+
+    /* パーティクル（飛び出す数値） */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 2rem;
+      font-weight: 900;
+      animation: floatUp 0.8s ease-out forwards;
+      z-index: 1000;
+      text-shadow: 0 0 8px #000;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8) rotate(0deg); }
+      50% { transform: translate(-50%, -120px) scale(1.6) rotate(15deg); }
+      100% { opacity: 0; transform: translate(-50%, -200px) scale(1) rotate(-15deg); }
+    }
+
+    /* アクションエリア（強化・ガチャ・転生） */
+    .tabs {
+      display: flex;
+      gap: 5px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: #1e1e30;
+      border: 2px solid #3e3e60;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      font-size: 1.1rem;
+    }
+
+    .tab-btn.active {
+      background: #3e3e60;
+      border-color: var(--secondary);
+      color: var(--accent);
+      box-shadow: 0 -5px 10px rgba(0, 255, 255, 0.3);
+    }
+
+    .tab-content {
+      background: rgba(20, 20, 35, 0.95);
+      border: 2px solid #3e3e60;
+      border-radius: 0 0 15px 15px;
+      padding: 15px;
+      min-height: 250px;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* アップグレードリスト */
+    .upgrade-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .upgrade-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(40, 40, 60, 0.8);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid #555;
+    }
+
+    .upgrade-item.affordable {
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(255, 255, 0, 0.4);
+    }
+
+    .upg-btn {
+      background: linear-gradient(135deg, #00cc88, #006644);
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .upg-btn:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    /* ガチャ */
+    .gacha-box {
+      text-align: center;
+    }
+
+    .gacha-btn {
+      background: linear-gradient(135deg, #ff00ff, #880088);
+      border: 3px solid #ffff00;
+      color: #fff;
+      font-size: 1.4rem;
+      padding: 15px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 20px #ff00ff;
+      margin: 10px 5px;
+      font-weight: 900;
+    }
+
+    .gacha-btn:active {
+      transform: scale(0.95);
+    }
+
+    .gacha-result {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      min-height: 50px;
+      color: var(--accent);
+    }
+
+    /* エンドリストモーダル */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #151525;
+      border: 4px solid var(--primary);
+      border-radius: 20px;
+      padding: 25px;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 40px var(--primary);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .end-title {
+      font-size: 2.2rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #ff0055;
+    }
+
+    .end-desc {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .close-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px 25px;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* エンドコレクション表示 */
+    .end-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .end-card {
+      background: #202035;
+      border: 1px solid #444;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .end-card.unlocked {
+      border-color: var(--accent);
+      background: #302045;
+    }
+
+    .end-card-title {
+      font-weight: bold;
+      color: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ヘッダー -->
+  <div class="header" id="header">
+    <div class="score-title">TOTAL DOPAMINE (脳汁量)</div>
+    <div class="score-val" id="score">0</div>
+    <div class="dps-val">毎秒脳汁 (DPS): <span id="dps">0</span> / sec</div>
+    
+    <!-- ドーパミンメーター -->
+    <div class="gauge-container">
+      <div class="gauge-fill" id="gauge"></div>
+      <div class="gauge-text" id="gauge-text">DOPAMINE OVERDRIVE: 0%</div>
+    </div>
+  </div>
+
+  <!-- タップエリア -->
+  <div class="tap-zone" id="tap-zone">
+    <button class="main-button" id="tap-btn">脳汁湧出<br>TAP!!</button>
+  </div>
+
+  <!-- ナビゲーションタブ -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('upgrades')">脳汁強化</button>
+    <button class="tab-btn" onclick="switchTab('gacha')">脳汁ガチャ</button>
+    <button class="tab-btn" onclick="switchTab('prestige')">脳汁転生</button>
+    <button class="tab-btn" onclick="switchTab('ends')">全EDリスト</button>
+  </div>
+
+  <!-- タブコンテンツ -->
+  <div class="tab-content">
+    <!-- アップグレードパネル -->
+    <div id="panel-upgrades" class="panel active">
+      <div class="upgrade-list" id="upgrade-list">
+        <!-- JSで動的生成 -->
+      </div>
+    </div>
+
+    <!-- ガチャパネル -->
+    <div id="panel-gacha" class="panel">
+      <div class="gacha-box">
+        <h3>🎰 脳汁覚醒ガチャ 🎰</h3>
+        <p>1回: <b>1,000 DP</b> | 全能力をバカ上げる称号を獲得せよ！</p>
+        <button class="gacha-btn" onclick="playGacha(1)">単発ガチャ (1,000 DP)</button>
+        <button class="gacha-btn" onclick="playGacha(10)">超絶10連ガチャ (10,000 DP)</button>
+        <div class="gacha-result" id="gacha-result">ガチャを回して脳汁を解放しろ！</div>
+      </div>
+    </div>
+
+    <!-- プレステージパネル -->
+    <div id="panel-prestige" class="panel">
+      <div style="text-align: center;">
+        <h3>🌀 脳汁輪廻転生 (PRESTAGE) 🌀</h3>
+        <p>現在のDPと強化をすべて引き換えに、永久マルチプライヤー「<b>神の汁結晶</b>」を獲得！</p>
+        <p>獲得可能な結晶: <span id="prestige-gain" style="color:var(--accent); font-size:1.5rem; font-weight:bold;">0</span> 個</p>
+        <p>現在の結晶倍率: <span id="prestige-mult" style="color:var(--secondary); font-size:1.2rem;">x1.0</span></p>
+        <button class="gacha-btn" style="background:linear-gradient(135deg, #00ffff, #008888);" onclick="doPrestige()">すべてを捨てて転生する</button>
+      </div>
+    </div>
+
+    <!-- エンディングリストパネル -->
+    <div id="panel-ends" class="panel">
+      <h3 style="text-align: center; margin-top:0;">🏆 達成エンディング (<span id="end-count">0</span>/8)</h3>
+      <div class="end-grid" id="end-grid">
+        <!-- JSで動的生成 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル（エンディング達成時Popup） -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div style="color: var(--primary); font-size: 1.2rem; font-weight: bold;">🎉 ENDING UNLOCKED 🎉</div>
+    <div class="end-title" id="modal-title">END 1: ???</div>
+    <div class="end-desc" id="modal-desc">説明文...</div>
+    <button class="close-btn" onclick="closeModal()">脳汁体験を続ける</button>
+  </div>
+</div>
+
+<script>
+  /* -------------------------------------------------------------
+     localStorage 保存キー定義 (指定要件を厳守)
+  ------------------------------------------------------------- */
+  const SAVE_PREFIX = "dopagaki_game/gemini/3.6Flash/002/saves/";
+  const KEY_SCORE = SAVE_PREFIX + "score";
+  const KEY_TOTAL = SAVE_PREFIX + "total_score";
+  const KEY_CLICKS = SAVE_PREFIX + "click_count";
+  const KEY_GACHA = SAVE_PREFIX + "gacha_count";
+  const KEY_CRYSTAL = SAVE_PREFIX + "crystals";
+  const KEY_UPGRADES = SAVE_PREFIX + "upgrades";
+  const KEY_ENDS = SAVE_PREFIX + "unlocked_ends";
+
+  /* -------------------------------------------------------------
+     ゲーム状態データ
+  ------------------------------------------------------------- */
+  let score = parseFloat(localStorage.getItem(KEY_SCORE)) || 0;
+  let totalScore = parseFloat(localStorage.getItem(KEY_TOTAL)) || 0;
+  let clickCount = parseInt(localStorage.getItem(KEY_CLICKS)) || 0;
+  let gachaCount = parseInt(localStorage.getItem(KEY_GACHA)) || 0;
+  let crystals = parseFloat(localStorage.getItem(KEY_CRYSTAL)) || 0;
+
+  let gaugeVal = 0;
+  let hyperTime = 0; // ハイパーモードカウントダウン
+
+  // アップグレード一覧データ
+  const baseUpgrades = [
+    { id: 'click_1', name: '高速クリック連打術', baseCost: 15, cpc: 1, dps: 0, count: 0 },
+    { id: 'dps_1', name: '自動脳汁注射器', baseCost: 100, cpc: 0, dps: 5, count: 0 },
+    { id: 'click_2', name: '光速指圧ピストン', baseCost: 500, cpc: 25, dps: 0, count: 0 },
+    { id: 'dps_2', name: '快楽物質スプレーガン', baseCost: 2000, cpc: 0, dps: 120, count: 0 },
+    { id: 'click_3', name: 'ハイパーニューロン回路', baseCost: 10000, cpc: 300, dps: 0, count: 0 },
+    { id: 'dps_3', name: '全自動ドーパミン採掘プラント', baseCost: 50000, cpc: 0, dps: 2500, count: 0 },
+    { id: 'click_4', name: '神の指先 (GOD FINGER)', baseCost: 250000, cpc: 15000, dps: 0, count: 0 },
+    { id: 'dps_4', name: '超次元脳汁次元ホール', baseCost: 1000000, cpc: 0, dps: 80000, count: 0 }
+  ];
+
+  let upgrades = JSON.parse(localStorage.getItem(KEY_UPGRADES)) || baseUpgrades;
+
+  // エンディング定義 (全8種類)
+  const endings = [
+    { id: 1, title: "END 1: 地道な作業者", desc: "累計 1,000 DP達成。君はまだ正気を保っている...。", req: () => totalScore >= 1000 },
+    { id: 2, title: "END 2: 連打の狂鬼", desc: "総タップ回数 500回突破。指先の摩擦熱で世界が発火する！", req: () => clickCount >= 500 },
+    { id: 3, title: "END 3: 脳汁ガチャ廃人", desc: "ガチャを 50回以上回した。破産を超えた快楽の領域！", req: () => gachaCount >= 50 },
+    { id: 4, title: "END 4: 輪廻転生者", desc: "神の汁結晶を獲得し、初のプレステージを完了した！", req: () => crystals > 0 },
+    { id: 5, title: "END 5: 放置の極意", desc: "DPS（毎秒自動増量）が 100,000 を突破！寝ているだけで脳汁大噴火！", req: () => getDPS() >= 100000 },
+    { id: 6, title: "END 6: ドーパミン過剰摂取", desc: "ハイパーモード中に連打しまくり、ゲージを極限まで暴走させた！", req: () => hyperTime > 0 && gaugeVal >= 100 },
+    { id: 7, title: "END 7: 数字の崩壊者", desc: "累計 DP 1,000,000,000 (10億) 突破！画面が輝きに包まれる！", req: () => totalScore >= 1000000000 },
+    { id: 8, title: "END 8: 真・全知全能ドパガキ", desc: "全てのエンディング（1~7）を解禁し、真のドパガキ神へ至った！", req: () => unlockedEnds.length >= 7 }
+  ];
+
+  let unlockedEnds = JSON.parse(localStorage.getItem(KEY_ENDS)) || [];
+
+  /* -------------------------------------------------------------
+     DOM要素の取得
+  ------------------------------------------------------------- */
+  const elScore = document.getElementById('score');
+  const elDps = document.getElementById('dps');
+  const elGauge = document.getElementById('gauge');
+  const elGaugeText = document.getElementById('gauge-text');
+  const elTapBtn = document.getElementById('tap-btn');
+  const elTapZone = document.getElementById('tap-zone');
+  const elHeader = document.getElementById('header');
+  const elUpgradeList = document.getElementById('upgrade-list');
+  const elGachaResult = document.getElementById('gacha-result');
+  const elPrestigeGain = document.getElementById('prestige-gain');
+  const elPrestigeMult = document.getElementById('prestige-mult');
+  const elEndCount = document.getElementById('end-count');
+  const elEndGrid = document.getElementById('end-grid');
+  const elModal = document.getElementById('modal');
+
+  /* -------------------------------------------------------------
+     ゲーム基本計算
+  ------------------------------------------------------------- */
+  function getPrestigeMult() {
+    return 1 + (crystals * 0.5); // 結晶1個につき+50%
+  }
+
+  function getCPC() {
+    let base = 1;
+    upgrades.forEach(u => base += u.cpc * u.count);
+    let hyperMult = hyperTime > 0 ? 10 : 1;
+    return base * getPrestigeMult() * hyperMult;
+  }
+
+  function getDPS() {
+    let base = 0;
+    upgrades.forEach(u => base += u.dps * u.count);
+    let hyperMult = hyperTime > 0 ? 5 : 1;
+    return base * getPrestigeMult() * hyperMult;
+  }
+
+  function getUpgradeCost(u) {
+    return Math.floor(u.baseCost * Math.pow(1.15, u.count));
+  }
+
+  /* -------------------------------------------------------------
+     セーブ / ロード
+  ------------------------------------------------------------- */
+  function saveData() {
+    localStorage.setItem(KEY_SCORE, score);
+    localStorage.setItem(KEY_TOTAL, totalScore);
+    localStorage.setItem(KEY_CLICKS, clickCount);
+    localStorage.setItem(KEY_GACHA, gachaCount);
+    localStorage.setItem(KEY_CRYSTAL, crystals);
+    localStorage.setItem(KEY_UPGRADES, JSON.stringify(upgrades));
+    localStorage.setItem(KEY_ENDS, JSON.stringify(unlockedEnds));
+  }
+
+  /* -------------------------------------------------------------
+     クリック / 連打ロジック & 演出
+  ------------------------------------------------------------- */
+  elTapBtn.addEventListener('click', (e) => {
+    let addVal = getCPC();
+
+    // 確率で超超超メガクリティカル発動 (脳汁ドバドバ)
+    let isCrit = Math.random() < 0.2;
+    if (isCrit) {
+      addVal *= 5;
+    }
+
+    score += addVal;
+    totalScore += addVal;
+    clickCount++;
+
+    // ゲージ増加
+    gaugeVal += 3;
+    if (gaugeVal >= 100 && hyperTime <= 0) {
+      triggerHyperMode();
+    }
+
+    // ド派手パーティクル生成
+    createParticle(e.clientX, e.clientY, `+${Math.floor(addVal)}` + (isCrit ? " CRITICAL!!" : ""), isCrit);
+
+    // 画面揺れ演出
+    triggerShake();
+
+    checkEndings();
+    updateUI();
+  });
+
+  function createParticle(x, y, text, isCrit) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.innerText = text;
+    p.style.left = `${x}px`;
+    p.style.top = `${y}px`;
+    p.style.color = isCrit ? '#ffff00' : (hyperTime > 0 ? '#00ffff' : '#ff0055');
+    if (isCrit) p.style.fontSize = '2.8rem';
+
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+
+  function triggerShake() {
+    document.body.classList.add('shaking');
+    setTimeout(() => document.body.classList.remove('shaking'), 80);
+  }
+
+  function triggerHyperMode() {
+    gaugeVal = 100;
+    hyperTime = 10; // 10秒間ハイパーモード
+    document.body.classList.add('hyper-bg');
+    createParticle(window.innerWidth / 2, window.innerHeight / 2, "🔥 HYPER DOPAMINE MODE!! 🔥", true);
+  }
+
+  /* -------------------------------------------------------------
+     アップグレードシステム
+  ------------------------------------------------------------- */
+  function renderUpgrades() {
+    elUpgradeList.innerHTML = '';
+    upgrades.forEach((u, idx) => {
+      let cost = getUpgradeCost(u);
+      let canAfford = score >= cost;
+
+      let div = document.createElement('div');
+      div.className = `upgrade-item ${canAfford ? 'affordable' : ''}`;
+      div.innerHTML = `
+        <div>
+          <div style="font-size:1.1rem; color:var(--accent);">${u.name} (Lv.${u.count})</div>
+          <div style="font-size:0.85rem; color:#ccc;">
+            ${u.cpc > 0 ? `TAP +${u.cpc}` : ''} ${u.dps > 0 ? `DPS +${u.dps}` : ''}
+          </div>
+        </div>
+        <button class="upg-btn" ${canAfford ? '' : 'disabled'} onclick="buyUpgrade(${idx})">
+          ${cost.toLocaleString()} DP
+        </button>
+      `;
+      elUpgradeList.appendChild(div);
+    });
+  }
+
+  function buyUpgrade(idx) {
+    let u = upgrades[idx];
+    let cost = getUpgradeCost(u);
+    if (score >= cost) {
+      score -= cost;
+      u.count++;
+      saveData();
+      updateUI();
+    }
+  }
+
+  /* -------------------------------------------------------------
+     ガチャシステム
+  ------------------------------------------------------------- */
+  function playGacha(count) {
+    let cost = count * 1000;
+    if (score < cost) {
+      alert("DPが足りません！TAPしまくって稼いでください！");
+      return;
+    }
+
+    score -= cost;
+    gachaCount += count;
+
+    let rarityList = ["⚡ C (脳汁プチ)", "🔥 R (脳汁マシ)", "💎 SR (脳汁ドバ)", "🌟 SSR (脳汁限界突破)", "🌈 GOD (ドパガキ覚醒)"];
+    let lastResult = "";
+
+    for (let i = 0; i < count; i++) {
+      let rand = Math.random();
+      let rIdx = 0;
+      if (rand > 0.95) rIdx = 4;
+      else if (rand > 0.8) rIdx = 3;
+      else if (rand > 0.5) rIdx = 2;
+      else if (rand > 0.2) rIdx = 1;
+
+      // ガチャによるランダムボーナス加算
+      let bonus = (rIdx + 1) * 500;
+      score += bonus;
+      totalScore += bonus;
+      lastResult = `${rarityList[rIdx]} GET!! (+${bonus} DP)`;
+    }
+
+    elGachaResult.innerHTML = count === 1 ? lastResult : `10連ガチャ完了！最高レア: ${lastResult}`;
+    triggerShake();
+    checkEndings();
+    updateUI();
+  }
+
+  /* -------------------------------------------------------------
+     プレステージ (輪廻転生)
+  ------------------------------------------------------------- */
+  function doPrestige() {
+    let gain = Math.floor(Math.pow(totalScore / 100000, 0.5));
+    if (gain < 1) {
+      alert("転生するには累計 100,000 DP 以上が必要です！");
+      return;
+    }
+
+    if (confirm(`本当に転生しますか？\n「神の汁結晶」を +${gain} 個獲得して初期化します。`)) {
+      crystals += gain;
+      score = 0;
+      upgrades.forEach(u => u.count = 0);
+      saveData();
+      checkEndings();
+      updateUI();
+      alert("転生完了！倍率が跳ね上がりました！");
+    }
+  }
+
+  /* -------------------------------------------------------------
+     エンディング管理
+  ------------------------------------------------------------- */
+  function checkEndings() {
+    endings.forEach(e => {
+      if (!unlockedEnds.includes(e.id) && e.req()) {
+        unlockedEnds.push(e.id);
+        saveData();
+        showModal(e.title, e.desc);
+      }
+    });
+
+    // 真エンディングチェック (全開け)
+    if (unlockedEnds.length >= 7 && !unlockedEnds.includes(8)) {
+      unlockedEnds.push(8);
+      saveData();
+      showModal(endings[7].title, endings[7].desc);
+    }
+  }
+
+  function showModal(title, desc) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-desc').innerText = desc;
+    elModal.classList.add('active');
+  }
+
+  function closeModal() {
+    elModal.classList.remove('active');
+  }
+
+  function renderEnds() {
+    elEndCount.innerText = unlockedEnds.length;
+    elEndGrid.innerHTML = '';
+    endings.forEach(e => {
+      let isUnlocked = unlockedEnds.includes(e.id);
+      let div = document.createElement('div');
+      div.className = `end-card ${isUnlocked ? 'unlocked' : ''}`;
+      div.innerHTML = `
+        <div class="end-card-title">${isUnlocked ? e.title : 'END ' + e.id + ': ???'}</div>
+        <div>${isUnlocked ? e.desc : '条件未達成（脳汁を高めろ）'}</div>
+      `;
+      elEndGrid.appendChild(div);
+    });
+  }
+
+  /* -------------------------------------------------------------
+     UI更新＆メインループ
+  ------------------------------------------------------------- */
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById(`panel-${tabName}`).classList.add('active');
+  }
+
+  function updateUI() {
+    elScore.innerText = Math.floor(score).toLocaleString();
+    elDps.innerText = Math.floor(getDPS()).toLocaleString();
+    
+    // ゲージUI
+    elGauge.style.width = `${gaugeVal}%`;
+    if (hyperTime > 0) {
+      elGaugeText.innerText = `🔥 HYPER MODE REMAINING: ${hyperTime.toFixed(1)}s 🔥`;
+    } else {
+      elGaugeText.innerText = `DOPAMINE OVERDRIVE: ${Math.floor(gaugeVal)}%`;
+    }
+
+    // プレステージ表記
+    let prestigeGain = Math.floor(Math.pow(totalScore / 100000, 0.5));
+    elPrestigeGain.innerText = prestigeGain;
+    elPrestigeMult.innerText = `x${getPrestigeMult().toFixed(1)}`;
+
+    renderUpgrades();
+    renderEnds();
+  }
+
+  // メインループ (1秒間に20回実行)
+  setInterval(() => {
+    // DPSによる増加
+    let addVal = getDPS() / 20;
+    score += addVal;
+    totalScore += addVal;
+
+    // ハイパーモード処理
+    if (hyperTime > 0) {
+      hyperTime -= 0.05;
+      if (hyperTime <= 0) {
+        hyperTime = 0;
+        gaugeVal = 0;
+        document.body.classList.remove('hyper-bg');
+      }
+    } else if (gaugeVal > 0) {
+      gaugeVal -= 0.1; // 徐々に減少
+      if (gaugeVal < 0) gaugeVal = 0;
+    }
+
+    checkEndings();
+    updateUI();
+    saveData();
+  }, 50);
+
+  // 初回UI初期化
+  updateUI();
+</script>
+</body>
+</html>
