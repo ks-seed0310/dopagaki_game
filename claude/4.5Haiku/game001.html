@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 スーパーゲームランド 🎮</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 30px;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-button {
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .game-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .game-button:active {
+            transform: translateY(-2px);
+        }
+
+        .btn-clicker {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        }
+
+        .btn-memory {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .btn-race {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .btn-quiz {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+
+        .btn-pet {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+        }
+
+        .btn-slots {
+            background: linear-gradient(135deg, #ff9a56, #ff6348);
+        }
+
+        .game-area {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .back-button {
+            background: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+
+        .back-button:hover {
+            background: #7f8c8d;
+        }
+
+        /* クリッカーゲーム */
+        .big-button {
+            width: 150px;
+            height: 150px;
+            font-size: 4em;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: all 0.1s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            font-weight: bold;
+        }
+
+        .big-button:active {
+            transform: scale(0.95);
+        }
+
+        .combo {
+            font-size: 2em;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* メモリーゲーム */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .memory-card.flipped {
+            background: #f0f0f0;
+            transform: rotateY(180deg);
+        }
+
+        /* レースゲーム */
+        .race-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, #87CEEB, #90EE90);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 3px solid #333;
+        }
+
+        .player {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 30px;
+            height: 100%;
+            background: repeating-linear-gradient(45deg, black 0px, black 10px, white 10px, white 20px);
+        }
+
+        /* クイズ */
+        .quiz-question {
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .quiz-button {
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .quiz-button:hover {
+            transform: scale(1.05);
+        }
+
+        .quiz-button.correct {
+            background: linear-gradient(135deg, #1dd1a1, #10ac84);
+        }
+
+        .quiz-button.wrong {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        }
+
+        /* ペット */
+        .pet-display {
+            font-size: 6em;
+            margin: 20px 0;
+            animation: petWalk 2s infinite;
+        }
+
+        .pet-info {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1.2em;
+        }
+
+        .pet-bar {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .pet-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #1dd1a1);
+            transition: width 0.5s;
+        }
+
+        .pet-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        /* スロット */
+        .slots-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .slot {
+            width: 80px;
+            height: 100px;
+            border: 3px solid #333;
+            border-radius: 10px;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: spin 0.1s;
+        }
+
+        .slot.spinning {
+            animation: spin 0.1s infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(360deg); }
+        }
+
+        .result-message {
+            font-size: 1.8em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .result-message.win {
+            background: linear-gradient(135deg, #1dd1a1, #10ac84);
+            color: white;
+        }
+
+        .result-message.lose {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+
+        /* エンディング画面 */
+        .ending-screen {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .ending-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .ending-text {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .score-display {
+            font-size: 2em;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .achievement {
+            padding: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            font-size: 2em;
+        }
+
+        .ending-button {
+            padding: 15px 30px;
+            font-size: 1.3em;
+            margin: 10px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .ending-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes petWalk {
+            0%, 100% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        .reset-button {
+            background: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .reset-button:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .menu {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 スーパーゲームランド 🎮</h1>
+            <div style="font-size: 0.9em; color: #666;">最高に楽しいゲーム集だよ！</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">💰 コイン</div>
+                <div class="stat-value" id="coins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">🏆 スコア</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">⭐ レベル</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">🎯 達成</div>
+                <div class="stat-value" id="achievements">0</div>
+            </div>
+        </div>
+
+        <!-- メニュー -->
+        <div id="menu" class="menu">
+            <button class="game-button btn-clicker" onclick="startGame('clicker')">
+                👆 クリッカー<br>ゲーム
+            </button>
+            <button class="game-button btn-memory" onclick="startGame('memory')">
+                🧠 メモリー<br>ゲーム
+            </button>
+            <button class="game-button btn-race" onclick="startGame('race')">
+                🏎️ レースゲーム
+            </button>
+            <button class="game-button btn-quiz" onclick="startGame('quiz')">
+                🧩 クイズゲーム
+            </button>
+            <button class="game-button btn-pet" onclick="startGame('pet')">
+                🐹 ペット育成
+            </button>
+            <button class="game-button btn-slots" onclick="startGame('slots')">
+                🎰 スロット
+            </button>
+        </div>
+
+        <!-- クリッカーゲーム -->
+        <div id="clicker-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>👆 クリッカーゲーム 👆</h2>
+            <p style="margin: 20px 0; font-size: 1.2em;">できるだけ多くクリックしよう！</p>
+            <button class="big-button" onclick="clickButton()">💥</button>
+            <div class="combo" id="click-combo">クリック: 0</div>
+            <div id="click-end" style="display: none;"></div>
+        </div>
+
+        <!-- メモリーゲーム -->
+        <div id="memory-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>🧠 メモリーゲーム 🧠</h2>
+            <p style="margin: 20px 0; font-size: 1.2em;">同じ絵を見つけよう！</p>
+            <div class="memory-grid" id="memory-grid"></div>
+            <div id="memory-status" style="margin: 20px 0; font-size: 1.3em;"></div>
+            <div id="memory-end" style="display: none;"></div>
+        </div>
+
+        <!-- レースゲーム -->
+        <div id="race-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>🏎️ レースゲーム 🏎️</h2>
+            <p style="margin: 20px 0; font-size: 1.2em;">キーをたくさん押してゴール目指そう！</p>
+            <div class="race-container">
+                <div class="player" id="player" style="left: 0%; bottom: 25%;">🏎️</div>
+                <div class="finish-line"></div>
+            </div>
+            <button id="race-button" onclick="moveRacer()" style="padding: 15px 40px; font-size: 1.5em; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">💨 押す！</button>
+            <div id="race-end" style="display: none;"></div>
+        </div>
+
+        <!-- クイズゲーム -->
+        <div id="quiz-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>🧩 クイズゲーム 🧩</h2>
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div id="quiz-result" style="margin: 20px 0; font-size: 1.3em; font-weight: bold;"></div>
+            <div id="quiz-end" style="display: none;"></div>
+        </div>
+
+        <!-- ペット育成 -->
+        <div id="pet-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>🐹 ペット育成 🐹</h2>
+            <div class="pet-display" id="pet-emoji">🐹</div>
+            <div class="pet-info">
+                <div>名前: <span id="pet-name">ぴかちゅう</span></div>
+                <div>レベル: <span id="pet-level">1</span></div>
+            </div>
+            <div>
+                <div style="font-weight: bold; margin-bottom: 5px;">😋 お腹度</div>
+                <div class="pet-bar">
+                    <div class="pet-bar-fill" id="pet-hunger" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div>
+                <div style="font-weight: bold; margin-bottom: 5px;">😴 眠さ</div>
+                <div class="pet-bar">
+                    <div class="pet-bar-fill" id="pet-tired" style="width: 50%;"></div>
+                </div>
+            </div>
+            <div>
+                <div style="font-weight: bold; margin-bottom: 5px;">😊 幸福度</div>
+                <div class="pet-bar">
+                    <div class="pet-bar-fill" id="pet-happy" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="pet-buttons">
+                <button class="game-button btn-clicker" onclick="petAction('feed')">🍪 ご飯</button>
+                <button class="game-button btn-memory" onclick="petAction('sleep')">😴 寝かす</button>
+                <button class="game-button btn-race" onclick="petAction('play')">🎮 遊ぶ</button>
+                <button class="game-button btn-quiz" onclick="petAction('pet')">🤚 なでなで</button>
+            </div>
+            <div id="pet-message" style="font-size: 1.3em; margin: 20px 0; font-weight: bold;"></div>
+            <div id="pet-end" style="display: none;"></div>
+        </div>
+
+        <!-- スロット -->
+        <div id="slots-game" class="game-area">
+            <button class="back-button" onclick="backToMenu()">← メニューへ</button>
+            <h2>🎰 スロット 🎰</h2>
+            <div style="margin: 20px 0; font-size: 1.3em;">
+                コイン: <span id="slots-coins" style="font-weight: bold; color: #ff6b6b;">10</span>
+            </div>
+            <div class="slots-container">
+                <div class="slot" id="slot1">🍎</div>
+                <div class="slot" id="slot2">🍌</div>
+                <div class="slot" id="slot3">🍒</div>
+            </div>
+            <button class="game-button btn-slots" id="spin-button" onclick="spinSlots()" style="width: 200px; margin: 0 auto;">
+                🎰 スピン！
+            </button>
+            <div id="slots-message" style="font-size: 1.3em; margin: 20px 0; font-weight: bold;"></div>
+            <div id="slots-end" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // ゲームの状態
+        let gameState = {
+            coins: 0,
+            score: 0,
+            level: 1,
+            achievements: 0,
+            currentGame: null,
+            clickCount: 0,
+            racePosition: 0,
+            quizCorrect: 0,
+            quizTotal: 0,
+            slotsCoins: 10,
+            pet: {
+                name: 'ぴかちゅう',
+                level: 1,
+                hunger: 100,
+                tired: 50,
+                happy: 100
+            }
+        };
+
+        // ローカルストレージへのセーブ
+        function saveGame() {
+            try {
+                localStorage.setItem('dopagaki_game/claude/4.5Haiku/001/saves/main', JSON.stringify(gameState));
+            } catch (e) {
+                console.log('セーブに失敗しました:', e);
+            }
+        }
+
+        // ローカルストレージから読み込み
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('dopagaki_game/claude/4.5Haiku/001/saves/main');
+                if (saved) {
+                    gameState = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.log('読み込みに失敗しました:', e);
+            }
+            updateStats();
+        }
+
+        // 統計情報の更新
+        function updateStats() {
+            document.getElementById('coins').textContent = gameState.coins;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('achievements').textContent = gameState.achievements;
+        }
+
+        // ゲーム開始
+        function startGame(game) {
+            gameState.currentGame = game;
+            document.getElementById('menu').style.display = 'none';
+            
+            // すべてのゲーム画面を非表示
+            document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
+            
+            if (game === 'clicker') {
+                gameState.clickCount = 0;
+                document.getElementById('clicker-game').classList.add('active');
+                document.getElementById('click-end').style.display = 'none';
+                document.getElementById('click-combo').textContent = 'クリック: 0';
+            } else if (game === 'memory') {
+                document.getElementById('memory-game').classList.add('active');
+                initMemoryGame();
+            } else if (game === 'race') {
+                gameState.racePosition = 0;
+                document.getElementById('race-game').classList.add('active');
+                document.getElementById('race-end').style.display = 'none';
+                updateRacePosition();
+            } else if (game === 'quiz') {
+                document.getElementById('quiz-game').classList.add('active');
+                gameState.quizCorrect = 0;
+                gameState.quizTotal = 0;
+                nextQuiz();
+            } else if (game === 'pet') {
+                document.getElementById('pet-game').classList.add('active');
+                updatePetDisplay();
+            } else if (game === 'slots') {
+                document.getElementById('slots-game').classList.add('active');
+                document.getElementById('slots-coins').textContent = gameState.slotsCoins;
+                document.getElementById('slots-message').textContent = '';
+            }
+        }
+
+        // メニューに戻る
+        function backToMenu() {
+            document.getElementById('menu').style.display = 'grid';
+            document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
+            saveGame();
+        }
+
+        // === クリッカーゲーム ===
+        function clickButton() {
+            gameState.clickCount++;
+            gameState.coins += 1;
+            gameState.score += 10;
+            updateStats();
+            document.getElementById('click-combo').textContent = `クリック: ${gameState.clickCount}`;
+            
+            // パーティクル効果
+            createParticle('💥');
+            
+            if (gameState.clickCount >= 100) {
+                endClickerGame();
+            }
+        }
+
+        function endClickerGame() {
+            let ending = '';
+            if (gameState.clickCount >= 500) {
+                ending = `
+                    <div class="ending-screen">
+                        <div class="ending-title">🏆 クリック王様エンディング！🏆</div>
+                        <div class="ending-text">
+                            ${gameState.clickCount}クリック！<br>
+                            君はもはやクリック界の帝王だ！<br>
+                            世界中の指がガクガク震えてる...
+                        </div>
+                        <div class="score-display">獲得コイン: ${gameState.clickCount}</div>
+                        <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                    </div>
+                `;
+                gameState.achievements++;
+            } else if (gameState.clickCount >= 300) {
+                ending = `
+                    <div class="ending-screen">
+                        <div class="ending-title">⭐ スーパークリッカーエンディング！</div>
+                        <div class="ending-text">
+                            ${gameState.clickCount}クリック！<br>
+                            すごい！君の指は光速だ！
+                        </div>
+                        <div class="score-display">獲得コイン: ${gameState.clickCount}</div>
+                        <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                    </div>
+                `;
+            } else {
+                ending = `
+                    <div class="ending-screen">
+                        <div class="ending-title">✨ 挑戦完了！</div>
+                        <div class="ending-text">
+                            ${gameState.clickCount}クリック獲得！<br>
+                            もっとクリックしてみてね！
+                        </div>
+                        <div class="score-display">獲得コイン: ${gameState.clickCount}</div>
+                        <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                    </div>
+                `;
+            }
+            
+            gameState.coins += gameState.clickCount;
+            gameState.score += gameState.clickCount * 5;
+            gameState.level = Math.floor(gameState.score / 500) + 1;
+            updateStats();
+            
+            document.getElementById('click-end').innerHTML = ending;
+            document.getElementById('click-end').style.display = 'block';
+            document.querySelector('.big-button').disabled = true;
+        }
+
+        // === メモリーゲーム ===
+        const memoryItems = ['🍎', '🍌', '🍒', '🥝', '🍓', '🍊', '🍑', '🍉'];
+        let memoryCards = [];
+        let memoryFlipped = [];
+        let memoryMatches = 0;
+
+        function initMemoryGame() {
+            memoryFlipped = [];
+            memoryMatches = 0;
+            
+            let shuffled = [...memoryItems, ...memoryItems].sort(() => Math.random() - 0.5);
+            memoryCards = shuffled.map((item, idx) => ({ id: idx, item: item, matched: false }));
+            
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+            
+            memoryCards.forEach((card, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'memory-card';
+                btn.textContent = '?';
+                btn.onclick = () => flipCard(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        function flipCard(idx) {
+            if (memoryFlipped.length >= 2 || memoryFlipped.includes(idx) || memoryCards[idx].matched) return;
+            
+            memoryFlipped.push(idx);
+            const btn = document.querySelectorAll('.memory-card')[idx];
+            btn.textContent = memoryCards[idx].item;
+            btn.classList.add('flipped');
+            
+            if (memoryFlipped.length === 2) {
+                setTimeout(checkMemoryMatch, 600);
+            }
+        }
+
+        function checkMemoryMatch() {
+            const [idx1, idx2] = memoryFlipped;
+            const match = memoryCards[idx1].item === memoryCards[idx2].item;
+            
+            if (match) {
+                memoryCards[idx1].matched = true;
+                memoryCards[idx2].matched = true;
+                memoryMatches++;
+                gameState.coins += 10;
+                gameState.score += 50;
+                updateStats();
+                createParticle('✨');
+            } else {
+                document.querySelectorAll('.memory-card').forEach((btn, idx) => {
+                    if (!memoryCards[idx].matched) {
+                        btn.textContent = '?';
+                        btn.classList.remove('flipped');
+                    }
+                });
+            }
+            
+            memoryFlipped = [];
+            
+            if (memoryMatches === memoryItems.length) {
+                endMemoryGame();
+            }
+        }
+
+        function endMemoryGame() {
+            const ending = `
+                <div class="ending-screen">
+                    <div class="ending-title">🧠 メモリー達成！</div>
+                    <div class="ending-text">
+                        全部のペアを見つけた！<br>
+                        君の記憶力は素晴らしい！
+                    </div>
+                    <div class="score-display">獲得ポイント: 500</div>
+                    <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                </div>
+            `;
+            gameState.coins += 100;
+            gameState.score += 500;
+            gameState.achievements++;
+            gameState.level = Math.floor(gameState.score / 500) + 1;
+            updateStats();
+            
+            document.getElementById('memory-end').innerHTML = ending;
+            document.getElementById('memory-end').style.display = 'block';
+        }
+
+        // === レースゲーム ===
+        function moveRacer() {
+            gameState.racePosition += 10;
+            gameState.coins += 1;
+            gameState.score += 5;
+            updateStats();
+            updateRacePosition();
+            createParticle('💨');
+            
+            if (gameState.racePosition >= 100) {
+                endRaceGame();
+            }
+        }
+
+        function updateRacePosition() {
+            document.getElementById('player').style.left = gameState.racePosition + '%';
+        }
+
+        function endRaceGame() {
+            const ending = `
+                <div class="ending-screen">
+                    <div class="ending-title">🏆 ゴール達成！</div>
+                    <div class="ending-text">
+                        おめでとう！レース完走だ！<br>
+                        君は最速レーサーだ！
+                    </div>
+                    <div class="score-display">獲得ポイント: 300</div>
+                    <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                </div>
+            `;
+            gameState.coins += 100;
+            gameState.score += 300;
+            gameState.achievements++;
+            gameState.level = Math.floor(gameState.score / 500) + 1;
+            updateStats();
+            
+            document.getElementById('race-end').innerHTML = ending;
+            document.getElementById('race-end').style.display = 'block';
+            document.getElementById('race-button').disabled = true;
+        }
+
+        // === クイズゲーム ===
+        const quizzes = [
+            { q: '1 + 1 = ?', a: '2', o: ['2', '3', '1', '10'] },
+            { q: '虎の英語は？', a: 'Tiger', o: ['Tiger', 'Lion', 'Cat', 'Bear'] },
+            { q: '空の色は？', a: '青', o: ['青', '赤', '黄', '緑'] },
+            { q: '太陽は何?', a: '星', o: ['星', '惑星', '月', '彗星'] },
+            { q: 'にんじんの色は？', a: 'オレンジ', o: ['オレンジ', '紫', '黄', '緑'] },
+            { q: '世界で一番高い山は？', a: 'エベレスト', o: ['エベレスト', 'キリマンジャロ', 'K2', 'マッキンリー'] },
+            { q: '日本の首都は？', a: '東京', o: ['東京', '大阪', '京都', '広島'] },
+            { q: 'ペンギンはどこに住んでる？', a: '南極', o: ['南極', '北極', 'アフリカ', 'オーストラリア'] },
+        ];
+        let currentQuiz = 0;
+
+        function nextQuiz() {
+            if (gameState.quizTotal >= 8) {
+                endQuizGame();
+                return;
+            }
+            
+            const quiz = quizzes[currentQuiz];
+            currentQuiz = (currentQuiz + 1) % quizzes.length;
+            
+            document.getElementById('quiz-question').textContent = quiz.q;
+            document.getElementById('quiz-result').textContent = '';
+            
+            const options = [...quiz.o].sort(() => Math.random() - 0.5);
+            const optionsHtml = options.map(opt => 
+                `<button class="quiz-button" onclick="answerQuiz('${opt}', '${quiz.a}')">${opt}</button>`
+            ).join('');
+            
+            document.getElementById('quiz-options').innerHTML = optionsHtml;
+            gameState.quizTotal++;
+        }
+
+        function answerQuiz(answer, correct) {
+            const btns = document.querySelectorAll('.quiz-button');
+            btns.forEach(btn => btn.disabled = true);
+            
+            if (answer === correct) {
+                gameState.quizCorrect++;
+                gameState.coins += 20;
+                gameState.score += 100;
+                document.getElementById('quiz-result').textContent = '✨ 正解！';
+                document.getElementById('quiz-result').style.color = '#1dd1a1';
+                createParticle('✨');
+            } else {
+                document.getElementById('quiz-result').textContent = `❌ 不正解。答えは「${correct}」`;
+                document.getElementById('quiz-result').style.color = '#ff6b6b';
+            }
+            
+            updateStats();
+            setTimeout(nextQuiz, 1500);
+        }
+
+        function endQuizGame() {
+            const accuracy = Math.round((gameState.quizCorrect / gameState.quizTotal) * 100);
+            let title = '👏 クイズ完了！';
+            let message = `正解: ${gameState.quizCorrect}/${gameState.quizTotal}回<br>正答率: ${accuracy}%`;
+            
+            if (accuracy === 100) {
+                title = '🌟 パーフェクト！全問正解！🌟';
+                gameState.achievements++;
+            } else if (accuracy >= 80) {
+                title = '⭐ 素晴らしい！';
+            }
+            
+            const ending = `
+                <div class="ending-screen">
+                    <div class="ending-title">${title}</div>
+                    <div class="ending-text">${message}</div>
+                    <div class="score-display">獲得ポイント: ${gameState.quizCorrect * 100}</div>
+                    <button class="ending-button" onclick="backToMenu()">🎉 メニューに戻る</button>
+                </div>
+            `;
+            
+            gameState.score += gameState.quizCorrect * 100;
+            gameState.level = Math.floor(gameState.score / 500) + 1;
+            updateStats();
+            
+            document.getElementById('quiz-end').innerHTML = ending;
+            document.getElementById('quiz-end').style.display = 'block';
+        }
+
+        // === ペット育成 ===
+        const petEmojis = ['🐹', '🐶', '🐱', '🐭', '🐰', '🦊', '🐻', '🐼'];
+
+        function updatePetDisplay() {
+            document.getElementById('pet-name').textContent = gameState.pet.name;
+            document.getElementById('pet-level').textContent = gameState.pet.level;
+            document.getElementById('pet-hunger').style.width = gameState.pet.hunger + '%';
+            document.getElementById('pet-tired').style.width = gameState.pet.tired + '%';
+            document.getElementById('pet-happy').style.width = gameState.pet.happy + '%';
+        }
+
+        function petAction(action) {
+            let message = '';
+            
+            if (action === 'feed') {
+                gameState.pet.hunger = Math.min(100, gameState.pet.hunger + 20);
+                message = 'モグモグ... 😋 おいしい！';
+                gameState.coins += 5;
+            } else if (action === 'sleep') {
+                gameState.pet.tired = Math.max(0, gameState.pet.tired - 30);
+                message = 'すやすや... 😴 zzz...';
+                gameState.pet.happy = Math.max(0, gameState.pet.happy - 10);
+            } else if (action === 'play') {
+                gameState.pet.happy = Math.min(100, gameState.pet.happy + 25);
+                gameState.pet.tired = Math.min(100, gameState.pet.tired + 15);
+                gameState.pet.hunger = Math.max(0, gameState.pet.hunger - 15);
+                message = '🎮 楽しい！ワンワン！';
+                gameState.coins += 10;
+            } else if (action === 'pet') {
+                gameState.pet.happy = Math.min(100, gameState.pet.happy + 10);
+                message = '🤚 ああ... 気持ちいい...';
+                gameState.coins += 3;
+            }
+            
+            // 時間経過シミュレート
+            gameState.pet.hunger = Math.max(0, gameState.pet.hunger - 5);
+            gameState.pet.tired = Math.min(100, gameState.pet.tired + 3);
+            
+            updatePetDisplay();
+            document.getElementById('pet-message').textContent = message;
+            gameState.score += 10;
+            updateStats();
+            
+            // レベルアップチェック
+            if (gameState.score >= gameState.pet.level * 500) {
+                gameState.pet.level++;
+                gameState.achievements++;
+                document.getElementById('pet-message').textContent += '\n🎉 レベルアップ！';
+            }
+            
+            setTimeout(() => {
+                document.getElementById('pet-message').textContent = '';
+            }, 2000);
+        }
+
+        // === スロット ===
+        const slotSymbols = ['🍎', '🍌', '🍒', '🥝', '🍓', '🍊'];
+
+        function spinSlots() {
+            if (gameState.slotsCoins <= 0) {
+                document.getElementById('slots-message').textContent = '❌ コインがありません！';
+                return;
+            }
+            
+            gameState.slotsCoins--;
+            document.getElementById('slots-coins').textContent = gameState.slotsCoins;
+            document.getElementById('spin-button').disabled = true;
+            document.getElementById('slots-message').textContent = '';
+            
+            const slots = [document.getElementById('slot1'), document.getElementById('slot2'), document.getElementById('slot3')];
+            let spinCount = 0;
+            const spinInterval = setInterval(() => {
+                slots.forEach(slot => {
+                    slot.textContent = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                });
+                spinCount++;
+                
+                if (spinCount >= 15) {
+                    clearInterval(spinInterval);
+                    checkSlotsResult();
+                }
+            }, 100);
+        }
+
+        function checkSlotsResult() {
+            const slot1 = document.getElementById('slot1').textContent;
+            const slot2 = document.getElementById('slot2').textContent;
+            const slot3 = document.getElementById('slot3').textContent;
+            
+            let win = false;
+            let reward = 0;
+            let message = '';
+            
+            if (slot1 === slot2 && slot2 === slot3) {
+                reward = 100;
+                win = true;
+                message = '🎉 大当たり！ジャックポット！';
+                gameState.achievements++;
+            } else if (slot1 === slot2 || slot2 === slot3) {
+                reward = 30;
+                win = true;
+                message = '🎊 当たり！';
+            } else {
+                message = '❌ ハズレ...';
+            }
+            
+            if (win) {
+                gameState.slotsCoins += reward;
+                gameState.coins += reward;
+                gameState.score += reward * 10;
+            }
+            
+            document.getElementById('slots-coins').textContent = gameState.slotsCoins;
+            document.getElementById('slots-message').textContent = message;
+            document.getElementById('spin-button').disabled = false;
+            updateStats();
+            saveGame();
+        }
+
+        // パーティクル効果
+        function createParticle(emoji) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = Math.random() * window.innerHeight + 'px';
+            particle.style.fontSize = '2em';
+            particle.style.animation = 'float 2s ease-in forwards';
+            
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+
+        // リセット関数
+        function resetGame() {
+            if (confirm('すべてのデータをリセットしてもいい？')) {
+                gameState = {
+                    coins: 0,
+                    score: 0,
+                    level: 1,
+                    achievements: 0,
+                    currentGame: null,
+                    clickCount: 0,
+                    racePosition: 0,
+                    quizCorrect: 0,
+                    quizTotal: 0,
+                    slotsCoins: 10,
+                    pet: {
+                        name: 'ぴかちゅう',
+                        level: 1,
+                        hunger: 100,
+                        tired: 50,
+                        happy: 100
+                    }
+                };
+                localStorage.removeItem('dopagaki_game/claude/4.5Haiku/001/saves/main');
+                updateStats();
+                backToMenu();
+            }
+        }
+
+        // 初期化
+        window.addEventListener('load', () => {
+            loadGame();
+            
+            // CSSでfloatアニメーションを追加
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% { opacity: 1; transform: translateY(0px); }
+                    100% { opacity: 0; transform: translateY(-100px); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // 定期的にセーブ
+        setInterval(saveGame, 10000);
+    </script>
+</body>
+</html>
