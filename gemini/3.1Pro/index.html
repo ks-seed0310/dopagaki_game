@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドパガキ大歓喜！限界突破インフレRPG</title>
+<style>
+    :root {
+        --primary: #ff0055;
+        --bg: #111;
+        --text: #fff;
+        --panel: #222;
+        --border: #444;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow-x: hidden;
+        user-select: none;
+    }
+    #game-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        padding: 10px;
+        height: 100vh;
+        box-sizing: border-box;
+    }
+    .panel {
+        background: var(--panel);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        padding: 15px;
+        overflow-y: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .panel-title {
+        text-align: center;
+        font-size: 1.5em;
+        color: var(--primary);
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 5px var(--primary);
+    }
+    
+    /* メインエリア */
+    .status-box {
+        background: #000;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        text-align: center;
+    }
+    #dp-display {
+        font-size: 2em;
+        font-weight: bold;
+        color: #00ffcc;
+        text-shadow: 0 0 10px #00ffcc;
+    }
+    #main-btn {
+        width: 100%;
+        height: 200px;
+        font-size: 2em;
+        font-weight: bold;
+        background: linear-gradient(45deg, #ff0055, #ffaa00);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(255, 0, 85, 0.5);
+        transition: transform 0.05s, box-shadow 0.05s;
+        animation: pulse 2s infinite;
+    }
+    #main-btn:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 5px rgba(255, 0, 85, 0.5);
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    /* エフェクト */
+    .click-effect {
+        position: fixed;
+        color: #fff;
+        font-size: 1.5em;
+        font-weight: bold;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        text-shadow: 0 0 5px #ff0055, 0 0 10px #ff0055;
+        z-index: 9999;
+    }
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+    }
+    
+    .screen-shake {
+        animation: shake 0.2s;
+    }
+    @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        25% { transform: translate(-3px, 0px) rotate(1deg); }
+        50% { transform: translate(2px, -2px) rotate(-1deg); }
+        75% { transform: translate(-1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -1px) rotate(0deg); }
+    }
+
+    /* ガチャ＆強化 */
+    .btn {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #333;
+        color: white;
+        border: 1px solid #555;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: 0.2s;
+    }
+    .btn:hover { background: #444; }
+    .btn:disabled { background: #111; color: #555; cursor: not-allowed; }
+    .gacha-btn { background: #0044aa; border-color: #0066ff; font-weight: bold; }
+    .gacha-btn:hover { background: #0055cc; }
+    
+    #gacha-result {
+        min-height: 50px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #000;
+        border: 1px dashed #555;
+        text-align: center;
+        font-size: 1.2em;
+    }
+    .rarity-N { color: #aaa; }
+    .rarity-R { color: #44aaff; }
+    .rarity-SR { color: #ff00ff; text-shadow: 0 0 5px #ff00ff; }
+    .rarity-SSR { color: #ffaa00; text-shadow: 0 0 10px #ffaa00; font-weight: bold; }
+    .rarity-UR { 
+        background: linear-gradient(45deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+        -webkit-background-clip: text;
+        color: transparent;
+        animation: rainbow 2s linear infinite;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+    @keyframes rainbow { 0%{background-position:0% 50%} 100%{background-position:100% 50%} }
+
+    /* バトル */
+    .boss-box {
+        border: 1px solid #ff0055;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        background: rgba(255, 0, 85, 0.1);
+    }
+    .hp-bar-bg {
+        width: 100%;
+        height: 20px;
+        background: #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+    .hp-bar-fill {
+        height: 100%;
+        background: #ff0055;
+        width: 100%;
+        transition: width 0.1s;
+    }
+    
+    /* エンディング */
+    .ending-item {
+        padding: 10px;
+        margin-bottom: 5px;
+        background: #1a1a1a;
+        border-left: 5px solid #333;
+    }
+    .ending-item.unlocked {
+        border-left-color: #00ffcc;
+        background: #003322;
+    }
+    .ending-title { font-weight: bold; }
+    .ending-desc { font-size: 0.8em; color: #aaa; }
+    
+    .system-btn { background: #550000; margin-top: 5px;}
+    .system-btn:hover { background: #770000;}
+
+    /* 通知 */
+    #notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 255, 204, 0.9);
+        color: #000;
+        padding: 15px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        font-size: 1.2em;
+        z-index: 10000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s;
+    }
+</style>
+</head>
+<body>
+
+<div id="notification"></div>
+
+<div id="game-container">
+    <!-- 左パネル：メイン・バトル -->
+    <div class="panel">
+        <div class="panel-title">🧠 ドパミン抽出器</div>
+        
+        <div class="status-box">
+            所持ドパミン (DP)<br>
+            <span id="dp-display">0</span>
+            <div style="font-size: 0.6em; color: #888; margin-top: 5px;">
+                クリックパワー: <span id="click-power-display">1</span> DP/click<br>
+                自動生成: <span id="dps-display">0</span> DP/sec<br>
+                総合倍率: x<span id="multiplier-display">1</span>
+            </div>
+        </div>
+
+        <button id="main-btn" onmousedown="clickMain(event)">脳汁を出す!!</button>
+        
+        <h3 style="margin-top: 30px; text-align: center; border-bottom: 1px solid #444;">⚔️ ボス討伐</h3>
+        <div id="boss-container">
+            <!-- ボス一覧がJSで生成される -->
+        </div>
+    </div>
+
+    <!-- 中央パネル：ガチャ・強化 -->
+    <div class="panel">
+        <div class="panel-title">🎰 欲望のガチャ＆強化</div>
+        
+        <h3>強化アップグレード</h3>
+        <button class="btn" id="upg-click" onclick="buyUpgrade('click')">
+            👆 指先強化 (費用: <span id="cost-click">50</span> DP)<br>
+            <span style="font-size: 0.8em; color: #aaa;">クリックパワー +1</span>
+        </button>
+        <button class="btn" id="upg-auto" onclick="buyUpgrade('auto')">
+            🤖 自動化装置 (費用: <span id="cost-auto">100</span> DP)<br>
+            <span style="font-size: 0.8em; color: #aaa;">自動生成 +1 DP/sec</span>
+        </button>
+
+        <h3 style="margin-top: 30px;">ドパミンガチャ</h3>
+        <button class="btn gacha-btn" id="gacha-1" onclick="drawGacha(1)">
+            単発ガチャ (1,000 DP)
+        </button>
+        <button class="btn gacha-btn" id="gacha-10" onclick="drawGacha(10)">
+            10連ガチャ (10,000 DP)
+        </button>
+        
+        <div id="gacha-result">ガチャ結果はここに表示されます</div>
+
+        <h3 style="margin-top: 20px;">所持アーティファクト</h3>
+        <div id="inventory-display" style="font-size: 0.9em; color: #ccc;">
+            <!-- アイテム一覧 -->
+        </div>
+    </div>
+
+    <!-- 右パネル：エンディング・システム -->
+    <div class="panel">
+        <div class="panel-title">📜 エンディング記録</div>
+        
+        <div id="ending-container">
+            <!-- エンディング一覧がJSで生成される -->
+        </div>
+
+        <h3 style="margin-top: 30px; border-bottom: 1px solid #444;">⚙️ システム</h3>
+        <button class="btn" onclick="saveGame()">💾 手動セーブ</button>
+        <button class="btn system-btn" onclick="resetGame()">⚠️ データリセット</button>
+        <div style="font-size: 0.8em; color: #666; text-align: center; margin-top: 10px;">
+            ※ゲームは10秒ごとに自動セーブされます
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 定数・データ定義 ---
+    const SAVE_KEY = "dopagaki_game/gemini/3.1Pro/001/saves/saveData";
+
+    // 初期ステータス
+    const defaultState = {
+        dp: 0,
+        totalClicks: 0,
+        totalGacha: 0,
+        baseClickPower: 1,
+        baseDps: 0,
+        multiplier: 1,
+        upgrades: {
+            click: { count: 0, baseCost: 50, costMult: 1.5, add: 1 },
+            auto: { count: 0, baseCost: 100, costMult: 1.5, add: 1 }
+        },
+        inventory: {
+            N: 0, R: 0, SR: 0, SSR: 0, UR: 0
+        },
+        bossKills: {
+            boss1: false,
+            boss2: false,
+            boss3: false
+        },
+        unlockedEndings: []
+    };
+
+    let state = JSON.parse(JSON.stringify(defaultState));
+    let activeBoss = null;
+
+    // ガチャの排出率と内容
+    const gachaPool = [
+        { rarity: 'N', name: 'ただの石', weight: 600, effect: '効果なし' },
+        { rarity: 'R', name: 'エナジードリンク', weight: 300, effect: 'クリックパワー +10' },
+        { rarity: 'SR', name: '光るゲーミングPC', weight: 89, effect: '自動生成 +100' },
+        { rarity: 'SSR', name: '虹色の脳汁', weight: 10, effect: '総合倍率 +0.5' },
+        { rarity: 'UR', name: '宇宙創造神ドパミ', weight: 1, effect: '総合倍率 +10' }
+    ];
+
+    // ボスデータ
+    const bosses = {
+        boss1: { id: 'boss1', name: 'スライムLv99', maxHp: 10000, reward: 50000, req: 0 },
+        boss2: { id: 'boss2', name: 'ドパミン魔王', maxHp: 5000000, reward: 20000000, req: 1 },
+        boss3: { id: 'boss3', name: '真・ドパミン神', maxHp: 1000000000, reward: 5000000000, req: 2 }
+    };
+
+    // エンディングデータ
+    const endings = [
+        { id: 1, title: 'END 1: 連打の鬼', desc: '総クリック回数が1,000回に到達する' },
+        { id: 2, title: 'END 2: 億万長者', desc: '所持DPが1億に到達する' },
+        { id: 3, title: 'END 3: ガチャ依存症', desc: 'ガチャを累計500回引く' },
+        { id: 4, title: 'END 4: SSRの奇跡', desc: 'ガチャでSSR「虹色の脳汁」を引く' },
+        { id: 5, title: 'END 5: URの伝説', desc: 'ガチャでUR「宇宙創造神ドパミ」を引く' },
+        { id: 6, title: 'END 6: スライムキラー', desc: 'ボス「スライムLv99」を討伐する' },
+        { id: 7, title: 'END 7: 魔王討伐', desc: 'ボス「ドパミン魔王」を討伐する' },
+        { id: 8, title: 'END 8: 神殺し', desc: 'ボス「真・ドパミン神」を討伐する' },
+        { id: 9, title: 'END 9: 放置の極意', desc: '自動生成(DPS)が10万に到達する' },
+        { id: 10, title: 'END 10: 一撃必殺', desc: '1回のクリックで100万DP稼げるようになる' },
+        { id: 11, title: 'END 11: 全てを統べる者', desc: 'END 1〜10を全てコンプリートする' }
+    ];
+
+    // --- コアロジック ---
+
+    function getClickPower() {
+        let p = state.baseClickPower + (state.upgrades.click.count * state.upgrades.click.add);
+        p += state.inventory.R * 10;
+        return p * state.multiplier;
+    }
+
+    function getDps() {
+        let d = state.baseDps + (state.upgrades.auto.count * state.upgrades.auto.add);
+        d += state.inventory.SR * 100;
+        return d * state.multiplier;
+    }
+
+    function formatNumber(num) {
+        return Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function showNotification(text) {
+        const notif = document.getElementById('notification');
+        notif.innerText = text;
+        notif.style.opacity = 1;
+        setTimeout(() => { notif.style.opacity = 0; }, 3000);
+    }
+
+    // --- アクション ---
+
+    function clickMain(e) {
+        const power = getClickPower();
+        
+        if (activeBoss) {
+            // ボス攻撃モード
+            activeBoss.hp -= power;
+            createClickEffect(e.clientX, e.clientY, `💥 ${formatNumber(power)} DMG`);
+            document.body.classList.add('screen-shake');
+            setTimeout(() => document.body.classList.remove('screen-shake'), 200);
+
+            if (activeBoss.hp <= 0) {
+                // 討伐成功
+                state.dp += activeBoss.reward;
+                state.bossKills[activeBoss.id] = true;
+                showNotification(`🎉 ${activeBoss.name}を討伐！ ${formatNumber(activeBoss.reward)} DP獲得！`);
+                activeBoss = null;
+            }
+        } else {
+            // 通常DP獲得モード
+            state.dp += power;
+            createClickEffect(e.clientX, e.clientY, `+${formatNumber(power)}`);
+        }
+
+        state.totalClicks++;
+        checkEndings();
+        updateUI();
+    }
+
+    function createClickEffect(x, y, text) {
+        const el = document.createElement('div');
+        el.className = 'click-effect';
+        el.innerText = text;
+        // ランダムに少し散らす
+        const offsetX = (Math.random() - 0.5) * 40;
+        const offsetY = (Math.random() - 0.5) * 40;
+        el.style.left = (x + offsetX) + 'px';
+        el.style.top = (y + offsetY) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function getUpgradeCost(type) {
+        const upg = state.upgrades[type];
+        return Math.floor(upg.baseCost * Math.pow(upg.costMult, upg.count));
+    }
+
+    function buyUpgrade(type) {
+        const cost = getUpgradeCost(type);
+        if (state.dp >= cost) {
+            state.dp -= cost;
+            state.upgrades[type].count++;
+            updateUI();
+        }
+    }
+
+    function drawGacha(times) {
+        const cost = times * 1000;
+        if (state.dp < cost) return;
+        state.dp -= cost;
+        state.totalGacha += times;
+
+        let results = [];
+        const totalWeight = gachaPool.reduce((sum, item) => sum + item.weight, 0);
+
+        for (let i = 0; i < times; i++) {
+            let r = Math.random() * totalWeight;
+            let currentWeight = 0;
+            for (let item of gachaPool) {
+                currentWeight += item.weight;
+                if (r <= currentWeight) {
+                    results.push(item);
+                    state.inventory[item.rarity]++;
+                    if (item.rarity === 'SSR') state.multiplier += 0.5;
+                    if (item.rarity === 'UR') state.multiplier += 10;
+                    break;
+                }
+            }
+        }
+
+        // 結果表示
+        const resDiv = document.getElementById('gacha-result');
+        resDiv.innerHTML = results.map(r => `<span class="rarity-${r.rarity}">[${r.rarity}] ${r.name}</span>`).join('<br>');
+        
+        checkEndings();
+        updateUI();
+    }
+
+    function startBoss(bossId) {
+        if (activeBoss && activeBoss.id === bossId) {
+            activeBoss = null; // キャンセル
+        } else {
+            activeBoss = { ...bosses[bossId], hp: bosses[bossId].maxHp };
+        }
+        updateUI();
+    }
+
+    // --- エンディング判定 ---
+    function checkEndings() {
+        let newUnlock = false;
+
+        const checkAndUnlock = (id, condition) => {
+            if (!state.unlockedEndings.includes(id) && condition) {
+                state.unlockedEndings.push(id);
+                showNotification(`🏆 エンディング達成: ${endings.find(e => e.id === id).title}`);
+                newUnlock = true;
+            }
+        };
+
+        checkAndUnlock(1, state.totalClicks >= 1000);
+        checkAndUnlock(2, state.dp >= 100000000);
+        checkAndUnlock(3, state.totalGacha >= 500);
+        checkAndUnlock(4, state.inventory.SSR >= 1);
+        checkAndUnlock(5, state.inventory.UR >= 1);
+        checkAndUnlock(6, state.bossKills.boss1);
+        checkAndUnlock(7, state.bossKills.boss2);
+        checkAndUnlock(8, state.bossKills.boss3);
+        checkAndUnlock(9, getDps() >= 100000);
+        checkAndUnlock(10, getClickPower() >= 1000000);
+        
+        // END 11 判定
+        if (!state.unlockedEndings.includes(11) && state.unlockedEndings.length >= 10 && !state.unlockedEndings.includes(11)) {
+            checkAndUnlock(11, true);
+        }
+
+        if (newUnlock) buildEndingList();
+    }
+
+    // --- UI更新 ---
+    function updateUI() {
+        document.getElementById('dp-display').innerText = formatNumber(state.dp);
+        document.getElementById('click-power-display').innerText = formatNumber(getClickPower());
+        document.getElementById('dps-display').innerText = formatNumber(getDps());
+        document.getElementById('multiplier-display').innerText = state.multiplier.toFixed(1);
+
+        // ボタンの有効無効
+        document.getElementById('upg-click').disabled = state.dp < getUpgradeCost('click');
+        document.getElementById('cost-click').innerText = formatNumber(getUpgradeCost('click'));
+        
+        document.getElementById('upg-auto').disabled = state.dp < getUpgradeCost('auto');
+        document.getElementById('cost-auto').innerText = formatNumber(getUpgradeCost('auto'));
+
+        document.getElementById('gacha-1').disabled = state.dp < 1000;
+        document.getElementById('gacha-10').disabled = state.dp < 10000;
+
+        // インベントリ表示
+        document.getElementById('inventory-display').innerHTML = `
+            N (ただの石): ${state.inventory.N} 個<br>
+            R (エナドリ): ${state.inventory.R} 個<br>
+            SR (ゲーミングPC): ${state.inventory.SR} 個<br>
+            SSR (虹色の脳汁): ${state.inventory.SSR} 個<br>
+            UR (宇宙創造神): ${state.inventory.UR} 個
+        `;
+
+        // メインボタンの表示変更（ボス戦対応）
+        const mainBtn = document.getElementById('main-btn');
+        if (activeBoss) {
+            mainBtn.style.background = 'linear-gradient(45deg, #aa0000, #ff0000)';
+            mainBtn.innerHTML = `⚔️ ${activeBoss.name} を攻撃！<br>残りHP: ${formatNumber(activeBoss.hp)}`;
+        } else {
+            mainBtn.style.background = 'linear-gradient(45deg, #ff0055, #ffaa00)';
+            mainBtn.innerHTML = `脳汁を出す!!`;
+        }
+
+        buildBossList();
+    }
+
+    function buildBossList() {
+        const container = document.getElementById('boss-container');
+        let html = '';
+        
+        let killedCount = Object.values(state.bossKills).filter(v => v).length;
+
+        for (const key in bosses) {
+            const b = bosses[key];
+            if (killedCount >= b.req) {
+                const isKilled = state.bossKills[key];
+                const isActive = activeBoss && activeBoss.id === key;
+                
+                html += `
+                <div class="boss-box" style="${isKilled ? 'border-color: #555; opacity: 0.7;' : ''}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight:bold; ${isKilled ? 'text-decoration: line-through;' : ''}">${b.name}</span>
+                        <button class="btn" style="width: auto; padding: 5px 10px; margin:0;" onclick="startBoss('${key}')">
+                            ${isActive ? '逃げる' : '挑戦'}
+                        </button>
+                    </div>
+                    <div style="font-size: 0.8em; margin-top: 5px;">HP: ${formatNumber(b.maxHp)} | 報酬: ${formatNumber(b.reward)} DP</div>
+                    ${isActive ? `
+                        <div class="hp-bar-bg">
+                            <div class="hp-bar-fill" style="width: ${(activeBoss.hp / activeBoss.maxHp) * 100}%"></div>
+                        </div>
+                    ` : ''}
+                </div>`;
+            }
+        }
+        container.innerHTML = html;
+    }
+
+    function buildEndingList() {
+        const container = document.getElementById('ending-container');
+        let html = '';
+        endings.forEach(e => {
+            const unlocked = state.unlockedEndings.includes(e.id);
+            html += `
+            <div class="ending-item ${unlocked ? 'unlocked' : ''}">
+                <div class="ending-title">${unlocked ? e.title : 'END ' + e.id + ' : ???'}</div>
+                <div class="ending-desc">${unlocked ? e.desc : '条件未達成'}</div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // --- セーブ＆ロード ---
+    function saveGame() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+        showNotification('💾 ゲームをセーブしました');
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            // オブジェクトの結合（アップデート時の互換性のため）
+            const parsed = JSON.parse(saved);
+            state = { ...defaultState, ...parsed };
+            // ネストされたオブジェクトの復元処理
+            state.upgrades = { ...defaultState.upgrades, ...(parsed.upgrades || {}) };
+            state.inventory = { ...defaultState.inventory, ...(parsed.inventory || {}) };
+            state.bossKills = { ...defaultState.bossKills, ...(parsed.bossKills || {}) };
+            showNotification('ロード完了！脳汁を出せ！');
+        }
+    }
+
+    function resetGame() {
+        if (confirm('本当に全てのデータを消去して最初からやり直しますか？（この操作は取り消せません）')) {
+            localStorage.removeItem(SAVE_KEY);
+            state = JSON.parse(JSON.stringify(defaultState));
+            activeBoss = null;
+            buildEndingList();
+            updateUI();
+            showNotification('データをリセットしました。');
+        }
+    }
+
+    // --- ゲームループ（自動生成） ---
+    setInterval(() => {
+        const dps = getDps();
+        if (dps > 0) {
+            // ボス戦闘中はDPSはボスへのダメージにならない（仕様）
+            // 自動生成は純粋にDPが増えるだけとする
+            state.dp += dps / 10; // 0.1秒ごとの処理
+            checkEndings();
+            updateUI();
+        }
+    }, 100);
+
+    // オートセーブ（10秒ごと）
+    setInterval(() => {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    }, 10000);
+
+    // --- 初期化 ---
+    window.onload = () => {
+        loadGame();
+        buildEndingList();
+        updateUI();
+    };
+
+</script>
+</body>
+</html>
