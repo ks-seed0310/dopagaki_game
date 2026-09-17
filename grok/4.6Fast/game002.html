@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ドパ秒パーク 完全版 — 3秒刺激が終わらない遊園地</title>
+<style>
+  :root{
+    --ink:#101018; --bg:#07070f; --c1:#ff2bd6; --c2:#22f0ff; --c3:#ffe14a; --c4:#7dff4d; --c5:#ff7a18;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:#05050c;color:#fff;font-family:"Segoe UI","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;overflow:hidden}
+  #app{height:100%;display:flex;flex-direction:column;position:relative}
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+  #top{
+    display:none;padding:8px 10px;background:linear-gradient(#141428,#0b0b18);
+    border-bottom:2px solid #22f0ff;flex-wrap:wrap;gap:6px;align-items:center;z-index:8
+  }
+  #top.show{display:flex}
+  .pill{font-size:12px;background:#0008;border:1px solid #ff2bd666;border-radius:999px;padding:4px 8px}
+  .pill b{color:#ffe14a}
+  #view{flex:1;overflow:auto;padding:12px}
+  .logo{
+    font-size:clamp(28px,8vw,48px);font-weight:900;text-align:center;line-height:1.15;
+    background:linear-gradient(90deg,#ffe14a,#ff2bd6,#22f0ff,#7dff4d,#ffe14a);
+    background-size:280% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:slide 2.8s linear infinite
+  }
+  @keyframes slide{to{background-position:280% 0}}
+  .sub{text-align:center;color:#b9b3ff;margin:6px 0 12px;font-size:13px}
+  .bar{height:5px;border-radius:9px;background:linear-gradient(90deg,#ff2bd6,#22f0ff,#ffe14a);background-size:200% 100%;animation:slide 1.2s linear infinite;margin:10px 0}
+  .card{
+    background:#141428ee;border:1px solid #3a3a6a;border-radius:16px;padding:12px;margin:8px 0
+  }
+  .story{line-height:1.7;font-size:15px;white-space:pre-wrap}
+  button.b{
+    width:100%;border:0;border-radius:14px;padding:13px 12px;margin-top:8px;font-size:16px;font-weight:800;
+    cursor:pointer;color:#140018;background:linear-gradient(#fff36a,#ffb000);
+    box-shadow:0 0 0 2px #fff8,0 6px 0 #b36a00
+  }
+  button.b:active{transform:translateY(4px);box-shadow:0 0 0 2px #fff8,0 2px 0 #b36a00}
+  button.b.c{background:linear-gradient(#8dfff8,#00c6dc);box-shadow:0 0 0 2px #fff8,0 6px 0 #007a88}
+  button.b.p{background:linear-gradient(#ffb7f4,#ff2bd6);box-shadow:0 0 0 2px #fff8,0 6px 0 #9a1488;color:#1a0016}
+  button.b.g{background:linear-gradient(#d7ff86,#7dff4d);box-shadow:0 0 0 2px #fff8,0 6px 0 #3a8a00}
+  button.b.d{background:#ffffff12;color:#fff;box-shadow:0 0 0 1px #fff4;font-weight:700}
+  .row{display:flex;gap:8px}
+  .row .b{flex:1}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cell{background:#1b1b36;border:1px solid #55558a;border-radius:12px;padding:10px;cursor:pointer;text-align:center;font-weight:800}
+  .cell:active{transform:scale(.97)}
+  .big{font-size:42px;text-align:center;margin:10px 0}
+  .timer{
+    height:12px;background:#221;border-radius:9px;overflow:hidden;border:1px solid #ff2bd6
+  }
+  .timer>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#22f0ff,#ffe14a,#ff2bd6);transform-origin:left center}
+  .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#120818f0;border:2px solid #ffe14a;padding:10px 14px;border-radius:12px;z-index:70;font-weight:800;animation:up 2s forwards;max-width:90%;text-align:center}
+  @keyframes up{0%{opacity:0;transform:translateX(-50%) translateY(10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+  .pop{position:absolute;pointer-events:none;font-weight:900;animation:pop .8s ease-out forwards;z-index:60;text-shadow:0 2px 0 #000}
+  @keyframes pop{to{transform:translate(-50%,-64px) scale(1.25);opacity:0}}
+  .sp{position:absolute;width:8px;height:8px;border-radius:50%;animation:sp .7s ease-out forwards}
+  @keyframes sp{to{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
+  .arena{min-height:230px;border-radius:18px;border:3px solid #fff;background:radial-gradient(circle at 30% 20%,#3a1460,#14081f 70%);padding:12px;text-align:center}
+  .mole{display:inline-flex;width:64px;height:64px;margin:6px;border-radius:50%;align-items:center;justify-content:center;font-size:30px;background:#2a2a4a;border:3px solid #fff4;cursor:pointer}
+  .mole.on{background:#ff2bd6;box-shadow:0 0 18px #ff2bd6}
+  input.nm{width:100%;padding:12px;border-radius:12px;border:2px solid #22f0ff;background:#0c0c18;color:#fff;font-size:16px;margin:8px 0}
+  .tiny{font-size:12px;color:#b7aee6;margin-top:8px}
+  .got{border-color:#ffe14a;background:#2a2208}
+  .shake{animation:sh .25s}
+  @keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  h2{color:#22f0ff;font-size:20px;margin-bottom:6px;text-shadow:0 0 10px #22f0ff66}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="fx"></div>
+  <div id="top"></div>
+  <div id="view"></div>
+</div>
+<script>
+const PREFIX = "dopagaki_game/grok/4.6Fast/002/saves/";
+const PETS = [
+  {id:"puni", name:"プニ", emoji:"🟣", bonus:"combo"},
+  {id:"kira", name:"キラ", emoji:"⭐", bonus:"score"},
+  {id:"shuwa", name:"シュワ", emoji:"🫧", bonus:"coin"},
+  {id:"poyo", name:"ポヨ", emoji:"🟡", bonus:"time"},
+  {id:"neko", name:"ネオンネコ", emoji:"🐱", bonus:"life"},
+  {id:"pen", name:"ペンペン", emoji:"🐧", bonus:"score"},
+  {id:"ufo", name:"ミニUFO", emoji:"🛸", bonus:"combo"},
+  {id:"donut", name:"ドパドーナツ", emoji:"🍩", bonus:"coin"},
+  {id:"rab", name:"ピョン", emoji:"🐰", bonus:"time"},
+  {id:"drg", name:"豆ドラゴン", emoji:"🐲", bonus:"score"},
+  {id:"slm", name:"にじスライム", emoji:"🟢", bonus:"life"},
+  {id:"sun", name:"おひさま", emoji:"🌞", bonus:"combo"}
+];
+const STICKERS = ["🔥","💥","🌈","⚡","🎯","💎","🎪","🚀","🎵","👑","🧠","🍀","🍩","🐱","🛸","🏆"];
+const ENDS = [
+  ["N01","はじめての花火"],["N02","コンボ10達成"],["N03","コンボ30達成"],
+  ["N04","スコア1000"],["N05","スコア5000"],["N06","スコア12000"],
+  ["N07","ペット3匹"],["N08","ペットコンプ"],["N09","シールコンプ"],
+  ["N10","アップグレード全開"],["N11"," Frenzy制覇"],["N12","ノーミス10連鎖"],
+  ["N13","ループ3回"],["N14","コイン長者"],["N15"," reflex神"],
+  ["N16","計算あざやか"],["N17","モグラ名人"],["N18","夜勤プレイヤー"],
+  ["N19","全モード出場"],["N20","パーク名誉園長"],["N21","ゼロライフ逆転"],
+  ["N22","ガチャ依存？いえ収集家"],["N23","スピード狂詩曲"],["N24","禅モード悟り"],
+  ["N25","ボスラッシュ生存"],["N26","名前が伝説"],["N27","開発室チケット"],
+  ["N28","満点スタンプ帳"],["N29","ドパ秒王"],["N30","完全燃焼エンディング"]
+];
+
+function def(){
+  return {
+    name:"ドパ", coins:40, best:0, totalScore:0, runs:0, comboBest:0,
+    pets:[], stickers:[], ends:[],
+    up:{score:0, coin:0, time:0, life:0, combo:0},
+    loops:0, gacha:0, frenzyClear:0, bossClear:0, zenBest:0,
+    modesTried:{}, perfectChainBest:0, taps:0, playMs:0,
+    lastEnd:null
+  };
+}
+let G = def();
+let scene = "title";
+let run = null;
+let tickIv = null;
+
+function sk(k){ return PREFIX+k; }
+function save(){
+  try{
+    localStorage.setItem(sk("main"), JSON.stringify(G));
+    localStorage.setItem(sk("best"), JSON.stringify({best:G.best, combo:G.comboBest, name:G.name}));
+    localStorage.setItem(sk("collection"), JSON.stringify({pets:G.pets, stickers:G.stickers, ends:G.ends}));
+    localStorage.setItem(sk("meta"), JSON.stringify({t:Date.now(), runs:G.runs, loops:G.loops}));
+  }catch(e){}
+}
+function load(){
+  try{
+    const r = localStorage.getItem(sk("main"));
+    if(r){ G = Object.assign(def(), JSON.parse(r)); return true; }
+  }catch(e){}
+  return false;
+}
+
+const AC = (window.AudioContext||window.webkitAudioContext) ? new (window.AudioContext||window.webkitAudioContext)() : null;
+function beep(f=880,d=.07,t="square",v=.045){
+  if(!AC) return;
+  try{
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=t; o.frequency.value=f; g.gain.value=v;
+    o.connect(g); g.connect(AC.destination); o.start();
+    g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime+d);
+    o.stop(AC.currentTime+d);
+  }catch(e){}
+}
+function fanfare(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.11,"triangle",.05),i*80))}
+
+function sparks(x,y,n=10){
+  const fx=document.getElementById("fx");
+  const cols=["#ffe14a","#ff2bd6","#22f0ff","#7dff4d","#fff"];
+  for(let i=0;i<n;i++){
+    const s=document.createElement("div"); s.className="sp";
+    const a=Math.random()*Math.PI*2, dist=30+Math.random()*90;
+    s.style.left=x+"px"; s.style.top=y+"px"; s.style.background=cols[i%cols.length];
+    s.style.setProperty("--x",Math.cos(a)*dist+"px");
+    s.style.setProperty("--y",Math.sin(a)*dist+"px");
+    fx.appendChild(s); setTimeout(()=>s.remove(),720);
+  }
+}
+function pop(txt,x,y,col="#ffe14a"){
+  const e=document.createElement("div"); e.className="pop";
+  e.textContent=txt; e.style.left=x+"px"; e.style.top=y+"px"; e.style.color=col; e.style.fontSize=(16+Math.random()*12)+"px";
+  document.getElementById("fx").appendChild(e); setTimeout(()=>e.remove(),820);
+}
+function toast(m){
+  const t=document.createElement("div"); t.className="toast"; t.textContent=m;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2000);
+}
+document.addEventListener("pointerdown",e=>{
+  sparks(e.clientX,e.clientY,7);
+  if(AC && AC.state==="suspended") AC.resume();
+});
+
+function hasPet(id){return G.pets.includes(id)}
+function givePet(id){
+  if(!hasPet(id)){ G.pets.push(id); toast("ペットGET "+(PETS.find(p=>p.id===id)||{}).emoji); fanfare(); }
+}
+function sticker(s){
+  if(!G.stickers.includes(s)){ G.stickers.push(s); toast("シール "+s); }
+}
+function end(id){
+  if(!G.ends.includes(id)){ G.ends.push(id); G.lastEnd=id; save(); return true; }
+  return false;
+}
+function bonus(type){
+  let n=0;
+  G.pets.forEach(id=>{
+    const p=PETS.find(x=>x.id===id);
+    if(p && p.bonus===type) n++;
+  });
+  return n;
+}
+
+function hud(){
+  const el=document.getElementById("top");
+  if(scene==="title"||scene==="name"){ el.classList.remove("show"); return; }
+  el.classList.add("show");
+  const pet = G.pets.slice(0,4).map(id=>(PETS.find(p=>p.id===id)||{}).emoji).join("") || "–";
+  el.innerHTML = `<div class="pill">👤 <b>${esc(G.name)}</b></div>
+    <div class="pill">🪙 <b>${G.coins}</b></div>
+    <div class="pill">🏆BEST <b>${G.best}</b></div>
+    <div class="pill">🔁LOOP <b>${G.loops}</b></div>
+    <div class="pill">🐾${pet}</div>
+    <div class="pill">🎬${G.ends.length}/30</div>`;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]))}
+function view(h){ document.getElementById("view").innerHTML=h; }
+function bind(){
+  document.querySelectorAll("[data-a]").forEach(b=>{
+    b.addEventListener("click",()=>{ beep(720+Math.random()*280,.05); act(b.getAttribute("data-a")); });
+  });
+}
+
+function go(s){ scene=s; render(); }
+function render(){
+  save(); hud();
+  const map={title, name:nameS, menu, runS, result, shop, gachaS, petsS, stickS, endsS, how, prestige};
+  (map[scene]||menu)();
+}
+
+function title(){
+  view(`<div class="card" style="text-align:center">
+    <div class="logo">ドパ秒パーク</div>
+    <div class="sub">COMPLETE / マイクロゲーム遊園地</div>
+    <div class="bar"></div>
+    <p class="story">さっきの島めぐりとは別物。
+ここでは物語より「次の3秒」。
+ゲームが次々切り替わる。成功するたびに画面がはじける。
+ペット・シール・ループ・30種エンディングつき。</p>
+    <button class="b p" data-a="new">▶ ニューゲーム</button>
+    <button class="b c" data-a="cont">▶ つづきから</button>
+    <button class="b" data-a="ends">🎬 エンド図かん</button>
+    <button class="b d" data-a="how">遊び方</button>
+    <p class="tiny">save: dopagaki_game/grok/4.6Fast/002/saves/</p>
+  </div>`);
+  bind();
+}
+function nameS(){
+  view(`<div class="card"><h2>園の名札</h2>
+    <p class="story">スコア看板に出る名前だよ。</p>
+    <input class="nm" id="nm" maxlength="10" value="${esc(G.name)}">
+    <button class="b g" data-a="setname">この名前で入場！</button></div>`);
+  bind();
+}
+function menu(){
+  view(`<div class="card">
+    <h2>パーク入口</h2>
+    <p class="story">${esc(G.name)}よ、どの乗り物に乗る？
+短くて強い刺激だけが並んでいる。</p>
+    <button class="b p" data-a="start:normal">🎪 通常ラン（ライフ式）</button>
+    <button class="b c" data-a="start:frenzy">⚡ 30秒フレンジー</button>
+    <button class="b" data-a="start:boss">🐲 ボスラッシュ</button>
+    <button class="b g" data-a="start:zen">🧘 禅スコア（失敗なし）</button>
+    <div class="row">
+      <button class="b d" data-a="shop">🔧改造</button>
+      <button class="b d" data-a="gacha">🎰カプセル</button>
+    </div>
+    <div class="row">
+      <button class="b d" data-a="pets">🐾ペット</button>
+      <button class="b d" data-a="stick">🎀シール</button>
+    </div>
+    <div class="row">
+      <button class="b d" data-a="ends">🎬END</button>
+      <button class="b d" data-a="prestige">🔁ループ</button>
+    </div>
+    <button class="b d" data-a="title">タイトル</button>
+  </div>`);
+  bind();
+}
+function how(){
+  view(`<div class="card"><h2>遊び方</h2>
+    <p class="story">・数秒ごとに課題が変わる
+・成功でスコア×コンボ
+・失敗でライフ減少（禅モード以外）
+・コインで改造とカプセル
+・ペットはボーナスをくれる
+・条件を満たすとENDが解放
+・ループすると基礎倍率が上がる（進行は残る）
+
+Dキー連打で開発室チケット。</p>
+    <button class="b" data-a="title">OK</button></div>`);
+  bind();
+}
+
+function startRun(mode){
+  G.modesTried[mode]=true;
+  const extraLife = G.up.life + bonus("life");
+  run = {
+    mode, score:0, combo:0, maxCombo:0, life: (mode==="zen"?99:(mode==="boss"?2:3)+extraLife),
+    left: mode==="frenzy"?30:(mode==="boss"?99:99),
+    q:0, perfect:0, miss:0, alive:true, t0:Date.now(),
+    limit: 2200 - Math.min(900, G.loops*40) + bonus("time")*120 + G.up.time*80,
+    game:null
+  };
+  if(mode==="boss") run.limit = Math.max(900, run.limit-400);
+  scene="runS";
+  nextGame();
+}
+
+function nextGame(){
+  if(!run || !run.alive) return;
+  run.q++;
+  const list = GAMES;
+  let g = list[Math.floor(Math.random()*list.length)];
+  if(run.mode==="boss" && run.q%4===0) g = list[Math.floor(Math.random()*list.length)];
+  run.game = g.make(Math.min(1.6, 1+run.q*0.03+G.loops*0.02));
+  run.game.kind = g.id;
+  run.started = Date.now();
+  paintRun();
+}
+
+function paintRun(){
+  hud();
+  const r=run;
+  const remainLife = r.mode==="zen" ? "∞" : r.life;
+  const timeBit = r.mode==="frenzy" ? `⏱${Math.max(0,30-Math.floor((Date.now()-r.t0)/1000))}s` : `Q${r.q}`;
+  view(`<div class="card">
+    <div class="row" style="margin-bottom:6px">
+      <div class="pill">SCORE <b>${r.score}</b></div>
+      <div class="pill">COMBO <b>x${r.combo}</b></div>
+      <div class="pill">♥${remainLife}</div>
+      <div class="pill">${timeBit}</div>
+    </div>
+    <div class="timer"><i id="tm"></i></div>
+    <h2 style="margin-top:10px">${r.game.title}</h2>
+    <div class="arena" id="arena">${r.game.html}</div>
+  </div>`);
+  if(r.game.bind) r.game.bind();
+  const bar=document.getElementById("tm");
+  const lim=r.game.time || r.limit;
+  const t0=Date.now();
+  if(tickIv) clearInterval(tickIv);
+  tickIv=setInterval(()=>{
+    if(scene!=="runS"||!run||!run.alive){clearInterval(tickIv);return;}
+    const p=Math.max(0,1-(Date.now()-t0)/lim);
+    if(bar) bar.style.transform=`scaleX(${p})`;
+    if(run.mode==="frenzy"){
+      const left=30-(Date.now()-run.t0)/1000;
+      if(left<=0){ finishRun(); return; }
+    }
+    if(p<=0){ resolve(false, "TIME"); }
+  },40);
+}
+
+function resolve(ok, tag){
+  if(!run||!run.alive) return;
+  if(tickIv){clearInterval(tickIv); tickIv=null;}
+  if(ok){
+    run.combo++; run.maxCombo=Math.max(run.maxCombo,run.combo); run.perfect++;
+    const mul = 1 + run.combo*0.15 + G.up.combo*0.08 + bonus("combo")*0.1 + G.loops*0.2;
+    const add = Math.floor((80 + run.q*6) * mul * (1+G.up.score*0.08+bonus("score")*0.08));
+    run.score += add;
+    beep(980,.06,"triangle",.05);
+    toast((tag||"OK")+" +"+add);
+    if(run.combo===10) end("N02");
+    if(run.combo===30) end("N03");
+    if(run.combo>=10 && run.maxCombo>=10) sticker("🔥");
+    if(run.game && run.game.kind==="math") end("N16");
+    if(run.game && run.game.kind==="mole" && run.combo>=5) end("N17");
+    setTimeout(()=>{ if(run&&run.alive) nextGame(); }, 280);
+  } else {
+    run.combo=0; run.miss++; run.life--;
+    beep(180,.12,"sawtooth",.04);
+    document.getElementById("view")?.classList.add("shake");
+    toast(tag||"ミス");
+    if(run.mode==="zen"){
+      run.life=99;
+      setTimeout(()=>{ if(run&&run.alive) nextGame(); }, 300);
+      return;
+    }
+    if(run.life<=0){ finishRun(); return; }
+    if(run.life===1 && run.score>=400) end("N21");
+    setTimeout(()=>{ if(run&&run.alive) nextGame(); }, 360);
+  }
+}
+
+function finishRun(){
+  if(!run) return;
+  run.alive=false;
+  if(tickIv){clearInterval(tickIv);tickIv=null;}
+  const r=run;
+  G.runs++; G.totalScore+=r.score;
+  if(r.score>G.best) G.best=r.score;
+  G.comboBest=Math.max(G.comboBest,r.maxCombo);
+  G.perfectChainBest=Math.max(G.perfectChainBest,r.perfect);
+  const coin = Math.max(4, Math.floor(r.score/40) + r.perfect + bonus("coin")*3 + G.up.coin*2);
+  G.coins += coin;
+  if(r.mode==="frenzy" && r.score>=800){ G.frenzyClear++; end("N11"); }
+  if(r.mode==="boss" && r.q>=12){ G.bossClear++; end("N25"); }
+  if(r.mode==="zen") G.zenBest=Math.max(G.zenBest,r.score);
+  if(r.mode==="zen" && r.score>=1500) end("N24");
+  if(r.score>=1000) end("N04");
+  if(r.score>=5000) end("N05");
+  if(r.score>=12000) end("N06");
+  if(r.maxCombo>=8 && r.miss===0) end("N12");
+  if(r.score>=3000) end("N15");
+  if(r.q>=18) end("N23");
+  if(G.runs>=1) end("N01");
+  if(Object.keys(G.modesTried).length>=4) end("N19");
+  if(G.name.length>=2) end("N26");
+  sticker(["💥","🌈","⚡","🎯"][r.q%4]);
+  scene="result";
+  run._coin=coin;
+  render();
+}
+
+function result(){
+  const r=run||{score:0,maxCombo:0,perfect:0,miss:0,q:0,mode:"normal"};
+  view(`<div class="card" style="text-align:center">
+    <h2>RESULT</h2>
+    <div class="logo" style="font-size:34px">${r.score}</div>
+    <p class="story">COMBO最大 ${r.maxCombo}
+成功 ${r.perfect} / ミス ${r.miss} / 問数 ${r.q}
+モード ${r.mode}
+コイン +${run&&run._coin||0}</p>
+    <button class="b p" data-a="start:${r.mode}">もう一回！</button>
+    <button class="b c" data-a="menu">入口へ</button>
+    <button class="b" data-a="ends">END図かん</button>
+  </div>`);
+  bind(); fanfare();
+}
+
+function runS(){ if(!run) { go("menu"); return; } paintRun(); }
+
+function shop(){
+  const cost=n=>12+n*14;
+  view(`<div class="card"><h2>改造工房</h2>
+    <p class="story">所持 🪙${G.coins}
+数字が上がるほどパークが暴れる。</p>
+    <button class="b" data-a="up:score">スコア増幅 Lv${G.up.score} （${cost(G.up.score)}c）</button>
+    <button class="b" data-a="up:coin">コイン増幅 Lv${G.up.coin} （${cost(G.up.coin)}c）</button>
+    <button class="b" data-a="up:time">制限時間 Lv${G.up.time} （${cost(G.up.time)}c）</button>
+    <button class="b" data-a="up:life">ライフ+ Lv${G.up.life} （${cost(G.up.life)+8}c）</button>
+    <button class="b" data-a="up:combo">コンボ倍率 Lv${G.up.combo} （${cost(G.up.combo)}c）</button>
+    <button class="b d" data-a="menu">戻る</button>
+  </div>`);
+  bind();
+}
+function gachaS(){
+  view(`<div class="card"><h2>カプセルマシン</h2>
+    <p class="story">18コインでペットかシール。
+回した回数 ${G.gacha}</p>
+    <div class="big" id="cap">❓</div>
+    <button class="b p" data-a="roll">回す</button>
+    <button class="b d" data-a="menu">戻る</button>
+  </div>`);
+  bind();
+}
+function petsS(){
+  const cells=PETS.map(p=>`<div class="cell ${hasPet(p.id)?"got":""}">${hasPet(p.id)?p.emoji+" "+p.name:"❓"}<div class="tiny">${p.bonus}</div></div>`).join("");
+  view(`<div class="card"><h2>ペット図かん ${G.pets.length}/${PETS.length}</h2>
+    <div class="grid">${cells}</div>
+    <button class="b d" data-a="menu">戻る</button></div>`);
+  bind();
+}
+function stickS(){
+  const cells=STICKERS.map(s=>`<div class="cell ${G.stickers.includes(s)?"got":""}">${G.stickers.includes(s)?s:"⬜"}</div>`).join("");
+  view(`<div class="card"><h2>シール帳 ${G.stickers.length}/${STICKERS.length}</h2>
+    <div class="grid">${cells}</div>
+    <button class="b d" data-a="menu">戻る</button></div>`);
+  bind();
+}
+function endsS(){
+  const cells=ENDS.map(([id,name])=>`<div class="cell ${G.ends.includes(id)?"got":""}">${G.ends.includes(id)?id+" "+name:id+" ？？？"}</div>`).join("");
+  view(`<div class="card"><h2>エンド図かん ${G.ends.length}/30</h2>
+    <div class="grid">${cells}</div>
+    <p class="tiny">最後に解放: ${G.lastEnd||"—"}</p>
+    <button class="b d" data-a="${G.name?"menu":"title"}">戻る</button></div>`);
+  bind();
+}
+function prestige(){
+  const need=800+G.loops*400;
+  view(`<div class="card"><h2>ループゲート</h2>
+    <p class="story">ベストスコアが ${need} 以上ならループできる。
+ループすると基礎倍率が上がる。ペットとENDは残る。
+コインと改造レベルはリセット。
+
+現在ループ ${G.loops}　ベスト ${G.best}</p>
+    <button class="b p" data-a="doloop">ループする</button>
+    <button class="b d" data-a="menu">やめる</button>
+  </div>`);
+  bind();
+}
+
+const GAMES = [
+  {id:"tap", make(diff){
+    const need=4+Math.floor(diff*4);
+    const st={n:0,title:`🔥 ${need}回タップ！`, time:1500+800/diff, html:`<p>連打せよ</p><button class="b p" id="tapb">TAP 0/${need}</button>`};
+    st.bind=()=>{
+      document.getElementById("tapb").onclick=e=>{
+        G.taps++; st.n++; beep(600+st.n*40,.03);
+        pop("+"+st.n,e.clientX,e.clientY);
+        e.currentTarget.textContent=`TAP ${st.n}/${need}`;
+        if(st.n>=need) resolve(true,"RUSH");
+      };
+    };
+    return st;
+  }},
+  {id:"color", make(){
+    const cols=[{n:"あか",c:"#ff3355"},{n:"あお",c:"#3399ff"},{n:"きいろ",c:"#ffe14a"},{n:"みどり",c:"#7dff4d"},{n:"ピンク",c:"#ff2bd6"}];
+    const ans=cols[Math.floor(Math.random()*cols.length)];
+    const mix=[...cols].sort(()=>Math.random()-0.5);
+    const st={title:`🎨 「${ans.n}」を押せ`, time:2000, html:`<div class="grid">${mix.map(c=>`<div class="cell" data-c="${c.n}" style="background:${c.c};height:64px;color:#000"></div>`).join("")}</div>`};
+    st.bind=()=>{
+      document.querySelectorAll("[data-c]").forEach(el=>{
+        el.onclick=()=> resolve(el.getAttribute("data-c")===ans.n, el.getAttribute("data-c")===ans.n?"COLOR":"NG");
+      });
+    };
+    return st;
+  }},
+  {id:"odd", make(){
+    const a=["🍎","🍎","🍎","🍎","🍎","🍐"][Math.random()>.5?"fill":"fill"];
+    const base=["🍎","🍋","🍇","🍓","🍩","⭐","😺","🚀"][Math.floor(Math.random()*8)];
+    let odd="🍀"; if(odd===base) odd="💎";
+    const arr=Array(6).fill(base); const ix=Math.floor(Math.random()*6); arr[ix]=odd;
+    const st={title:"👀 仲間はずれはどれ？", time:2200, html:`<div class="grid">${arr.map((e,i)=>`<div class="cell" data-i="${i}" style="font-size:28px">${e}</div>`).join("")}</div>`};
+    st.bind=()=>{
+      document.querySelectorAll("[data-i]").forEach(el=>{
+        el.onclick=()=> resolve(+el.getAttribute("data-i")===ix, +el.getAttribute("data-i")===ix?"FIND":"NG");
+      });
+    };
+    return st;
+  }},
+  {id:"lr", make(){
+    const side=Math.random()>.5?"左":"右";
+    const st={title:`👉 「${side}」ボタン！`, time:1600, html:`<div class="row"><button class="b c" id="L">◀ 左</button><button class="b p" id="R">右 ▶</button></div>`};
+    st.bind=()=>{
+      document.getElementById("L").onclick=()=>resolve(side==="左", side==="左"?"LEFT":"NG");
+      document.getElementById("R").onclick=()=>resolve(side==="右", side==="右"?"RIGHT":"NG");
+    };
+    return st;
+  }},
+  {id:"math", make(diff){
+    const a=1+Math.floor(Math.random()*(4+diff*3));
+    const b=1+Math.floor(Math.random()*6);
+    const ans=a+b;
+    const opts=new Set([ans]);
+    while(opts.size<4) opts.add(ans+Math.floor(Math.random()*7)-3);
+    const list=[...opts].sort(()=>Math.random()-0.5);
+    const st={title:`🧠 ${a} + ${b} = ?`, time:2400, html:`<div class="grid">${list.map(n=>`<div class="cell" data-n="${n}" style="font-size:24px">${n}</div>`).join("")}</div>`};
+    st.bind=()=>{
+      document.querySelectorAll("[data-n]").forEach(el=>{
+        el.onclick=()=> resolve(+el.getAttribute("data-n")===ans, +el.getAttribute("data-n")===ans?"MATH":"NG");
+      });
+    };
+    return st;
+  }},
+  {id:"stop", make(){
+    const st={title:"🎯 緑のとき押せ！", time:5000, html:`<p>バーが往復するよ</p><div class="timer" style="height:22px;margin:12px 0"><i id="sw"></i></div><button class="b g" id="stop">STOP</button>`};
+    st.bind=()=>{
+      let x=0, dir=1;
+      const sw=document.getElementById("sw");
+      const iv=setInterval(()=>{
+        if(scene!=="runS"){clearInterval(iv);return;}
+        x+=dir*0.035; if(x>=1||x<=0) dir*=-1;
+        if(sw) sw.style.transform=`translateX(${(x-1)*100}%) scaleX(.18)`;
+      },16);
+      document.getElementById("stop").onclick=()=>{
+        clearInterval(iv);
+        const ok=x>0.38 && x<0.62;
+        resolve(ok, ok?"NICE":"ZURE");
+      };
+    };
+    return st;
+  }},
+  {id:"mole", make(diff){
+    const hitsNeed=2+Math.floor(diff);
+    const st={n:0,title:`🐹 モグラを${hitsNeed}回叩け`, time:2600, html:`<div id="moles">${[0,1,2,3,4,5].map(i=>`<span class="mole" data-m="${i}">🕳️</span>`).join("")}</div>`};
+    st.bind=()=>{
+      const moles=[...document.querySelectorAll("[data-m]")];
+      let cur=-1;
+      const hop=()=>{
+        moles.forEach(m=>{m.classList.remove("on"); m.textContent="🕳️";});
+        cur=Math.floor(Math.random()*6);
+        moles[cur].classList.add("on"); moles[cur].textContent="🐹";
+      };
+      hop();
+      const iv=setInterval(()=>{ if(scene!=="runS"){clearInterval(iv);return;} hop(); }, 520);
+      moles.forEach(m=>m.onclick=()=>{
+        if(m.classList.contains("on")){
+          st.n++; beep(1000,.04); m.classList.remove("on"); m.textContent="💫";
+          if(st.n>=hitsNeed){ clearInterval(iv); resolve(true,"MOLE"); }
+        } else {
+          clearInterval(iv); resolve(false,"WHIFF");
+        }
+      });
+    };
+    return st;
+  }},
+  {id:"big", make(){
+    const a=2+Math.floor(Math.random()*20), b=2+Math.floor(Math.random()*20);
+    let A=a,B=b; if(A===B) B++;
+    const st={title:"📈 大きい数字はどっち？", time:1800, html:`<div class="row"><button class="b c" id="A" style="font-size:28px">${A}</button><button class="b p" id="B" style="font-size:28px">${B}</button></div>`};
+    st.bind=()=>{
+      document.getElementById("A").onclick=()=>resolve(A>B, A>B?"BIG":"NG");
+      document.getElementById("B").onclick=()=>resolve(B>A, B>A?"BIG":"NG");
+    };
+    return st;
+  }},
+  {id:"hold", make(){
+    const st={title:"✋ 1秒だけ長押し", time:4000, html:`<p>離すタイミングが勝負</p><button class="b p" id="hld">押したまま…</button><p class="tiny" id="ht"></p>`};
+    st.bind=()=>{
+      const b=document.getElementById("hld"); let t0=0;
+      b.onpointerdown=()=>{ t0=Date.now(); document.getElementById("ht").textContent="計測中"; };
+      b.onpointerup=()=>{
+        const d=Date.now()-t0;
+        resolve(d>=700 && d<=1400, (d>=700&&d<=1400)?"HOLD":"ZURE");
+      };
+    };
+    return st;
+  }},
+  {id:"seq", make(){
+    const letters=["ア","イ","ウ","エ"];
+    const seq=[0,1,2,3].sort(()=>Math.random()-0.5).slice(0,3);
+    const word=seq.map(i=>letters[i]).join(" ");
+    const st={title:`🔤 この順に押せ  ${word}`, time:3500, html:`<div class="grid">${letters.map((l,i)=>`<div class="cell" data-s="${i}" style="font-size:26px">${l}</div>`).join("")}</div>`};
+    st.bind=()=>{
+      const input=[];
+      document.querySelectorAll("[data-s]").forEach(el=>{
+        el.onclick=()=>{
+          input.push(+el.getAttribute("data-s"));
+          beep(500+input.length*90,.05);
+          if(input.length===seq.length){
+            const ok=input.every((v,i)=>v===seq[i]);
+            resolve(ok, ok?"SEQ":"NG");
+          }
+        };
+      });
+    };
+    return st;
+  }},
+  {id:"avoid", make(){
+    const items=["⭐","💣","⭐","🎈","💣","⭐"].sort(()=>Math.random()-0.5);
+    const st={title:"💣 爆弾以外を押せ（1つでOK）", time:2000, html:`<div class="grid">${items.map((e,i)=>`<div class="cell" data-e="${e}" style="font-size:28px">${e}</div>`).join("")}</div>`};
+    st.bind=()=>{
+      document.querySelectorAll("[data-e]").forEach(el=>{
+        el.onclick=()=> resolve(el.getAttribute("data-e")!=="💣", el.getAttribute("data-e")!=="💣"?"SAFE":"BOMB");
+      });
+    };
+    return st;
+  }},
+  {id:"count", make(){
+    const n=2+Math.floor(Math.random()*4);
+    const st={title:"✨ 星は何個だった？", time:3200, html:`<div class="big" id="fl"> </div><div class="grid" id="ans" style="display:none"></div>`};
+    st.bind=()=>{
+      const fl=document.getElementById("fl");
+      fl.textContent="★".repeat(n);
+      setTimeout(()=>{
+        if(scene!=="runS") return;
+        fl.textContent="？";
+        const box=document.getElementById("ans");
+        box.style.display="grid";
+        const opts=new Set([n]); while(opts.size<4) opts.add(1+Math.floor(Math.random()*6));
+        box.innerHTML=[...opts].sort(()=>Math.random()-.5).map(v=>`<div class="cell" data-v="${v}">${v}</div>`).join("");
+        box.querySelectorAll("[data-v]").forEach(el=>{
+          el.onclick=()=> resolve(+el.getAttribute("data-v")===n, +el.getAttribute("data-v")===n?"COUNT":"NG");
+        });
+      }, 700);
+    };
+    return st;
+  }}
+];
+
+function checkSets(){
+  if(G.pets.length>=3) end("N07");
+  if(G.pets.length>=PETS.length) end("N08");
+  if(G.stickers.length>=STICKERS.length){ end("N09"); end("N28"); }
+  if(Object.values(G.up).every(v=>v>=4)) end("N10");
+  if(G.loops>=3) end("N13");
+  if(G.coins>=200) end("N14");
+  if(G.gacha>=8) end("N22");
+  if(G.ends.length>=20) end("N20");
+  if(G.best>=8000 && G.pets.length>=6) end("N29");
+  if(G.ends.length>=29) end("N30");
+  const h=new Date().getHours();
+  if(h>=22 || h<=5) end("N18");
+}
+
+function act(a){
+  checkSets();
+  if(a==="new"){ G=def(); go("name"); return; }
+  if(a==="cont"){ if(load()){ toast("セーブ読込"); go("menu"); } else { toast("セーブなし"); go("name"); } return; }
+  if(a==="setname"){
+    G.name=((document.getElementById("nm")||{}).value||"ドパ").trim().slice(0,10)||"ドパ";
+    go("menu"); toast(G.name+"、入場！"); return;
+  }
+  if(a==="title"||a==="menu"||a==="shop"||a==="gacha"||a==="pets"||a==="stick"||a==="ends"||a==="how"||a==="prestige"){
+    const map={stick:"stickS", pets:"petsS", gacha:"gachaS", ends:"endsS"};
+    go(map[a]||a); return;
+  }
+  if(a.startsWith("start:")){ startRun(a.split(":")[1]); return; }
+  if(a.startsWith("up:")){
+    const k=a.split(":")[1];
+    const price=12+G.up[k]*14+(k==="life"?8:0);
+    if(G.coins<price){ toast("コイン不足"); return; }
+    if(G.up[k]>=8){ toast("MAX"); return; }
+    G.coins-=price; G.up[k]++; toast(k+" +1");
+    checkSets(); render(); return;
+  }
+  if(a==="roll"){
+    if(G.coins<18){ toast("18コイン必要"); return; }
+    G.coins-=18; G.gacha++;
+    const cap=document.getElementById("cap");
+    if(Math.random()<0.62){
+      const p=PETS[Math.floor(Math.random()*PETS.length)];
+      if(cap) cap.textContent=p.emoji;
+      if(hasPet(p.id)){ G.coins+=8; toast("かぶり → コイン+8"); }
+      else givePet(p.id);
+    } else {
+      const s=STICKERS[Math.floor(Math.random()*STICKERS.length)];
+      if(cap) cap.textContent=s;
+      sticker(s);
+    }
+    checkSets(); save(); return;
+  }
+  if(a==="doloop"){
+    const need=800+G.loops*400;
+    if(G.best<need){ toast("ベストが足りない"); return; }
+    G.loops++; G.coins=30; G.up={score:0,coin:0,time:0,life:0,combo:0};
+    end("N13");
+    if(G.loops>=3) end("N13");
+    toast("LOOP "+G.loops+"！倍率アップ");
+    go("menu"); return;
+  }
+}
+
+let secret=0;
+document.addEventListener("keydown",e=>{
+  if(e.key==="d"||e.key==="D"){
+    secret++;
+    if(secret>=8){
+      end("N27"); givePet("ufo"); sticker("🏆"); G.coins+=50; toast("開発室チケット");
+      secret=0; save();
+    }
+  }
+});
+
+render();
+</script>
+</body>
+</html>
