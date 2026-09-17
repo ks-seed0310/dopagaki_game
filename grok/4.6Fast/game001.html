@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ドパ☆パラダイス 完全版 — 絶対に飽きない超刺激アドベンチャー</title>
+<style>
+  :root {
+    --bg1: #120018;
+    --neon: #ff3df0;
+    --cyan: #00f0ff;
+    --yellow: #ffe600;
+    --lime: #7cff3d;
+    --orange: #ff8a00;
+    --pink: #ff6ad5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    background: radial-gradient(ellipse at top, #2a0044 0%, #0a0014 55%, #000 100%);
+    color: #fff;
+    font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    overflow: hidden;
+  }
+  #app { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+  #fx { position: fixed; inset: 0; pointer-events: none; z-index: 80; overflow: hidden; }
+  #hud {
+    flex: 0 0 auto;
+    display: none;
+    padding: 8px 10px;
+    background: linear-gradient(90deg, rgba(20,0,40,.92), rgba(40,0,70,.85));
+    border-bottom: 2px solid var(--cyan);
+    z-index: 20;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #hud.show { display: flex; }
+  .stat {
+    font-size: 12px;
+    background: rgba(0,0,0,.45);
+    border: 1px solid #ff3df088;
+    border-radius: 999px;
+    padding: 4px 10px;
+    white-space: nowrap;
+  }
+  .stat b { color: var(--yellow); }
+  #screen {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 14px 18px;
+  }
+  .hero {
+    text-align: center;
+    padding: 18px 10px 8px;
+  }
+  .logo {
+    font-size: clamp(26px, 7vw, 44px);
+    font-weight: 900;
+    letter-spacing: .04em;
+    background: linear-gradient(90deg, #ffe600, #ff3df0, #00f0ff, #7cff3d, #ffe600);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 3.2s linear infinite, bounce 1.6s ease-in-out infinite;
+    text-shadow: none;
+    filter: drop-shadow(0 0 12px #ff3df088);
+  }
+  @keyframes shine { 0%{background-position:0% 50%} 100%{background-position:300% 50%} }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  .sub { color: #c9b3ff; font-size: 13px; margin-top: 6px; }
+  .flash-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #ff3df0, #00f0ff, #ffe600, #7cff3d);
+    background-size: 200% 100%;
+    animation: shine 1.4s linear infinite;
+    margin: 10px 0 14px;
+    border-radius: 4px;
+  }
+  h2.scene-title {
+    font-size: 20px;
+    color: var(--cyan);
+    text-shadow: 0 0 10px #00f0ff88;
+    margin-bottom: 8px;
+  }
+  .story {
+    background: rgba(12,0,24,.72);
+    border: 1px solid #7a3dff66;
+    border-radius: 14px;
+    padding: 14px;
+    line-height: 1.7;
+    font-size: 15px;
+    min-height: 80px;
+    white-space: pre-wrap;
+  }
+  .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  button.btn {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #140018;
+    background: linear-gradient(180deg, #fff36a, #ffb000);
+    box-shadow: 0 0 0 2px #fff8, 0 6px 0 #b36a00, 0 10px 20px #0008;
+    transition: transform .08s, filter .08s;
+    text-align: left;
+  }
+  button.btn:active { transform: translateY(4px); box-shadow: 0 0 0 2px #fff8, 0 2px 0 #b36a00; }
+  button.btn.alt { background: linear-gradient(180deg, #7dfff6, #00c2d8); box-shadow: 0 0 0 2px #fff8, 0 6px 0 #007a8a, 0 10px 20px #0008; }
+  button.btn.pink { background: linear-gradient(180deg, #ffb3f3, #ff3df0); box-shadow: 0 0 0 2px #fff8, 0 6px 0 #a01890, 0 10px 20px #0008; color: #1a0018; }
+  button.btn.lime { background: linear-gradient(180deg, #d4ff7a, #7cff3d); box-shadow: 0 0 0 2px #fff8, 0 6px 0 #3a8a00, 0 10px 20px #0008; }
+  button.btn.ghost {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    box-shadow: 0 0 0 1px #ffffff44;
+    font-weight: 600;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row .btn { flex: 1; min-width: 120px; text-align: center; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid #ffffff22;
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .card:active { transform: scale(.98); }
+  .card h3 { font-size: 14px; color: var(--yellow); }
+  .card p { font-size: 12px; color: #ddd; margin-top: 4px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #ff3df033;
+    border: 1px solid #ff3df0;
+    color: #ffc6f6;
+    margin-left: 6px;
+  }
+  input.name {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--cyan);
+    background: #160022;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    margin: 10px 0;
+  }
+  .pop {
+    position: absolute;
+    pointer-events: none;
+    font-weight: 900;
+    animation: pop 0.9s ease-out forwards;
+    z-index: 90;
+    text-shadow: 0 2px 0 #000;
+  }
+  @keyframes pop {
+    0% { transform: translate(-50%,0) scale(.6); opacity: 1; }
+    100% { transform: translate(-50%,-70px) scale(1.3); opacity: 0; }
+  }
+  .spark {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: spark .7s ease-out forwards;
+  }
+  @keyframes spark {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+  }
+  .ending-box {
+    text-align: center;
+    padding: 16px 8px;
+  }
+  .ending-id {
+    color: var(--yellow);
+    font-size: 13px;
+    letter-spacing: .2em;
+  }
+  .ending-name {
+    font-size: 26px;
+    font-weight: 900;
+    margin: 8px 0 12px;
+    background: linear-gradient(90deg, #fff, #ffe600, #ff6ad5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .meter {
+    height: 10px;
+    background: #220033;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #ff3df066;
+    margin-top: 4px;
+  }
+  .meter > i {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #ff3df0, #ffe600);
+    width: 0%;
+    transition: width .3s;
+  }
+  .item-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip {
+    font-size: 12px;
+    background: #2a1048;
+    border: 1px solid #c77dff;
+    border-radius: 999px;
+    padding: 4px 8px;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    background: #160022ee;
+    border: 2px solid var(--yellow);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 12px;
+    z-index: 100;
+    animation: toast 2.2s ease forwards;
+    max-width: 90%;
+    text-align: center;
+    font-weight: 700;
+  }
+  @keyframes toast {
+    0%{opacity:0; transform:translateX(-50%) translateY(12px)}
+    12%{opacity:1; transform:translateX(-50%) translateY(0)}
+    80%{opacity:1}
+    100%{opacity:0}
+  }
+  .minigame {
+    text-align: center;
+    padding: 10px 0;
+  }
+  #tap-area {
+    margin: 12px auto;
+    width: min(92%, 360px);
+    height: 180px;
+    border-radius: 18px;
+    background: radial-gradient(circle at 30% 30%, #ff6ad5, #5b00a8 70%);
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 900;
+    user-select: none;
+    cursor: pointer;
+    box-shadow: 0 0 30px #ff3df088;
+  }
+  .hidden { display: none !important; }
+  .tiny { font-size: 12px; color: #cbb8ff; margin-top: 8px; }
+  .end-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .end-cell {
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    background: #1a0828;
+    border: 1px solid #553;
+  }
+  .end-cell.got { border-color: #ffe600; background: #2a1a00; }
+  .rainbow { animation: shine 2s linear infinite; background: linear-gradient(90deg,#ff3df0,#00f0ff,#ffe600,#7cff3d); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="fx"></div>
+  <div id="hud"></div>
+  <div id="screen"></div>
+</div>
+<script>
+const PREFIX = "dopagaki_game/grok/4.6Fast/001/saves/";
+const ALL_ITEMS = [
+  {id:"candy", name:"虹色キャンディ"},
+  {id:"soda", name:"シュワシュワソーダ"},
+  {id:"star", name:"星のかけら"},
+  {id:"feather", name:"キラキラ羽根"},
+  {id:"shell", name:"歌う貝がら"},
+  {id:"map", name:"にじ色地図"},
+  {id:"key", name:"黄金キー"},
+  {id:"sword", name:"おもちゃの剣"},
+  {id:"crown", name:"お菓子の王冠"},
+  {id:"slime", name:"プニプニスライム"},
+  {id:"crystal", name:"ドパ結晶"},
+  {id:"ticket", name:"フェスチケット"},
+  {id:"rocket", name:"ダンボールロケット"},
+  {id:"compass", name:"くるくるコンパス"},
+  {id:"photo", name:"みんなの写真"},
+  {id:"book", name:"ひみつノート"},
+  {id:"lamp", name:"おばけランプ"},
+  {id:"medal", name:"ヒーローメダル"},
+  {id:"flute", name:"風のフルート"},
+  {id:"seed", name:"ミラクルの種"},
+  {id:"pearl", name:"深海パール"},
+  {id:"mask", name:"にこにこ仮面"},
+  {id:"clock", name:"まわる時計"},
+  {id:"paint", name:"虹の絵の具"},
+  {id:"badge", name:"探検バッジ"},
+  {id:"cookie", name:"星クッキー"},
+  {id:"balloon", name:"無限ふうせん"},
+  {id:"dice", name:"運命サイコロ"},
+  {id:"letter", name:"未来からの手紙"},
+  {id:"orb", name:"ほんとうのオーブ"}
+];
+const AREAS = [
+  {id:"plaza", name:"キラキラ広場", desc:"島のまんなか。いつもお祭りみたい。"},
+  {id:"forest", name:"わくわく森", desc:"木々が光って、実がポロポロ落ちる。"},
+  {id:"cave", name:"エコー洞窟", desc:"声が7回へんしんして返ってくる。"},
+  {id:"beach", name:"シュワ海岸", desc:"波がサイダーの味。"},
+  {id:"town", name:"ニコニコ商店街", desc:"屋台が無限に並ぶ。"},
+  {id:"sky", name:"ふわふわ空園", desc:"雲の上の遊園地。"},
+  {id:"deep", name:"きらめき深海", desc:"クラゲがネオンサイン。"},
+  {id:"space", name:"どきどき宇宙台", desc:"星が手でつかめる展望台。"},
+  {id:"secret", name:"うらみちの扉", desc:"見つけた人だけ入れる隠し場所。"}
+];
+const ENDINGS = [
+  {id:"E01", name:"おかえりエンド", cond:"home"},
+  {id:"E02", name:"ドパキングエンド", cond:"rich"},
+  {id:"E03", name:"コレクターエンド", cond:"collector"},
+  {id:"E04", name:"ぜんぶ探検エンド", cond:"explorer"},
+  {id:"E05", name:"なかよしエンド", cond:"friends"},
+  {id:"E06", name:"おひるねエンド", cond:"sleepy"},
+  {id:"E07", name:"スイーツ王国エンド", cond:"sweets"},
+  {id:"E08", name:"宇宙旅行エンド", cond:"space"},
+  {id:"E09", name:"深海のおうじ/おひめエンド", cond:"deep"},
+  {id:"E10", name:"伝説のおもちゃ剣エンド", cond:"hero"},
+  {id:"E11", name:"プニプニ変身エンド", cond:"slime"},
+  {id:"E12", name:"音楽フェスエンド", cond:"fes"},
+  {id:"E13", name:"じかん旅行エンド", cond:"time"},
+  {id:"E14", name:"神かくし？エンド", cond:"vanish"},
+  {id:"E15", name:"島のヒーローエンド", cond:"savior"},
+  {id:"E16", name:"のんびり村長エンド", cond:"mayor"},
+  {id:"E17", name:"スピードスターエンド", cond:"speed"},
+  {id:"E18", name:"なぞときマスターエンド", cond:"puzzle"},
+  {id:"E19", name:"ガチャだいすきエンド", cond:"gacha"},
+  {id:"E20", name:"ひみつの部屋エンド", cond:"secretroom"},
+  {id:"E21", name:"ドパMAXエンド", cond:"maxwaku"},
+  {id:"E22", name:"集中たいそうエンド", cond:"focus"},
+  {id:"E23", name:"みんなパーティーエンド", cond:"party"},
+  {id:"E24", name:"真・虹の橋エンド", cond:"true"},
+  {id:"E25", name:"はらぺこ迷子エンド", cond:"hungry"},
+  {id:"E26", name:"ふうせんで旅立ちエンド", cond:"balloon"},
+  {id:"E27", name:"画家デビューエンド", cond:"art"},
+  {id:"E28", name:"未来からの手紙エンド", cond:"letter"},
+  {id:"E29", name:"サイコロ運命エンド", cond:"dice"},
+  {id:"E30", name:"開発室エンド", cond:"dev"},
+  {id:"E31", name:"ゼロ円チャレンジエンド", cond:"broke"},
+  {id:"E32", name:"連続コンボエンド", cond:"combo"},
+  {id:"E33", name:"夜ふかし星まつりエンド", cond:"night"},
+  {id:"E34", name:"種から森エンド", cond:"garden"},
+  {id:"E35", name:"仮面舞踏会エンド", cond:"mask"},
+  {id:"E36", name:"エンディングコレクター", cond:"endcol"}
+];
+
+function defaultState() {
+  return {
+    name: "ドパちゃん",
+    lv: 1,
+    exp: 0,
+    hp: 100,
+    hpMax: 100,
+    waku: 10,
+    coin: 30,
+    focus: 20,
+    combo: 0,
+    maxCombo: 0,
+    taps: 0,
+    playMinigames: 0,
+    gachaCount: 0,
+    restCount: 0,
+    sweetCount: 0,
+    helpCount: 0,
+    puzzleClear: 0,
+    visits: {},
+    flags: {},
+    items: [],
+    endings: [],
+    log: [],
+    startedAt: Date.now(),
+    actions: 0
+  };
+}
+
+let S = defaultState();
+let currentScene = "title";
+let mini = null;
+
+function saveKey(k){ return PREFIX + k; }
+function saveAll(){
+  try {
+    localStorage.setItem(saveKey("main"), JSON.stringify(S));
+    localStorage.setItem(saveKey("endings"), JSON.stringify(S.endings));
+    localStorage.setItem(saveKey("collection"), JSON.stringify(S.items));
+    localStorage.setItem(saveKey("meta"), JSON.stringify({t:Date.now(), name:S.name, lv:S.lv, endings:S.endings.length}));
+  } catch(e){}
+}
+function loadAll(){
+  try {
+    const raw = localStorage.getItem(saveKey("main"));
+    if(raw){
+      const parsed = JSON.parse(raw);
+      S = Object.assign(defaultState(), parsed);
+      return true;
+    }
+  } catch(e){}
+  return false;
+}
+
+const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext||window.webkitAudioContext)() : null;
+function beep(freq=880, dur=0.08, type="square", vol=0.05){
+  if(!audioCtx) return;
+  try{
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+function fanfare(){
+  [523,659,784,1046].forEach((f,i)=> setTimeout(()=>beep(f,0.12,"triangle",0.06), i*90));
+}
+
+function spark(x,y,n=12){
+  const fx = document.getElementById("fx");
+  const colors = ["#ffe600","#ff3df0","#00f0ff","#7cff3d","#fff"];
+  for(let i=0;i<n;i++){
+    const s = document.createElement("div");
+    s.className = "spark";
+    const ang = Math.random()*Math.PI*2;
+    const dist = 40+Math.random()*80;
+    s.style.left = x+"px";
+    s.style.top = y+"px";
+    s.style.background = colors[i%colors.length];
+    s.style.setProperty("--x", Math.cos(ang)*dist+"px");
+    s.style.setProperty("--y", Math.sin(ang)*dist+"px");
+    fx.appendChild(s);
+    setTimeout(()=>s.remove(), 750);
+  }
+}
+function popText(text, x, y, color="#ffe600"){
+  const el = document.createElement("div");
+  el.className = "pop";
+  el.style.left = x+"px";
+  el.style.top = y+"px";
+  el.style.color = color;
+  el.style.fontSize = (18+Math.random()*10)+"px";
+  el.textContent = text;
+  document.getElementById("fx").appendChild(el);
+  setTimeout(()=>el.remove(), 900);
+}
+function toast(msg){
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+document.addEventListener("pointerdown", (e)=>{
+  spark(e.clientX, e.clientY, 8);
+  if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
+});
+
+function has(id){ return S.items.includes(id); }
+function give(id, silent){
+  if(!has(id)){
+    S.items.push(id);
+    const it = ALL_ITEMS.find(x=>x.id===id);
+    if(!silent) toast("ゲット！ " + (it?it.name:id));
+    beep(1200,0.1,"triangle",0.07);
+    addExp(8);
+  }
+}
+function addCoin(n){
+  S.coin = Math.max(0, S.coin + n);
+  if(n>0){ S.combo++; S.maxCombo=Math.max(S.maxCombo,S.combo); }
+}
+function addWaku(n){
+  S.waku = Math.max(0, Math.min(999, S.waku + n));
+}
+function addExp(n){
+  S.exp += n;
+  while(S.exp >= S.lv*20){
+    S.exp -= S.lv*20;
+    S.lv++;
+    S.hpMax += 8;
+    S.hp = S.hpMax;
+    toast("レベルアップ！ Lv."+S.lv);
+    fanfare();
+  }
+}
+function flag(k,v){
+  if(v===undefined) return !!S.flags[k];
+  S.flags[k]=v;
+}
+function visit(area){
+  S.visits[area] = (S.visits[area]||0)+1;
+}
+function unlockEnding(id, text){
+  if(!S.endings.includes(id)){
+    S.endings.push(id);
+    saveAll();
+  }
+  currentScene = "ending";
+  renderEnding(id, text);
+}
+
+function hud(){
+  const el = document.getElementById("hud");
+  el.classList.add("show");
+  el.innerHTML = `
+    <div class="stat">👤 <b>${esc(S.name)}</b> Lv.${S.lv}</div>
+    <div class="stat">♥ ${S.hp}/${S.hpMax}</div>
+    <div class="stat">✨ワクワク <b>${S.waku}</b></div>
+    <div class="stat">🪙 <b>${S.coin}</b></div>
+    <div class="stat">🎯集中 ${S.focus}</div>
+    <div class="stat">📦${S.items.length}/${ALL_ITEMS.length}</div>
+    <div class="stat">🎬End ${S.endings.length}/${ENDINGS.length}</div>
+  `;
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+function screen(html){
+  document.getElementById("screen").innerHTML = html;
+}
+function btns(list){
+  return `<div class="choices">${list.map(b=>`<button class="btn ${b.c||""}" data-act="${b.a}">${b.t}</button>`).join("")}</div>`;
+}
+function bind(){
+  document.querySelectorAll("[data-act]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      beep(700+Math.random()*400,0.06);
+      S.actions++;
+      doAct(btn.getAttribute("data-act"));
+    });
+  });
+}
+
+function render(){
+  saveAll();
+  if(currentScene!=="title" && currentScene!=="ending") hud();
+  else document.getElementById("hud").classList.remove("show");
+  const map = {
+    title: renderTitle,
+    name: renderName,
+    hub: renderHub,
+    area: renderArea,
+    shop: renderShop,
+    bag: renderBag,
+    ends: renderEnds,
+    mini_tap: renderTap,
+    mini_mem: renderMem,
+    mini_slot: renderSlot,
+    mini_quiz: renderQuiz,
+    status: renderStatus,
+    event: renderEvent
+  };
+  (map[currentScene] || renderHub)();
+}
+
+function renderTitle(){
+  screen(`
+    <div class="panel hero">
+      <div class="logo">ドパ☆パラダイス</div>
+      <div class="sub">COMPLETE EDITION / エンド大量・要素てんこ盛り完全版</div>
+      <div class="flash-bar"></div>
+      <p class="story">ショートもロングも、タップも選択も、ガチャも探検も、全部入り。
+ドパガキが「まだやる！」ってなるように、ごほうびと分岐とエンドを限界までつめこんだ島。
+
+いまからキミは <b>ドパ島</b> に上陸する。</p>
+      ${btns([
+        {t:"▶ あたらしくはじめる", a:"newgame", c:"pink"},
+        {t:"▶ つづきから（セーブあり）", a:"continue"},
+        {t:"🎬 エンド図かんを見る", a:"gallery", c:"alt"},
+        {t:"ℹ️ あそびかた", a:"howto", c:"ghost"}
+      ])}
+      <p class="tiny">セーブキー: dopagaki_game/grok/4.6Fast/001/saves/ …</p>
+    </div>
+  `);
+  bind();
+}
+
+function renderName(){
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">なまえをつけて！</h2>
+      <p class="story">島の住民は、なまえを呼ぶたびにキラキラするよ。</p>
+      <input class="name" id="namein" maxlength="10" placeholder="例：キラ、ドパ、ソラ" value="${esc(S.name)}">
+      ${btns([{t:"このなまえではじめる！", a:"setname", c:"lime"}])}
+    </div>
+  `);
+  bind();
+}
+
+function renderHub(){
+  const areaCards = AREAS.map(a=>{
+    const v = S.visits[a.id]||0;
+    const lock = a.id==="secret" && !flag("foundSecret") && !has("key");
+    return `<div class="card" data-act="${lock?"locked":"goto:"+a.id}">
+      <h3>${lock?"???":a.name} ${v?`<span class="badge">${v}回</span>`:""}</h3>
+      <p>${lock?"なにかカギが必要そう…":a.desc}</p>
+    </div>`;
+  }).join("");
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">ドパ島 総合案内</h2>
+      <p class="story">${esc(S.name)}は島のまんなかにいる。
+どこへ行く？ 何をする？ 選ぶたびに世界がちょっと変わるよ。</p>
+      <div class="grid">${areaCards}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn alt" data-act="shop">🏪 お店</button>
+        <button class="btn" data-act="bag">🎒 もちもの</button>
+      </div>
+      <div class="row">
+        <button class="btn lime" data-act="minis">🎮 ミニゲーム広場</button>
+        <button class="btn pink" data-act="judge">🎬 エンディング判定</button>
+      </div>
+      <div class="row">
+        <button class="btn ghost" data-act="status">📊 ステータス</button>
+        <button class="btn ghost" data-act="rest">😴 ちょっと休む</button>
+      </div>
+      <div class="row">
+        <button class="btn ghost" data-act="useitem">✨ アイテムを使う</button>
+        <button class="btn ghost" data-act="save">💾 いまセーブ</button>
+      </div>
+      <div class="row">
+        <button class="btn ghost" data-act="title">タイトルへ</button>
+      </div>
+    </div>
+  `);
+  bind();
+}
+
+function renderArea(){
+  const id = S._area || "plaza";
+  const a = AREAS.find(x=>x.id===id) || AREAS[0];
+  const ev = pickEvent(id);
+  S._event = ev;
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">${a.name}</h2>
+      <p class="story">${a.desc}
+
+${ev.text}</p>
+      ${btns(ev.choices.concat([{t:"← 広場にもどる", a:"hub", c:"ghost"}]))}
+    </div>
+  `);
+  bind();
+}
+
+function pickEvent(area){
+  const pool = EVENTS[area] || EVENTS.plaza;
+  const extra = Math.random();
+  if(extra > 0.86) return RANDOM_BONUS();
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+const EVENTS = {
+  plaza: [
+    {text:"噴水からコインが噴き出した！", choices:[
+      {t:"両手でうける（コイン+15 ワクワク+5）", a:"gain:coin15,waku5"},
+      {t:"ほかの子にも分ける（なかよし+1 集中+3）", a:"help1"}
+    ]},
+    {text:"島の案内ロボが「今日のラッキーは探検！」と叫んでいる。", choices:[
+      {t:"地図をもらう", a:"item:map"},
+      {t:"ロボとダンスする（ワクワク+8）", a:"gain:waku8"}
+    ]},
+    {text:"空に虹がかかった。みんな写真を撮っている。", choices:[
+      {t:"いっしょに撮る", a:"item:photo"},
+      {t:"虹の先を追いかける", a:"goto:secret"}
+    ]}
+  ],
+  forest: [
+    {text:"光る木の実がなっている。", choices:[
+      {t:"たべる（HP回復 スイーツ+1）", a:"eatfruit"},
+      {t:"ミラクルの種として持ち帰る", a:"item:seed"}
+    ]},
+    {text:"迷子のヒヨコが「ピー！」と鳴いている。", choices:[
+      {t:"巣まで送る（なかよし）", a:"help1"},
+      {t:"羽根を拾う", a:"item:feather"}
+    ]},
+    {text:"古い切りかぶにひみつノートがはさまれていた。", choices:[
+      {t:"読む", a:"item:book"},
+      {t:"置いておく", a:"gain:focus5"}
+    ]},
+    {text:"くるくるコンパスが苔の上で北ではない方向を指している。", choices:[
+      {t:"拾ってみる", a:"item:compass"},
+      {t:"指す先へ走る", a:"goto:secret"}
+    ]},
+    {text:"プニプニスライムが道をふさいで『遊ぼ！』と伸びる。", choices:[
+      {t:"ハイタッチして仲間にする", a:"item:slime"},
+      {t:"ドキドキ勝負を挑む", a:"mini_duel"}
+    ]}
+  ],
+  cave: [
+    {text:"壁になぞなぞが光っている。『3回光って2回消えるものは？』", choices:[
+      {t:"ハート！", a:"quizwrong"},
+      {t:"星！", a:"quizok"},
+      {t:"考えすぎて頭がクラクラ", a:"gain:focus-4,waku2"}
+    ]},
+    {text:"おばけランプがプカプカ浮かんでいる。こわくない、かわいい。", choices:[
+      {t:"もらう", a:"item:lamp"},
+      {t:"あいさつする（ワクワク+6）", a:"gain:waku6"}
+    ]},
+    {text:"黄金キーが岩のすきまに！", choices:[
+      {t:"ひっぱる", a:"item:key"},
+      {t:"あとでこよう", a:"gain:focus3"}
+    ]}
+  ],
+  beach: [
+    {text:"波がシュワっとして、ソーダの味がする。", choices:[
+      {t:"ごくごく飲む", a:"item:soda"},
+      {t:"貝がらを拾う", a:"item:shell"}
+    ]},
+    {text:"砂の城がだれかのメッセージ『深海へどうぞ』。", choices:[
+      {t:"深海へダイブ", a:"goto:deep"},
+      {t:"城を大きくする（集中+4）", a:"gain:focus4"}
+    ]},
+    {text:"カモメがクッキーを落としていった。", choices:[
+      {t:"いただく", a:"item:cookie"},
+      {t:"カモメに返す", a:"help1"}
+    ]}
+  ],
+  town: [
+    {text:"屋台のおじさんが「サービスだよ！」", choices:[
+      {t:"虹色キャンディもらう", a:"item:candy"},
+      {t:"コインを多めに払う（コイン-5 なかよし）", a:"payhelp"}
+    ]},
+    {text:"ガチャガチャが光っている。1回10コイン。", choices:[
+      {t:"回す！", a:"gacha"},
+      {t:"がまんする（集中+6）", a:"gain:focus6"}
+    ]},
+    {text:"フェスのチラシが飛んできた。", choices:[
+      {t:"チケット入手", a:"item:ticket"},
+      {t:"今すぐ踊る", a:"gain:waku12"}
+    ]}
+  ],
+  sky: [
+    {text:"雲の観覧車が無料開放中。", choices:[
+      {t:"乗る（ワクワク+10）", a:"gain:waku10"},
+      {t:"無限ふうせんを見つける", a:"item:balloon"}
+    ]},
+    {text:"風がフルートみたいな音を鳴らしている。", choices:[
+      {t:"フルートを拾う", a:"item:flute"},
+      {t:"ハミングする", a:"gain:waku7,focus3"}
+    ]},
+    {text:"ダンボールロケットが置いてある。『宇宙台へ』と書いてある。", choices:[
+      {t:"ロケットGET", a:"item:rocket"},
+      {t:"宇宙台へ行く", a:"goto:space"}
+    ]}
+  ],
+  deep: [
+    {text:"クラゲが矢印を作って『パールはこっち』。", choices:[
+      {t:"パールを探す", a:"item:pearl"},
+      {t:"クラゲと光る", a:"gain:waku9"}
+    ]},
+    {text:"深海の声：『ここに長くいるとおひめさま（おうじ）になれるよ』", choices:[
+      {t:"もう少しいる", a:"flag:deepStay"},
+      {t:"地上へ戻る", a:"hub"}
+    ]},
+    {text:"歌う貝がらが二重に聞こえる。", choices:[
+      {t:"ハーモニー", a:"item:shell"},
+      {t:"集中して聞く", a:"gain:focus8"}
+    ]}
+  ],
+  space: [
+    {text:"星が手のひらサイズ。ひとつ持っていける。", choices:[
+      {t:"星のかけらGET", a:"item:star"},
+      {t:"全部見とく（ワクワク+11）", a:"gain:waku11"}
+    ]},
+    {text:"まわる時計が無重力でくるくる。", choices:[
+      {t:"時計をもらう", a:"item:clock"},
+      {t:"時間を少し戻してみる", a:"flag:time"}
+    ]},
+    {text:"未来からの手紙が降ってきた。", choices:[
+      {t:"読む", a:"item:letter"},
+      {t:"まだ開かない", a:"gain:focus5"}
+    ]}
+  ],
+  secret: [
+    {text:"うらみちの扉の向こうは、開発室みたいな部屋。壁に『E30』と書いてある。", choices:[
+      {t:"開発室エンドを見る", a:"end:dev"},
+      {t:"ほんとうのオーブを取る", a:"item:orb"},
+      {t:"ひみつの部屋として残す", a:"flag:secretroom"}
+    ]},
+    {text:"運命サイコロが台の上で待っている。", choices:[
+      {t:"振る", a:"item:dice"},
+      {t:"にこにこ仮面をかぶる", a:"item:mask"}
+    ]},
+    {text:"虹の絵の具セットが置いてある。", choices:[
+      {t:"絵の具GET", a:"item:paint"},
+      {t:"壁に大きく描く", a:"flag:art"}
+    ]}
+  ]
+};
+
+function RANDOM_BONUS(){
+  return {
+    text:"突然、空からキラキラが降ってきた！これはボーナスイベント！",
+    choices:[
+      {t:"両手でキャッチ（コイン+25 ワクワク+10）", a:"gain:coin25,waku10"},
+      {t:"ドパ結晶を探す", a:"item:crystal"},
+      {t:"探検バッジをもらう", a:"item:badge"}
+    ]
+  };
+}
+
+function renderShop(){
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">ニコニコ商店</h2>
+      <p class="story">いまの所持金 🪙${S.coin}
+好きなものをどうぞ。高いものほど後のエンドに効くよ。</p>
+      ${btns([
+        {t:"🍬 虹色キャンディ 8コイン", a:"buy:candy:8"},
+        {t:"👑 お菓子の王冠 40コイン", a:"buy:crown:40"},
+        {t:"⚔️ おもちゃの剣 35コイン", a:"buy:sword:35"},
+        {t:"🏅 ヒーローメダル 50コイン", a:"buy:medal:50"},
+        {t:"🔮 ドパ結晶 28コイン", a:"buy:crystal:28"},
+        {t:"🎲 ガチャ1回 10コイン", a:"gacha"},
+        {t:"🧃 HPソーダ（回復） 12コイン", a:"buypotion"},
+        {t:"← もどる", a:"hub", c:"ghost"}
+      ])}
+    </div>
+  `);
+  bind();
+}
+
+function renderBag(){
+  const chips = S.items.length ? S.items.map(id=>{
+    const it = ALL_ITEMS.find(x=>x.id===id);
+    return `<span class="chip">${it?it.name:id}</span>`;
+  }).join("") : "<span class='tiny'>まだ何も持っていないよ</span>";
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">もちもの図かん</h2>
+      <p class="story">集めたキラキラ ${S.items.length} / ${ALL_ITEMS.length}</p>
+      <div class="item-list">${chips}</div>
+      <p class="tiny" style="margin-top:12px">未入手:
+      ${ALL_ITEMS.filter(x=>!has(x.id)).map(x=>x.name).join(" / ") || "なし！コンプリート！"}</p>
+      ${btns([{t:"← もどる", a:"hub", c:"ghost"}])}
+    </div>
+  `);
+  bind();
+}
+
+function renderEnds(){
+  const cells = ENDINGS.map(e=>{
+    const got = S.endings.includes(e.id);
+    return `<div class="end-cell ${got?"got":""}">${got? e.id+" "+e.name : e.id+" ？？？"}</div>`;
+  }).join("");
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">エンド図かん ${S.endings.length}/${ENDINGS.length}</h2>
+      <div class="end-grid">${cells}</div>
+      ${btns([{t:"← もどる", a: currentScene==="title"||!S.name ? "title":"hub", c:"ghost"}])}
+    </div>
+  `);
+  bind();
+}
+
+function renderStatus(){
+  const w = Math.min(100, S.waku);
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">${esc(S.name)} のステータス</h2>
+      <p class="story">レベル ${S.lv}　経験 ${S.exp}/${S.lv*20}
+行動回数 ${S.actions}
+ミニゲーム ${S.playMinigames}回
+ガチャ ${S.gachaCount}回
+休憩 ${S.restCount}回
+スイーツ ${S.sweetCount}
+助けた回数 ${S.helpCount}
+なぞとき ${S.puzzleClear}
+最大コンボ ${S.maxCombo}
+訪れた場所 ${Object.keys(S.visits).length}</p>
+      <div>ワクワク<div class="meter"><i style="width:${Math.min(100,S.waku/3)}%"></i></div></div>
+      <div style="margin-top:8px">集中<div class="meter"><i style="width:${Math.min(100,S.focus)}%"></i></div></div>
+      ${btns([{t:"← もどる", a:"hub", c:"ghost"}])}
+    </div>
+  `);
+  bind();
+}
+
+function renderTap(){
+  mini = {score:0, time:8, alive:true};
+  screen(`
+    <div class="panel minigame">
+      <h2 class="scene-title">タップラッシュ</h2>
+      <p>制限時間内に連打！ドパ直注入ミニゲーム</p>
+      <div id="tap-area">TAP!</div>
+      <p id="tap-info">残り 8.0秒 / 0 タップ</p>
+      ${btns([{t:"やめる", a:"hub", c:"ghost"}])}
+    </div>
+  `);
+  bind();
+  const area = document.getElementById("tap-area");
+  const info = document.getElementById("tap-info");
+  area.addEventListener("pointerdown", (e)=>{
+    if(!mini || !mini.alive) return;
+    mini.score++;
+    S.taps++;
+    beep(600+mini.score*8, 0.04, "square", 0.04);
+    popText("+"+mini.score, e.clientX, e.clientY, "#ffe600");
+    area.textContent = ["いいね!","すごい!","ドパ!","MAX!","ヤバ!","神!"][Math.min(5, Math.floor(mini.score/8))];
+  });
+  const t0 = Date.now();
+  const iv = setInterval(()=>{
+    if(!mini || currentScene!=="mini_tap"){ clearInterval(iv); return; }
+    const left = Math.max(0, 8 - (Date.now()-t0)/1000);
+    info.textContent = `残り ${left.toFixed(1)}秒 / ${mini.score} タップ`;
+    if(left<=0){
+      mini.alive=false;
+      clearInterval(iv);
+      const reward = 5 + Math.floor(mini.score/3);
+      addCoin(reward); addWaku(Math.floor(mini.score/2)); addExp(mini.score);
+      S.playMinigames++;
+      if(mini.score>=40) flag("speed", true);
+      toast(`結果 ${mini.score}タップ！ コイン+${reward}`);
+      fanfare();
+      setTimeout(()=>{ currentScene="hub"; render(); }, 900);
+    }
+  }, 80);
+}
+
+let memState = null;
+function renderMem(){
+  const colors = ["#ff3df0","#00f0ff","#ffe600","#7cff3d","#ff8a00","#ffffff"];
+  const seq = [0,1,2,3].map(()=>Math.floor(Math.random()*6));
+  memState = {seq, input:[], show:true};
+  screen(`
+    <div class="panel minigame">
+      <h2 class="scene-title">カラーメモリー</h2>
+      <p id="memmsg">順番をおぼえてね…</p>
+      <div class="grid" id="memgrid">
+        ${colors.map((c,i)=>`<div class="card" data-i="${i}" style="height:64px;background:${c};border:3px solid #fff3"></div>`).join("")}
+      </div>
+      ${btns([{t:"やめる", a:"hub", c:"ghost"}])}
+    </div>
+  `);
+  bind();
+  const msg = document.getElementById("memmsg");
+  const cells = [...document.querySelectorAll("#memgrid .card")];
+  let i = 0;
+  function flash(){
+    if(i>=seq.length){
+      memState.show=false;
+      msg.textContent = "さあ、同じ順にタップ！";
+      cells.forEach(c=>c.addEventListener("click", onMem));
+      return;
+    }
+    const idx = seq[i];
+    cells[idx].style.transform="scale(1.08)";
+    cells[idx].style.boxShadow="0 0 20px #fff";
+    beep(440+idx*90,0.12,"sine",0.05);
+    setTimeout(()=>{
+      cells[idx].style.transform="";
+      cells[idx].style.boxShadow="";
+      i++; setTimeout(flash, 280);
+    }, 380);
+  }
+  function onMem(e){
+    if(!memState || memState.show) return;
+    const idx = +e.currentTarget.getAttribute("data-i");
+    memState.input.push(idx);
+    beep(500+idx*80,0.06);
+    const n = memState.input.length-1;
+    if(memState.input[n] !== memState.seq[n]){
+      toast("ざんねん！順番が違った");
+      addWaku(2); S.playMinigames++;
+      setTimeout(()=>{currentScene="hub"; render();}, 700);
+      return;
+    }
+    if(memState.input.length===memState.seq.length){
+      toast("パーフェクト！ なぞとき+1");
+      S.puzzleClear++; S.playMinigames++;
+      addCoin(18); addWaku(10); addExp(20); S.focus+=6;
+      flag("puzzle", true);
+      fanfare();
+      setTimeout(()=>{currentScene="hub"; render();}, 800);
+    }
+  }
+  setTimeout(flash, 500);
+}
+
+function renderSlot(){
+  screen(`
+    <div class="panel minigame">
+      <h2 class="scene-title">キラキラガチャ</h2>
+      <p class="story">10コインで1回。当たりが出るとアイテムか大量コイン！
+回した回数はエンドに影響するよ。</p>
+      <div id="slotview" style="font-size:42px;text-align:center;margin:16px 0">🍬 ★ 👑</div>
+      ${btns([
+        {t:"回す（10コイン）", a:"gacha", c:"pink"},
+        {t:"もどる", a:"hub", c:"ghost"}
+      ])}
+    </div>
+  `);
+  bind();
+}
+
+function renderQuiz(){
+  const qs = [
+    {q:"虹の色、日本でよく言うと何色？", a:["7色","5色","100色"], ok:0},
+    {q:"星が一番きれいに見えるのは？", a:["まぶしい昼","くもりの午後","晴れた夜"], ok:2},
+    {q:"集中したいときの味方は？", a:["深呼吸","無限スクロール","同時に5画面"], ok:0},
+    {q:"ドパ島で大事なのは？", a:["楽しむこと","怒ること","何もしないこと"], ok:0},
+    {q:"友達が困っていたら？", a:["見て見ぬふり","助ける","逃げる"], ok:1}
+  ];
+  const Q = qs[Math.floor(Math.random()*qs.length)];
+  S._quiz = Q;
+  screen(`
+    <div class="panel">
+      <h2 class="scene-title">クイズ一座</h2>
+      <p class="story">${Q.q}</p>
+      ${btns(Q.a.map((t,i)=>({t, a:"quiz:"+i, c:i===1?"alt":""})).concat([{t:"もどる",a:"hub",c:"ghost"}]))}
+    </div>
+  `);
+  bind();
+}
+
+function renderEvent(){
+  renderHub();
+}
+
+function renderEnding(id, extra){
+  const meta = ENDINGS.find(e=>e.id===id) || {id:id, name:"なぞのエンド"};
+  document.getElementById("hud").classList.remove("show");
+  fanfare();
+  screen(`
+    <div class="panel ending-box">
+      <div class="ending-id">ENDING ${meta.id}</div>
+      <div class="ending-name">${meta.name}</div>
+      <div class="flash-bar"></div>
+      <p class="story">${extra || endingText(id)}</p>
+      <p class="tiny">解放エンド ${S.endings.length}/${ENDINGS.length}</p>
+      ${btns([
+        {t:"図かんを見る", a:"gallery", c:"alt"},
+        {t:"島にもどって別のエンドを探す", a:"hub", c:"lime"},
+        {t:"タイトルへ", a:"title", c:"ghost"}
+      ])}
+    </div>
+  `);
+  bind();
+}
+
+function endingText(id){
+  const n = esc(S.name);
+  const map = {
+    E01: `${n}は十分あそんだあと、虹の船で家に帰った。枕元に星のかけらがひとつ残っていた。`,
+    E02: `コインが山になって、島の人たちが${n}をドパキングと呼んだ。王冠がまぶしい。`,
+    E03: `アイテムをコンプリートした${n}のリュックは、宇宙よりキラキラしていた。`,
+    E04: `すべての場所を踏みしめた足あとが、地図に虹色で残った。`,
+    E05: `助けたみんなから手紙が届いた。「また来てね」。写真がにじむ。`,
+    E06: `${n}は気持ちいい芝生で寝すぎて、季節がひとつ進んでいた。最高の昼寝。`,
+    E07: `キャンディとクッキーの城が建ち、${n}はスイーツ王国の初代キングになった。`,
+    E08: `ダンボールロケットが本物になって、星の海をドライブした。`,
+    E09: `深海のクラゲたちが冠を贈り、${n}はきらめき深海の主になった。`,
+    E10: `おもちゃの剣が光り、小さな悪者（ぬいぐるみ）をみんなでこらしめた。`,
+    E11: `プニプニスライムとハイタッチしすぎて、一瞬だけ体がプルプルになった。楽しかった。`,
+    E12: `フェスでフルートを吹き、島中がジャンプした。アンコールは夜明けまで。`,
+    E13: `まわる時計を逆に回したら、朝の自分に「がんばれ」と言えた。`,
+    E14: `霧の中でかくれんぼして、みんなに「神かくし？」と騒がれた。実は木の上。`,
+    E15: `メダルが輝き、困っている人を10回助けた英雄として銅像（クッキー製）ができた。`,
+    E16: `のんびりしすぎて村長に任命された。仕事は「午後のおやつ係」。`,
+    E17: `指が風になった。タップの神として記録が島の壁に刻まれた。`,
+    E18: `なぞなぞもメモリーも全部クリア。頭の中に小さな図書館ができた。`,
+    E19: `ガチャを回し続けた結果、景品より「回す音」が好きになった。`,
+    E20: `ひみつの部屋で、自分だけの基地を作った。パスワードはワクワク。`,
+    E21: `ワクワクが上限を突き破り、${n}のまわりだけ常に紙ふぶきだった。`,
+    E22: `集中たいそうを覚えて、宿題もゲームも切り替えが上手になった。`,
+    E23: `みんなを広場に集めて、史上最大のパーティー。星が拍子をとった。`,
+    E24: `オーブが虹の橋をかけ、すべてのエンドの入口が同時に光った。これが真の出口。`,
+    E25: `おなかが空きすぎて道に迷い、屋台の匂いで生還した。次はおやつ持参。`,
+    E26: `無限ふうせんにつかまって、次の島までプカプカ旅行。`,
+    E27: `虹の絵の具で島の壁画を描いたら、観光客が押し寄せた（みんな優しい）。`,
+    E28: `未来の自分からの手紙『まだ遊べるよ』。いまの自分も同じことを書いた。`,
+    E29: `サイコロが6を出して、一日だけ何でも願いが叶った。願ったのは「もう一回遊ぶ」。`,
+    E30: `開発室のメモ：このゲームはドパガキが笑顔になるために作られた。${n}、よく来たね。`,
+    E31: `コイン0なのに笑顔100。ゼロ円でも島は開いている。`,
+    E32: `コンボがつながり、画面が紙ふぶきで見えなくなった。`,
+    E33: `夜の宇宙台で星まつり。眠い目で見た星が一番きれいだった。`,
+    E34: `種をまいたら森が広がり、${n}の名前の花が咲いた。`,
+    E35: `にこにこ仮面で舞踏会。だれがだれか分からないのに、みんな友達だった。`,
+    E36: `エンドをたくさん集めた${n}は、図かんそのものになった。まだ空きがあるなら、続きがある。`
+  };
+  return map[id] || `${n}の物語は、ここで一つの形になった。`;
+}
+
+function judgeEnding(){
+  // priority from special to general
+  if((has("orb") && S.items.length>=18 && S.endings.length>=6) || flag("trueReady")) return {id:"E24", why:"オーブとたくさんの思い出が共鳴した。"};
+  if(S.endings.length>=12) return {id:"E36", why:"エンド図かんが熱を持っている。"};
+  if(has("crown") && S.coin>=120) return {id:"E02", why:"富と王冠がそろった。"};
+  if(S.items.length>=ALL_ITEMS.length) return {id:"E03", why:"全アイテムコンプリート！"};
+  if(Object.keys(S.visits).length>=8 && (S.visits.secret||0)>0) return {id:"E04", why:"島を歩き尽くした。"};
+  if(S.helpCount>=6 && has("photo")) return {id:"E05", why:"助けた数がハートになった。"};
+  if(S.restCount>=5 && S.waku<25) return {id:"E06", why:"休みすぎて芝生と一体化。"};
+  if(S.sweetCount>=5 && (has("candy")||has("cookie")||has("crown"))) return {id:"E07", why:"糖分が王国を作った。"};
+  if(has("rocket") && (S.visits.space||0)>0) return {id:"E08", why:"ロケット点火。"};
+  if(flag("deepStay") && has("pearl")) return {id:"E09", why:"深海が君を認めた。"};
+  if(has("sword") && has("medal")) return {id:"E10", why:"剣とメダルがそろった。"};
+  if(has("slime") && S.waku>=40) return {id:"E11", why:"プニプニと同期した。"};
+  if(has("ticket") && has("flute")) return {id:"E12", why:"フェス開演。"};
+  if(flag("time") && has("clock")) return {id:"E13", why:"時計が逆回転。"};
+  if(has("lamp") && S.focus<15) return {id:"E14", why:"ランプの霧でかくれんぼ。"};
+  if(S.helpCount>=8) return {id:"E15", why:"ヒーロー認定。"};
+  if(S.restCount>=3 && has("book")) return {id:"E16", why:"のんびり才を認められた。"};
+  if(flag("speed") || S.taps>=80) return {id:"E17", why:"指が星になった。"};
+  if(flag("puzzle") && S.puzzleClear>=3) return {id:"E18", why:"頭脳クリア。"};
+  if(S.gachaCount>=8) return {id:"E19", why:"ガチャの音がBGM。"};
+  if(flag("secretroom") || (S.visits.secret||0)>=2) return {id:"E20", why:"秘密基地完成。"};
+  if(S.waku>=80) return {id:"E21", why:"ワクワクが溢れた。"};
+  if(S.focus>=60) return {id:"E22", why:"集中たいそうマスター。"};
+  if(has("photo") && S.helpCount>=3 && S.waku>=30) return {id:"E23", why:"パーティー開催条件達成。"};
+  if(S.hp<=20 && S.coin<=5) return {id:"E25", why:"おなかも財布も空。"};
+  if(has("balloon")) return {id:"E26", why:"ふうせんが風を呼んだ。"};
+  if(flag("art") && has("paint")) return {id:"E27", why:"壁画が完成。"};
+  if(has("letter")) return {id:"E28", why:"手紙を開封。"};
+  if(has("dice")) return {id:"E29", why:"サイコロが運命を示した。"};
+  if(S.coin===0 && S.actions>=12) return {id:"E31", why:"無一文の大冒険。"};
+  if(S.maxCombo>=15) return {id:"E32", why:"コンボが虹になった。"};
+  if((S.visits.space||0)>=2 && has("star")) return {id:"E33", why:"星まつり開場。"};
+  if(has("seed") && (S.visits.forest||0)>=2) return {id:"E34", why:"森が育った。"};
+  if(has("mask")) return {id:"E35", why:"仮面の夜。"};
+  if(S.actions>=8) return {id:"E01", why:"今日はここまで、おうちに帰ろう。"};
+  return {id:"E01", why:"まずは島を出る準備ができた。"};
+}
+
+function doAct(act){
+  if(act==="newgame"){
+    S = defaultState();
+    currentScene="name"; render(); return;
+  }
+  if(act==="continue"){
+    if(loadAll()){ toast("セーブを読みこんだよ"); currentScene="hub"; render(); }
+    else { toast("セーブがなかったので新規"); currentScene="name"; render(); }
+    return;
+  }
+  if(act==="gallery"){ currentScene="ends"; render(); return; }
+  if(act==="howto"){
+    screen(`<div class="panel"><h2 class="scene-title">あそびかた</h2>
+      <p class="story">・場所を選んでイベントを起こす
+・お店とガチャとミニゲームで強くなる
+・アイテム・フラグ・数値の組み合わせでエンドが変わる
+・「エンディング判定」を押すと今の状態に合うエンドへ
+・同じ島でも選び方で別の物語になる
+・エンドは図かんに蓄積される（全${ENDINGS.length}種）
+・セーブは自動＋手動。キーは指定どおり</p>
+      ${btns([{t:"わかった", a:"title", c:"lime"}])}</div>`);
+    bind(); return;
+  }
+  if(act==="setname"){
+    const v = (document.getElementById("namein")||{}).value || "ドパちゃん";
+    S.name = v.trim().slice(0,10) || "ドパちゃん";
+    currentScene="hub";
+    toast(S.name+"、ようこそドパ島！");
+    addWaku(5); render(); return;
+  }
+  if(act==="hub" || act==="title"){ currentScene=act; render(); return; }
+  if(act==="shop"){ currentScene="shop"; render(); return; }
+  if(act==="bag"){ currentScene="bag"; render(); return; }
+  if(act==="status"){ currentScene="status"; render(); return; }
+  if(act==="save"){ saveAll(); toast("セーブしたよ"); return; }
+  if(act==="locked"){ toast("カギが必要だ"); return; }
+  if(act.startsWith("goto:")){
+    const id = act.split(":")[1];
+    if(id==="secret" && !has("key") && !flag("foundSecret")){
+      toast("まだ扉は開かない"); return;
+    }
+    if(id==="secret") flag("foundSecret", true);
+    S._area = id; visit(id); currentScene="area"; addExp(3); addWaku(2); render(); return;
+  }
+  if(act==="minis"){
+    screen(`<div class="panel"><h2 class="scene-title">ミニゲーム広場</h2>
+      <p class="story">刺激の詰め合わせコーナー。何回でも遊べるよ。</p>
+      ${btns([
+        {t:"💥 タップラッシュ", a:"go_tap", c:"pink"},
+        {t:"🎨 カラーメモリー", a:"go_mem", c:"alt"},
+        {t:"🎰 キラキラガチャ", a:"go_slot"},
+        {t:"❓ クイズ一座", a:"go_quiz", c:"lime"},
+        {t:"🤜 ドキドキ勝負", a:"mini_duel"},
+        {t:"← もどる", a:"hub", c:"ghost"}
+      ])}</div>`);
+    bind(); return;
+  }
+  if(act==="go_tap"){ currentScene="mini_tap"; render(); return; }
+  if(act==="go_mem"){ currentScene="mini_mem"; render(); return; }
+  if(act==="go_slot"){ currentScene="mini_slot"; render(); return; }
+  if(act==="go_quiz"){ currentScene="mini_quiz"; render(); return; }
+  if(act==="mini_duel"){
+    S.playMinigames++;
+    const roll = Math.random();
+    if(roll>0.45){
+      addCoin(14); addWaku(8); addExp(12); S.hp=Math.min(S.hpMax,S.hp+5);
+      if(!has("slime") && Math.random()>0.5) give("slime");
+      toast("勝負勝ち！ キラキラが散った");
+      fanfare();
+    } else {
+      S.hp = Math.max(10, S.hp-8);
+      addWaku(3);
+      toast("引き分けっぽい…でも楽しかった");
+    }
+    currentScene="hub"; render(); return;
+  }
+  if(act==="useitem"){
+    const usable = [
+      {id:"candy", t:"キャンディを食べる（HP+15 スイーツ+1）"},
+      {id:"soda", t:"ソーダを飲む（ワクワク+10）"},
+      {id:"cookie", t:"星クッキー（集中+8）"},
+      {id:"flute", t:"フルートを吹く（なかよし雰囲気）"},
+      {id:"seed", t:"種を植える（森の力）"},
+      {id:"orb", t:"オーブをかざす（真エンド判定寄り）"}
+    ].filter(x=>has(x.id));
+    if(!usable.length){
+      toast("今使えるアイテムがないよ");
+      return;
+    }
+    screen(`<div class="panel"><h2 class="scene-title">アイテムを使う</h2>
+      <p class="story">使っても図かんからは消えないよ（効果だけ発動）。</p>
+      ${btns(usable.map(u=>({t:u.t, a:"use:"+u.id})).concat([{t:"やめる",a:"hub",c:"ghost"}]))}</div>`);
+    bind(); return;
+  }
+  if(act.startsWith("use:")){
+    const id = act.split(":")[1];
+    if(id==="candy"){ S.hp=Math.min(S.hpMax,S.hp+15); S.sweetCount++; addWaku(4); }
+    if(id==="soda"){ addWaku(10); }
+    if(id==="cookie"){ S.focus+=8; addWaku(3); }
+    if(id==="flute"){ S.helpCount++; addWaku(6); flag("fesish", true); }
+    if(id==="seed"){ flag("garden", true); visit("forest"); addExp(15); }
+    if(id==="orb"){ flag("trueReady", true); addWaku(20); }
+    toast("使った！効果が入った");
+    currentScene="hub"; render(); return;
+  }
+  if(act==="rest"){
+    S.restCount++; S.hp=Math.min(S.hpMax,S.hp+25); S.focus+=4; addWaku(-3); S.combo=0;
+    toast("すやすや… HPかいふく");
+    if(S.restCount>=5) flag("sleepy", true);
+    render(); return;
+  }
+  if(act==="judge"){
+    if(S.actions<4){ toast("もう少し島を歩いてから！"); return; }
+    const r = judgeEnding();
+    unlockEnding(r.id, endingText(r.id)+"\n\n（理由: "+r.why+"）");
+    return;
+  }
+  if(act.startsWith("gain:")){
+    act.slice(5).split(",").forEach(p=>{
+      const m = p.match(/([a-z]+)(-?\d+)/);
+      if(!m) return;
+      const k=m[1], n=+m[2];
+      if(k==="coin") addCoin(n);
+      if(k==="waku") addWaku(n);
+      if(k==="focus") S.focus=Math.max(0,S.focus+n);
+    });
+    toast("ステータスアップ！");
+    currentScene="hub"; render(); return;
+  }
+  if(act.startsWith("item:")){
+    give(act.split(":")[1]);
+    if(act.split(":")[1]==="slime") flag("slimeish", true);
+    currentScene="hub"; render(); return;
+  }
+  if(act==="help1"){
+    S.helpCount++; addExp(10); S.focus+=2; addWaku(4); addCoin(4);
+    toast("だれかを助けた！ なかよし+");
+    currentScene="hub"; render(); return;
+  }
+  if(act==="eatfruit"){
+    S.hp=Math.min(S.hpMax,S.hp+20); S.sweetCount++; addWaku(5);
+    toast("あま〜い！ HPかいふく");
+    currentScene="hub"; render(); return;
+  }
+  if(act==="payhelp"){
+    if(S.coin<5){ toast("コインが足りない"); return; }
+    addCoin(-5); S.helpCount++; addExp(8);
+    toast("気持ちが届いた");
+    currentScene="hub"; render(); return;
+  }
+  if(act==="quizok"){
+    S.puzzleClear++; addCoin(12); addWaku(6); S.focus+=5; flag("puzzle", true);
+    toast("正解！ 洞窟がほめた");
+    currentScene="hub"; render(); return;
+  }
+  if(act==="quizwrong"){
+    addWaku(3); toast("ブッブー。でも星はきれいかった");
+    currentScene="hub"; render(); return;
+  }
+  if(act.startsWith("quiz:")){
+    const i=+act.split(":")[1];
+    const Q=S._quiz;
+    if(Q && i===Q.ok){
+      S.puzzleClear++; addCoin(15); addWaku(8); S.focus+=6; S.playMinigames++;
+      toast("正解！すごい！"); fanfare();
+    } else {
+      addWaku(2); S.playMinigames++;
+      toast("はずれ。でも頭は使った！");
+    }
+    currentScene="hub"; render(); return;
+  }
+  if(act.startsWith("buy:")){
+    const [,id,price]=act.split(":");
+    const p=+price;
+    if(S.coin<p){ toast("コインが足りないよ"); return; }
+    if(has(id)){ toast("もう持っている"); return; }
+    addCoin(-p); give(id);
+    render(); return;
+  }
+  if(act==="buypotion"){
+    if(S.coin<12){ toast("たりない"); return; }
+    addCoin(-12); S.hp=S.hpMax; toast("全回復！");
+    render(); return;
+  }
+  if(act==="gacha"){
+    if(S.coin<10){ toast("10コイン必要"); return; }
+    addCoin(-10); S.gachaCount++; S.playMinigames++;
+    const pool = ["candy","star","feather","cookie","slime","crystal","dice","mask","paint","balloon","compass"];
+    const rare = Math.random();
+    let got;
+    if(rare>0.92){ addCoin(50); toast("大当たり！コイン+50"); fanfare(); }
+    else {
+      got = pool[Math.floor(Math.random()*pool.length)];
+      if(has(got)){ addCoin(12); toast("かぶったのでコインに変換 +12"); }
+      else give(got);
+    }
+    if(document.getElementById("slotview")){
+      document.getElementById("slotview").textContent = ["🍬","★","👑","🔮","🎲","🎈"][Math.floor(Math.random()*6)]+" "+["🍬","★","👑","🔮","🎲","🎈"][Math.floor(Math.random()*6)]+" "+["🍬","★","👑","🔮","🎲","🎈"][Math.floor(Math.random()*6)];
+    }
+    saveAll();
+    return;
+  }
+  if(act.startsWith("flag:")){
+    flag(act.split(":")[1], true);
+    toast("なにかが変わった気がする…");
+    currentScene="hub"; render(); return;
+  }
+  if(act.startsWith("end:")){
+    const key = act.split(":")[1];
+    const e = ENDINGS.find(x=>x.cond===key);
+    if(e) unlockEnding(e.id);
+    else unlockEnding("E30");
+    return;
+  }
+}
+
+// secret konami-ish: tap logo? extra: 5 clicks on hud name later skip
+let secretClicks = 0;
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="d" || e.key==="D"){
+    secretClicks++;
+    if(secretClicks>=8){
+      flag("foundSecret", true);
+      give("key", true);
+      give("orb");
+      toast("開発コマンド：ひみつ解除");
+      secretClicks=0;
+    }
+  }
+});
+
+currentScene = "title";
+render();
+</script>
+</body>
+</html>
