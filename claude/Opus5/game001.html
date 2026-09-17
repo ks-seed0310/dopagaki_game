@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ドパガキ・インフィニティ 〜脳汁ぶっぱ大宇宙〜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rampart+One&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0612; --bg2:#140b24; --panel:rgba(30,16,54,.82); --panel2:rgba(46,24,80,.75);
+  --line:rgba(255,255,255,.12); --fg:#f6f0ff; --dim:#b9a8d8;
+  --pink:#ff3ea5; --cyan:#22e6ff; --lime:#b6ff3a; --gold:#ffd23a; --purple:#a05cff; --red:#ff4a4a;
+  --shadow:0 8px 30px rgba(0,0,0,.5);
+  --font:"M PLUS Rounded 1c",system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+  --disp:"Rampart One","M PLUS Rounded 1c",sans-serif;
+}
+:root:not([data-theme="light"]){color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(1200px 700px at 15% -10%, rgba(160,92,255,.28), transparent 60%),
+    radial-gradient(900px 600px at 90% 0%, rgba(255,62,165,.22), transparent 60%),
+    radial-gradient(900px 900px at 50% 120%, rgba(34,230,255,.16), transparent 60%),
+    linear-gradient(180deg,#0a0612,#140b24 60%,#0a0612);
+  background-attachment:fixed;
+  color:var(--fg);font-family:var(--font);overflow-x:hidden;
+  font-size:15px;line-height:1.5;
+}
+body.shake{animation:shk .18s linear}
+@keyframes shk{0%{transform:translate(0)}25%{transform:translate(-6px,3px)}50%{transform:translate(5px,-4px)}75%{transform:translate(-3px,-2px)}100%{transform:translate(0)}}
+#app{max-width:960px;margin:0 auto;padding:8px 10px 96px;position:relative;z-index:2}
+
+/* ===== header ===== */
+header{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);
+  background:linear-gradient(180deg,rgba(10,6,18,.95),rgba(10,6,18,.72));
+  border-bottom:1px solid var(--line);margin:0 -10px 8px;padding:8px 12px 6px;border-radius:0 0 16px 16px}
+.brand{display:flex;align-items:center;gap:8px;justify-content:center;font-family:var(--disp);
+  font-size:clamp(16px,4.4vw,24px);letter-spacing:.03em;
+  background:linear-gradient(92deg,var(--pink),var(--gold),var(--cyan),var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,62,165,.35))}
+.dpbar{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:2px;flex-wrap:wrap}
+#dp{font-family:var(--disp);font-size:clamp(26px,8.5vw,46px);line-height:1.05;
+  text-shadow:0 0 18px rgba(255,210,58,.5);color:#fff}
+#dp.pop{animation:dppop .16s ease-out}
+@keyframes dppop{0%{transform:scale(1)}40%{transform:scale(1.09)}100%{transform:scale(1)}}
+.dpunit{font-size:13px;color:var(--gold);font-weight:800}
+.substats{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:4px;font-size:11px;color:var(--dim)}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}
+.chip b{color:var(--fg)}
+.chip.on{border-color:var(--lime);color:var(--lime);box-shadow:0 0 10px rgba(182,255,58,.35)}
+
+/* ===== tabs ===== */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;gap:2px;justify-content:center;
+  padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+  background:linear-gradient(0deg,rgba(10,6,18,.98),rgba(10,6,18,.86));border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+nav button{flex:1 1 0;max-width:120px;background:transparent;border:0;color:var(--dim);font-family:var(--font);
+  font-weight:800;font-size:10.5px;padding:5px 2px;border-radius:12px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button .ic{font-size:17px;line-height:1}
+nav button.active{color:#fff;background:linear-gradient(135deg,rgba(255,62,165,.35),rgba(160,92,255,.35));box-shadow:0 0 16px rgba(255,62,165,.3)}
+nav button .badge{position:absolute;transform:translate(16px,-4px);background:var(--red);color:#fff;border-radius:999px;
+  font-size:9px;padding:0 4px;min-width:14px}
+
+/* ===== panels ===== */
+.panel{display:none;animation:fade .2s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+h2.sec{font-family:var(--disp);font-size:17px;margin:0 0 8px;color:var(--gold);letter-spacing:.04em}
+h3.sub{font-size:12px;margin:12px 0 6px;color:var(--cyan);font-weight:800;letter-spacing:.06em}
+.muted{color:var(--dim);font-size:12px}
+
+/* ===== clicker ===== */
+#clickWrap{position:relative;display:flex;flex-direction:column;align-items:center;padding:6px 0 0}
+#bigbtn{position:relative;width:min(62vw,240px);height:min(62vw,240px);border-radius:50%;border:0;cursor:pointer;
+  background:radial-gradient(circle at 34% 28%,#ff9ad4,#ff3ea5 40%,#7b1fd1 78%,#3a0a6b);
+  box-shadow:0 0 0 6px rgba(255,255,255,.07),0 0 42px rgba(255,62,165,.6),inset 0 -14px 28px rgba(0,0,0,.42);
+  color:#fff;font-family:var(--disp);font-size:clamp(20px,6vw,32px);text-shadow:0 3px 10px rgba(0,0,0,.5);
+  transition:transform .06s;user-select:none;touch-action:manipulation}
+#bigbtn:active{transform:scale(.93)}
+#bigbtn.fever{background:radial-gradient(circle at 34% 28%,#fff3a8,#ffd23a 38%,#ff7a1f 72%,#c81e00);
+  box-shadow:0 0 0 6px rgba(255,255,255,.14),0 0 60px rgba(255,210,58,.85),inset 0 -14px 28px rgba(0,0,0,.4);
+  animation:fev .5s infinite alternate}
+@keyframes fev{from{filter:hue-rotate(0)}to{filter:hue-rotate(28deg) brightness(1.12)}}
+#ring{position:absolute;inset:-14px;border-radius:50%;border:3px solid rgba(255,255,255,.14);pointer-events:none}
+#ringFill{position:absolute;inset:-14px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(var(--lime) 0turn, transparent 0turn);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 4px))}
+.perclick{margin-top:10px;font-size:13px;color:var(--dim)}
+.perclick b{color:var(--lime);font-size:16px}
+#comboBox{height:34px;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--disp);
+  font-size:20px;color:var(--cyan);text-shadow:0 0 14px rgba(34,230,255,.6);transition:.1s}
+#comboBox.hot{color:var(--gold);text-shadow:0 0 18px rgba(255,210,58,.8);transform:scale(1.08)}
+#comboBar{width:min(80vw,320px);height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+#comboBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--lime),var(--gold));transition:width .08s linear}
+
+.float{position:fixed;pointer-events:none;z-index:60;font-family:var(--disp);font-weight:700;
+  animation:fl 1s ease-out forwards;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+@keyframes fl{0%{opacity:1;transform:translate(-50%,0) scale(.8)}18%{transform:translate(-50%,-14px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-92px) scale(1)}}
+.particle{position:fixed;pointer-events:none;z-index:59;border-radius:50%;animation:pt .7s ease-out forwards}
+@keyframes pt{to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.2)}}
+
+#golden{position:fixed;z-index:70;width:74px;height:74px;border-radius:50%;cursor:pointer;display:none;
+  background:radial-gradient(circle at 34% 30%,#fffbe0,#ffd23a 45%,#ff8a00 80%);
+  box-shadow:0 0 30px 8px rgba(255,210,58,.75);animation:gsp 2.2s ease-in-out infinite;
+  display:none;align-items:center;justify-content:center;font-size:32px}
+@keyframes gsp{0%,100%{transform:scale(1) rotate(-6deg)}50%{transform:scale(1.14) rotate(6deg)}}
+
+/* ===== list items ===== */
+.item{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:14px;padding:9px 10px;margin-bottom:7px;cursor:pointer;transition:.12s;position:relative;overflow:hidden}
+.item:active{transform:scale(.985)}
+.item.buyable{border-color:rgba(182,255,58,.55);box-shadow:0 0 14px rgba(182,255,58,.16)}
+.item.locked{opacity:.42;cursor:not-allowed}
+.item .em{font-size:26px;width:34px;text-align:center;flex:0 0 34px}
+.item .body{flex:1;min-width:0}
+.item .nm{font-weight:800;font-size:13.5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.item .ds{font-size:11px;color:var(--dim);margin-top:1px}
+.item .rt{text-align:right;flex:0 0 auto}
+.item .cost{font-weight:800;font-size:12.5px;color:var(--gold)}
+.item .own{font-family:var(--disp);font-size:20px;color:#fff;line-height:1}
+.tag{font-size:9.5px;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.12);color:var(--dim)}
+.tag.lv{background:rgba(34,230,255,.2);color:var(--cyan)}
+
+/* ===== buttons ===== */
+.btn{border:0;border-radius:12px;padding:10px 14px;font-family:var(--font);font-weight:800;font-size:13px;
+  cursor:pointer;color:#fff;background:linear-gradient(135deg,#7b1fd1,#ff3ea5);box-shadow:0 4px 14px rgba(255,62,165,.3);transition:.12s}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:grayscale(.6)}
+.btn.g{background:linear-gradient(135deg,#0f9b6c,#b6ff3a);color:#06210f}
+.btn.gold{background:linear-gradient(135deg,#ff8a00,#ffd23a);color:#3a2000}
+.btn.c{background:linear-gradient(135deg,#0a6ea8,#22e6ff);color:#04222c}
+.btn.r{background:linear-gradient(135deg,#8a0f2a,#ff4a4a)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);box-shadow:none}
+.btn.wide{width:100%;padding:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1 1 0;min-width:110px}
+
+/* ===== gacha ===== */
+#gachaStage{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 50%,rgba(60,20,110,.96),rgba(4,2,10,.98));backdrop-filter:blur(4px)}
+#gachaStage.show{display:flex}
+#gachaOrb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9ad0ff 40%,#3a6bff 75%);
+  box-shadow:0 0 70px 20px rgba(120,170,255,.6);animation:orb .55s ease-in-out infinite alternate}
+@keyframes orb{from{transform:scale(.9)}to{transform:scale(1.12)}}
+#gachaOrb.r2{background:radial-gradient(circle at 35% 30%,#fff,#c6a6ff 40%,#8a3aff 75%);box-shadow:0 0 90px 26px rgba(170,90,255,.7)}
+#gachaOrb.r3{background:radial-gradient(circle at 35% 30%,#fff,#ffe9a0 40%,#ffb302 75%);box-shadow:0 0 120px 34px rgba(255,190,40,.85)}
+#gachaOrb.r4{background:radial-gradient(circle at 35% 30%,#fff,#ffd0f0 40%,#ff2fa0 75%);box-shadow:0 0 150px 44px rgba(255,60,170,.9)}
+#resultGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:520px;width:94%}
+@media(max-width:520px){#resultGrid{grid-template-columns:repeat(5,1fr);gap:4px}}
+.rcard{aspect-ratio:3/4;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;font-size:10px;text-align:center;padding:3px;border:2px solid;animation:rc .35s backwards;overflow:hidden}
+@keyframes rc{from{opacity:0;transform:rotateY(90deg) scale(.7)}to{opacity:1;transform:none}}
+.rcard .e{font-size:22px}
+.rcard .n{font-size:8.5px;line-height:1.15;font-weight:800;word-break:break-all}
+.rN{border-color:#8fa0b8;background:linear-gradient(160deg,#2a3348,#161c2a)}
+.rR{border-color:#4aa8ff;background:linear-gradient(160deg,#153a63,#0d1f38)}
+.rSR{border-color:#b06bff;background:linear-gradient(160deg,#3d1a6b,#20103a);box-shadow:0 0 12px rgba(176,107,255,.5)}
+.rSSR{border-color:#ffd23a;background:linear-gradient(160deg,#6b4a06,#3a2600);box-shadow:0 0 18px rgba(255,210,58,.65)}
+.rUR{border-color:#ff3ea5;background:linear-gradient(160deg,#6b0b42,#39041f);box-shadow:0 0 22px rgba(255,62,165,.8)}
+.rGOD{border-color:#fff;background:linear-gradient(160deg,#ff3ea5,#ffd23a,#22e6ff,#a05cff);
+  box-shadow:0 0 34px rgba(255,255,255,.9);animation:god 1.2s infinite alternate,rc .35s backwards}
+@keyframes god{from{filter:hue-rotate(0) brightness(1)}to{filter:hue-rotate(60deg) brightness(1.25)}}
+.rnew{position:absolute;transform:translate(22px,-30px);background:var(--red);color:#fff;font-size:8px;
+  padding:0 4px;border-radius:4px;font-weight:800}
+
+/* ===== dex ===== */
+#dexGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px}
+.dex{border-radius:10px;border:2px solid;padding:6px 3px;text-align:center;font-size:9.5px;position:relative}
+.dex .e{font-size:24px;display:block}
+.dex .n{font-weight:800;font-size:9px;line-height:1.15;margin-top:2px;word-break:break-all}
+.dex .c{position:absolute;top:2px;right:4px;font-size:9px;color:var(--gold);font-weight:800}
+.dex.un{filter:grayscale(1) brightness(.4);border-color:#444!important}
+
+/* ===== endings ===== */
+#endGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+.endc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 9px;font-size:11px}
+.endc.got{border-color:var(--gold);background:linear-gradient(140deg,rgba(255,210,58,.16),rgba(46,24,80,.75))}
+.endc .no{font-family:var(--disp);font-size:13px;color:var(--gold)}
+.endc .nm{font-weight:800;font-size:12.5px;margin:1px 0}
+.endc .ds{color:var(--dim);font-size:10.5px}
+.endc.lock .nm,.endc.lock .ds{filter:blur(4px);user-select:none}
+
+#endOverlay{position:fixed;inset:0;z-index:95;display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(2,1,6,.96);text-align:center;padding:24px;gap:10px}
+#endOverlay.show{display:flex;animation:fade .5s}
+#endOverlay .eno{font-family:var(--disp);font-size:14px;color:var(--gold);letter-spacing:.3em}
+#endOverlay .enm{font-family:var(--disp);font-size:clamp(24px,8vw,44px);
+  background:linear-gradient(92deg,var(--pink),var(--gold),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+#endOverlay .eds{max-width:460px;color:var(--dim);font-size:13px;white-space:pre-wrap}
+#endOverlay.true{background:radial-gradient(circle at 50% 50%,rgba(70,10,60,.98),rgba(2,1,6,.99))}
+
+/* ===== toast / log ===== */
+#toasts{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:88;display:flex;flex-direction:column;gap:5px;
+  pointer-events:none;width:min(92vw,420px)}
+.toast{background:rgba(20,11,36,.96);border:1px solid var(--line);border-left:4px solid var(--lime);border-radius:10px;
+  padding:7px 11px;font-size:12px;box-shadow:var(--shadow);animation:ts 3.4s forwards}
+.toast.gold{border-left-color:var(--gold)}.toast.pink{border-left-color:var(--pink)}.toast.red{border-left-color:var(--red)}
+@keyframes ts{0%{opacity:0;transform:translateY(-12px)}8%,86%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px)}}
+
+/* ===== minigame ===== */
+.slot{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.reel{width:64px;height:78px;border-radius:12px;background:linear-gradient(180deg,#1d1030,#2e1850);
+  border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden}
+.reel.spin{animation:sp .1s linear infinite}
+@keyframes sp{0%{transform:translateY(-6px)}100%{transform:translateY(6px)}}
+#mashArea{height:120px;border-radius:14px;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-size:26px;cursor:pointer;user-select:none;background:var(--panel2)}
+#mashArea.live{border-color:var(--lime);border-style:solid;background:linear-gradient(135deg,rgba(182,255,58,.15),rgba(34,230,255,.12))}
+
+.bar{height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--gold))}
+table.stt{width:100%;font-size:12px;border-collapse:collapse}
+table.stt td{padding:3px 2px;border-bottom:1px dashed rgba(255,255,255,.08)}
+table.stt td:last-child{text-align:right;font-weight:800;color:var(--gold)}
+#fevBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:80;text-align:center;font-family:var(--disp);
+  font-size:17px;padding:4px;background:linear-gradient(90deg,#ff3ea5,#ffd23a,#22e6ff,#ff3ea5);background-size:300% 100%;
+  color:#1a0010;animation:fb 1.6s linear infinite}
+#fevBanner.show{display:block}
+@keyframes fb{to{background-position:300% 0}}
+</style>
+</head>
+<body>
+<div id="fevBanner">🔥 フィーバータイム！ 全収入 ×<span id="fevMul">8</span> 残り<span id="fevT">15</span>秒 🔥</div>
+<div id="toasts"></div>
+<div id="golden">🟡</div>
+
+<div id="app">
+<header>
+  <div class="brand">🧠 ドパガキ・インフィニティ 🧠</div>
+  <div class="dpbar"><span id="dp">0</span><span class="dpunit">ドパミン</span></div>
+  <div class="substats">
+    <span class="chip">毎秒 <b id="dps">0</b></span>
+    <span class="chip">1タップ <b id="dpc">1</b></span>
+    <span class="chip">脳汁 <b id="nj">0</b></span>
+    <span class="chip" id="chipFev">倍率 <b id="totmul">×1</b></span>
+  </div>
+</header>
+
+<!-- ========== MAIN ========== -->
+<section class="panel active" id="p-main">
+  <div class="card" id="clickWrap">
+    <button id="bigbtn"><span id="ring"></span><span id="ringFill"></span>ドパる</button>
+    <div class="perclick">1タップ <b id="dpc2">1</b> ドパミン</div>
+    <div id="comboBox"></div>
+    <div id="comboBar"><i></i></div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">⚡ ミニゲーム</h2>
+    <div class="row">
+      <button class="btn c" id="btnMash">🔥 連打チャレンジ<br><span style="font-size:10px;font-weight:400">10秒ぶっぱ</span></button>
+      <button class="btn gold" id="btnSlot">🎰 ドパスロ<br><span style="font-size:10px;font-weight:400">所持の10%を賭ける</span></button>
+    </div>
+    <div id="mashWrap" style="display:none;margin-top:10px">
+      <div id="mashArea">タップして開始！</div>
+      <div class="bar"><i id="mashBar" style="width:100%"></i></div>
+      <div class="muted" style="text-align:center;margin-top:4px">記録: <b id="mashBest">0</b> 回</div>
+    </div>
+    <div id="slotWrap" style="display:none;margin-top:10px">
+      <div class="slot"><div class="reel" id="r0">❓</div><div class="reel" id="r1">❓</div><div class="reel" id="r2">❓</div></div>
+      <div style="text-align:center" class="muted" id="slotMsg">3つ揃えば大当たり。777で ×100。</div>
+      <button class="btn gold wide" id="btnSpin" style="margin-top:8px">回す</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="sec">🌈 覚醒（プレステージ）</h2>
+    <div class="muted" id="prestInfo"></div>
+    <div class="bar"><i id="prestBar"></i></div>
+    <button class="btn wide gold" id="btnPrest" style="margin-top:9px">覚醒する</button>
+  </div>
+</section>
+
+<!-- ========== UPGRADES ========== -->
+<section class="panel" id="p-up">
+  <div class="card">
+    <h2 class="sec">👆 タップ強化</h2>
+    <div id="listClick"></div>
+  </div>
+  <div class="card">
+    <h2 class="sec">🏭 自動ドパ施設</h2>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn ghost" data-buy="1">×1</button>
+      <button class="btn ghost" data-buy="10">×10</button>
+      <button class="btn ghost" data-buy="100">×100</button>
+      <button class="btn ghost" data-buy="max">MAX</button>
+    </div>
+    <div id="listGen"></div>
+  </div>
+</section>
+
+<!-- ========== GACHA ========== -->
+<section class="panel" id="p-gacha">
+  <div class="card">
+    <h2 class="sec">🎴 ドパガチャ</h2>
+    <div class="muted" id="gachaInfo"></div>
+    <div class="row" style="margin-top:9px">
+      <button class="btn wide" id="btnG1">単発</button>
+      <button class="btn wide gold" id="btnG10">10連<br><span style="font-size:10px;font-weight:400">SR以上確定</span></button>
+    </div>
+    <div class="muted" style="margin-top:8px">天井: <b id="pityN">0</b>/90（90連でSSR以上確定）</div>
+    <div class="bar"><i id="pityBar"></i></div>
+    <h3 class="sub">提供割合</h3>
+    <div class="muted" id="rates"></div>
+  </div>
+  <div class="card">
+    <h2 class="sec">📈 所持キャラ効果</h2>
+    <div class="muted" id="charBonus"></div>
+  </div>
+</section>
+
+<!-- ========== DEX ========== -->
+<section class="panel" id="p-dex">
+  <div class="card">
+    <h2 class="sec">📖 キャラ図鑑 <span class="muted" id="dexCount"></span></h2>
+    <div id="dexGrid"></div>
+  </div>
+  <div class="card">
+    <h2 class="sec">💎 脳汁ショップ</h2>
+    <div class="muted">脳汁は覚醒で手に入る永久ポイント。所持: <b id="njShop">0</b></div>
+    <div id="listNj" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<!-- ========== ACHIEVEMENTS ========== -->
+<section class="panel" id="p-ach">
+  <div class="card">
+    <h2 class="sec">🏆 実績 <span class="muted" id="achCount"></span></h2>
+    <div class="muted">実績1つにつき全収入 +1%</div>
+    <div id="listAch" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<!-- ========== ENDINGS ========== -->
+<section class="panel" id="p-end">
+  <div class="card">
+    <h2 class="sec">🎬 エンディング <span class="muted" id="endCount"></span></h2>
+    <div class="muted">条件を満たすと自動で解放。全部集めると…？</div>
+    <div id="endGrid" style="margin-top:9px"></div>
+  </div>
+</section>
+
+<!-- ========== SETTINGS ========== -->
+<section class="panel" id="p-set">
+  <div class="card">
+    <h2 class="sec">📊 統計</h2>
+    <table class="stt" id="statTable"></table>
+  </div>
+  <div class="card">
+    <h2 class="sec">⚙️ 設定</h2>
+    <div class="row">
+      <button class="btn ghost" id="btnSound">🔊 音: ON</button>
+      <button class="btn ghost" id="btnFx">✨ エフェクト: ON</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn c" id="btnSave">💾 手動セーブ</button>
+      <button class="btn ghost" id="btnExport">📤 エクスポート</button>
+      <button class="btn ghost" id="btnImport">📥 インポート</button>
+    </div>
+    <button class="btn r wide" id="btnReset" style="margin-top:8px">☠️ 全データ削除</button>
+    <div class="muted" style="margin-top:8px">セーブはこの端末のブラウザに自動保存（10秒ごと）。</div>
+  </div>
+</section>
+</div>
+
+<nav>
+  <button data-tab="main" class="active"><span class="ic">🧠</span>メイン</button>
+  <button data-tab="up"><span class="ic">🏭</span>強化</button>
+  <button data-tab="gacha"><span class="ic">🎴</span>ガチャ</button>
+  <button data-tab="dex"><span class="ic">📖</span>図鑑</button>
+  <button data-tab="ach"><span class="ic">🏆</span>実績</button>
+  <button data-tab="end"><span class="ic">🎬</span>エンド</button>
+  <button data-tab="set"><span class="ic">⚙️</span>設定</button>
+</nav>
+
+<div id="gachaStage">
+  <div id="gachaInner" style="display:flex;flex-direction:column;align-items:center;gap:14px">
+    <div id="gachaOrb"></div>
+    <div id="gachaText" class="muted">…</div>
+    <div id="resultGrid" style="display:none"></div>
+    <button class="btn" id="btnCloseG" style="display:none">とじる</button>
+  </div>
+</div>
+
+<div id="endOverlay">
+  <div class="eno" id="eoNo">ENDING 01</div>
+  <div class="enm" id="eoNm">―</div>
+  <div class="eds" id="eoDs">―</div>
+  <button class="btn gold" id="eoBtn" style="margin-top:12px">つづける</button>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   ドパガキ・インフィニティ  —  完全版
+   ============================================================ */
+const SK = k => "dopagaki_game/claude/5Opus/001/saves/" + k;
+const SAVE_KEY = SK("main");
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+const JP_UNITS=[[1e68,"無量大数"],[1e64,"不可思議"],[1e60,"那由他"],[1e56,"阿僧祇"],[1e52,"恒河沙"],
+[1e48,"極"],[1e44,"載"],[1e40,"正"],[1e36,"澗"],[1e32,"溝"],[1e28,"穣"],[1e24,"𥝱"],[1e20,"垓"],
+[1e16,"京"],[1e12,"兆"],[1e8,"億"],[1e4,"万"]];
+function fmt(n){
+  if(!isFinite(n))return "∞";
+  if(n<0)return "-"+fmt(-n);
+  if(n<1000) return (n<10 && n%1!==0)? n.toFixed(1) : Math.floor(n).toLocaleString("ja-JP");
+  if(n<1e4) return Math.floor(n).toLocaleString("ja-JP");
+  for(const [v,u] of JP_UNITS){
+    if(n>=v){ const x=n/v; return (x<100?x.toFixed(2):x<1000?x.toFixed(1):Math.floor(x))+u; }
+  }
+  return n.toExponential(2);
+}
+function fmtTime(s){
+  s=Math.floor(s);
+  const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),ss=s%60;
+  if(d)return `${d}日${h}時間`; if(h)return `${h}時間${m}分`; if(m)return `${m}分${ss}秒`; return `${ss}秒`;
+}
+
+/* ---------- audio ---------- */
+let AC=null;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+function beep(freq,dur,type,vol){
+  if(!S.sound)return; const a=ac(); if(!a)return;
+  try{
+    const o=a.createOscillator(),g=a.createGain();
+    o.type=type||"square"; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol||0.05,a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+(dur||0.08));
+    o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+(dur||0.08)+0.02);
+  }catch(e){}
+}
+function chord(fs,dur){ fs.forEach((f,i)=>setTimeout(()=>beep(f,dur||0.25,"triangle",0.06),i*55)); }
+
+/* ============================================================
+   DATA
+   ============================================================ */
+
+/* --- タップ強化（1回買い切り / レベル制） --- */
+const CLICK_UPS=[
+ {id:"cu1", em:"👆", nm:"指トレーニング",   ds:"タップ +1",            base:15,     mul:1.6,  max:50,  add:1},
+ {id:"cu2", em:"🧤", nm:"滑らんグローブ",   ds:"タップ +5",            base:400,    mul:1.65, max:50,  add:5},
+ {id:"cu3", em:"⚡", nm:"神経ブースト",     ds:"タップ ×1.25",         base:6000,   mul:1.9,  max:25,  pmul:1.25},
+ {id:"cu4", em:"🖱️", nm:"連打マクロ(黒)",  ds:"タップ +100",          base:9e4,    mul:1.7,  max:50,  add:100},
+ {id:"cu5", em:"🧬", nm:"ドパ受容体増設",   ds:"タップ ×1.5",          base:2.4e6,  mul:2.1,  max:25,  pmul:1.5},
+ {id:"cu6", em:"🌀", nm:"時間圧縮タップ",   ds:"タップ +5000",         base:6e7,    mul:1.75, max:50,  add:5000},
+ {id:"cu7", em:"🔮", nm:"クリック錬金術",   ds:"タップに毎秒収入の2%を加算", base:5e8, mul:3.0,  max:20,  dpsPct:0.02},
+ {id:"cu8", em:"💥", nm:"脳内核融合",       ds:"タップ ×2",            base:8e9,    mul:2.6,  max:25,  pmul:2},
+ {id:"cu9", em:"🕳️", nm:"特異点の指先",     ds:"タップ ×3",            base:1e13,   mul:3.2,  max:20,  pmul:3},
+ {id:"cu10",em:"👑", nm:"ドパ神の右手",     ds:"タップ ×5",            base:1e18,   mul:4.0,  max:15,  pmul:5},
+];
+
+/* --- 自動施設 --- */
+const GENS=[
+ {id:"g1", em:"📳", nm:"通知バイブ",        ds:"ブブッ…（もう脳が反応する）",       base:30,    rate:0.3},
+ {id:"g2", em:"🤖", nm:"周回bot",           ds:"寝てる間も回る",                   base:400,   rate:2.5},
+ {id:"g3", em:"📱", nm:"ショート動画ループ", ds:"次の動画、次の動画、次の…",          base:5200,  rate:18},
+ {id:"g4", em:"💳", nm:"課金厨の財布",       ds:"限度額？知らない子ですね",          base:7e4,   rate:130},
+ {id:"g5", em:"🏭", nm:"ドーパミン工場",     ds:"24時間フル稼働",                   base:9e5,   rate:900},
+ {id:"g6", em:"🧠", nm:"脳直リンク",         ds:"もう画面すら要らない",              base:1.3e7, rate:6500},
+ {id:"g7", em:"🛰️", nm:"快楽衛星",          ds:"地球全体に配信",                   base:2e8,   rate:48000},
+ {id:"g8", em:"🌌", nm:"異次元ドパ炉",       ds:"別宇宙から供給",                   base:3.5e9, rate:36e4},
+ {id:"g9", em:"♾️", nm:"無限スクロール銀河", ds:"底が無い",                         base:6e10,  rate:28e5},
+ {id:"g10",em:"💗", nm:"ドパ神の心臓",       ds:"ドクン。宇宙が脈打つ",              base:1.2e12,rate:24e6},
+ {id:"g11",em:"🕋", nm:"概念ドパミン",       ds:"存在するだけで出る",                base:5e14,  rate:2.2e8},
+ {id:"g12",em:"🌠", nm:"全知全脳",           ds:"すべてが快楽",                     base:8e17,  rate:2.5e9},
+];
+const GEN_COST_MUL=1.15;
+
+/* --- ガチャキャラ --- */
+const RARITY={
+  N:  {nm:"N",  w:5000, cls:"rN",  bonus:0.01, orb:""},
+  R:  {nm:"R",  w:3000, cls:"rR",  bonus:0.03, orb:""},
+  SR: {nm:"SR", w:1500, cls:"rSR", bonus:0.09, orb:"r2"},
+  SSR:{nm:"SSR",w:400,  cls:"rSSR",bonus:0.25, orb:"r3"},
+  UR: {nm:"UR", w:90,   cls:"rUR", bonus:0.70, orb:"r4"},
+  GOD:{nm:"神", w:10,   cls:"rGOD",bonus:2.00, orb:"r4"},
+};
+const CHARS=[
+ // N
+ {id:"c01",r:"N",em:"🧒",nm:"ふつうのガキ"},{id:"c02",r:"N",em:"🥱",nm:"眠いやつ"},
+ {id:"c03",r:"N",em:"🔋",nm:"電池切れ"},{id:"c04",r:"N",em:"📶",nm:"Wi-Fi難民"},
+ {id:"c05",r:"N",em:"📝",nm:"宿題未提出"},{id:"c06",r:"N",em:"🗣️",nm:"親の小言"},
+ {id:"c07",r:"N",em:"🚫",nm:"通信エラー"},{id:"c08",r:"N",em:"🪨",nm:"ただの石"},
+ {id:"c09",r:"N",em:"🕰️",nm:"暇人"},
+ // R
+ {id:"c10",r:"R",em:"📺",nm:"ショート中毒"},{id:"c11",r:"R",em:"🎁",nm:"ログボ勢"},
+ {id:"c12",r:"R",em:"🗡️",nm:"無課金侍"},{id:"c13",r:"R",em:"🐈",nm:"ソシャゲ猫"},
+ {id:"c14",r:"R",em:"🧟",nm:"周回ゾンビ"},{id:"c15",r:"R",em:"💘",nm:"推し変人間"},
+ {id:"c16",r:"R",em:"⛏️",nm:"石割り職人"},{id:"c17",r:"R",em:"🍖",nm:"スタミナ喰い"},
+ // SR
+ {id:"c18",r:"SR",em:"🐱",nm:"廃課金ネコ"},{id:"c19",r:"SR",em:"👻",nm:"通知オバケ"},
+ {id:"c20",r:"SR",em:"🥤",nm:"エナドリ戦士"},{id:"c21",r:"SR",em:"🏆",nm:"無双ランカー"},
+ {id:"c22",r:"SR",em:"💸",nm:"秒で溶ける財布"},{id:"c23",r:"SR",em:"🌙",nm:"深夜テンション"},
+ // SSR
+ {id:"c24",r:"SSR",em:"🧓",nm:"天井おじさん"},{id:"c25",r:"SSR",em:"👸",nm:"徹夜クイーン"},
+ {id:"c26",r:"SSR",em:"🔄",nm:"爆速リセマラ"},{id:"c27",r:"SSR",em:"🎙️",nm:"実況神"},
+ // UR
+ {id:"c28",r:"UR",em:"📜",nm:"無限スクロール姫"},{id:"c29",r:"UR",em:"🤴",nm:"深淵の課金王"},
+ // GOD
+ {id:"c30",r:"GOD",em:"🧠",nm:"ドパ神"},
+];
+const GACHA_BASE=1200, GACHA_GROW=1.045, PITY=90;
+
+/* --- 脳汁ショップ --- */
+const NJ_SHOP=[
+ {id:"n1",em:"🧬",nm:"神経増強",   ds:"タップ +60% / Lv",     max:25, base:4,  mul:1.55},
+ {id:"n2",em:"🏭",nm:"自動化促進", ds:"毎秒収入 +35% / Lv",   max:25, base:4,  mul:1.55},
+ {id:"n3",em:"🍀",nm:"ガチャ運",   ds:"レア枠の重み +25% / Lv",max:12, base:15, mul:1.9},
+ {id:"n4",em:"🔗",nm:"コンボ王",   ds:"コンボ持続 +18% / Lv", max:12, base:10, mul:1.8},
+ {id:"n5",em:"🔥",nm:"フィーバー体質",ds:"イベント発生率 +20% / Lv",max:12,base:12,mul:1.85},
+ {id:"n6",em:"💰",nm:"初期資金",   ds:"覚醒後の開始ドパミン増",max:15, base:6,  mul:1.7},
+ {id:"n7",em:"😴",nm:"オフライン脳",ds:"オフライン効率 +12% / Lv",max:15,base:8, mul:1.7},
+ {id:"n8",em:"💎",nm:"脳汁還元",   ds:"覚醒獲得量 +25% / Lv", max:15, base:25, mul:2.0},
+ {id:"n9",em:"🎰",nm:"イカサマ",   ds:"スロット当選率 +12% / Lv",max:8,base:20, mul:2.1},
+ {id:"n10",em:"🌟",nm:"全能感",    ds:"全収入 ×1.4 / Lv",     max:20, base:50, mul:2.3},
+];
+
+/* --- 実績 --- */
+function A(id,nm,ds,fn){return {id,nm,ds,fn};}
+const ACHS=[
+ A("a01","はじめの一歩","1回タップ",s=>s.clicks>=1),
+ A("a02","指が温まってきた","100回タップ",s=>s.clicks>=100),
+ A("a03","もう止まらん","1,000回タップ",s=>s.clicks>=1000),
+ A("a04","指が消えた","10,000回タップ",s=>s.clicks>=10000),
+ A("a05","人間連打機","50,000回タップ",s=>s.clicks>=50000),
+ A("a06","指は壊れた","100,000回タップ",s=>s.clicks>=100000),
+ A("a07","初ドパ1万","累計1万ドパミン",s=>s.totalAll>=1e4),
+ A("a08","百万長者","累計100万",s=>s.totalAll>=1e6),
+ A("a09","億り人","累計1億",s=>s.totalAll>=1e8),
+ A("a10","兆",  "累計1兆",s=>s.totalAll>=1e12),
+ A("a11","京",  "累計1京",s=>s.totalAll>=1e16),
+ A("a12","垓",  "累計1垓",s=>s.totalAll>=1e20),
+ A("a13","無量大数の淵","累計1e30",s=>s.totalAll>=1e30),
+ A("a14","概念突破","累計1e45",s=>s.totalAll>=1e45),
+ A("a15","はじめての自動化","施設を1つ購入",s=>totalGens()>=1),
+ A("a16","工場長","施設 合計50個",s=>totalGens()>=50),
+ A("a17","社長","施設 合計250個",s=>totalGens()>=250),
+ A("a18","宇宙企業","施設 合計1000個",s=>totalGens()>=1000),
+ A("a19","フルラインナップ","全種類の施設を1個以上",s=>GENS.every(g=>(s.gen[g.id]||0)>0)),
+ A("a20","偏愛","1種類を100個",s=>GENS.some(g=>(s.gen[g.id]||0)>=100)),
+ A("a21","均等主義","全種類を100個以上",s=>GENS.every(g=>(s.gen[g.id]||0)>=100)),
+ A("a22","強化の鬼","タップ強化を合計50Lv",s=>totalClickLv()>=50),
+ A("a23","強化の神","タップ強化を合計200Lv",s=>totalClickLv()>=200),
+ A("a24","ガチャデビュー","1回ガチャを引く",s=>s.pulls>=1),
+ A("a25","課金圧","100回引く",s=>s.pulls>=100),
+ A("a26","廃人","1,000回引く",s=>s.pulls>=1000),
+ A("a27","SR来た","SR以上を入手",s=>hasRarityAtLeast("SR")),
+ A("a28","SSR来た","SSRを入手",s=>hasRarityAtLeast("SSR")),
+ A("a29","URだと…?","URを入手",s=>hasRarityAtLeast("UR")),
+ A("a30","神引き","神を入手",s=>hasRarityAtLeast("GOD")),
+ A("a31","半分コンプ","キャラ15種",s=>ownedCount()>=15),
+ A("a32","図鑑コンプ","キャラ全30種",s=>ownedCount()>=CHARS.length),
+ A("a33","重ねがさね","同キャラ50凸",s=>Object.values(s.chars).some(v=>v>=50)),
+ A("a34","初覚醒","1回覚醒",s=>s.prestiges>=1),
+ A("a35","覚醒中毒","10回覚醒",s=>s.prestiges>=10),
+ A("a36","輪廻","50回覚醒",s=>s.prestiges>=50),
+ A("a37","脳汁まみれ","脳汁を1,000所持",s=>s.nj>=1000),
+ A("a38","ショップ荒らし","脳汁ショップを合計30Lv",s=>totalNjLv()>=30),
+ A("a39","コンボ100","コンボ100達成",s=>s.maxCombo>=100),
+ A("a40","コンボ500","コンボ500達成",s=>s.maxCombo>=500),
+ A("a41","コンボ1000","コンボ1000達成",s=>s.maxCombo>=1000),
+ A("a42","黄金ハンター","黄金のドパ玉を10個",s=>s.golden>=10),
+ A("a43","フィーバー狂","フィーバー20回",s=>s.fevers>=20),
+ A("a44","777","スロットで777",s=>s.slot777>=1),
+ A("a45","ギャン負け","スロットで10回ハズレ",s=>s.slotLose>=10),
+ A("a46","連打200","連打チャレンジ200回",s=>s.mashBest>=200),
+ A("a47","連打300","連打チャレンジ300回",s=>s.mashBest>=300),
+ A("a48","長時間労働","合計1時間プレイ",s=>s.playTime>=3600),
+ A("a49","一日中","合計5時間プレイ",s=>s.playTime>=18000),
+ A("a50","放置勢","5分放置",s=>s.maxIdle>=300),
+];
+
+/* --- エンディング --- */
+function E(id,nm,ds,fn){return {id,nm,ds,fn};}
+const ENDS=[
+ E("e01","はじめてのドパ","指が画面に触れた瞬間、脳の奥で小さな花火が散った。\nこれが全ての始まりだった。",s=>s.clicks>=1),
+ E("e02","連打少年","100回。まだ序の口。手首はまだ生きている。",s=>s.clicks>=100),
+ E("e03","指の墓標","10,000回タップ。指紋が消えた。代わりに何かを得た気がする。",s=>s.clicks>=10000),
+ E("e04","人類最速の指","100,000回。もはや指ではない。現象である。",s=>s.clicks>=100000),
+ E("e05","小金持ち","累計1万ドパミン。小さな快楽の積み重ね。",s=>s.totalAll>=1e4),
+ E("e06","億の快楽","累計1億。もう日常の刺激では物足りない。",s=>s.totalAll>=1e8),
+ E("e07","兆を超えて","累計1兆。数字がただの記号に見えてきた。",s=>s.totalAll>=1e12),
+ E("e08","天文学的ドパ","累計1e20。銀河がドパミンでできている。",s=>s.totalAll>=1e20),
+ E("e09","無量大数のむこう","累計1e40。単位が追いつかない。",s=>s.totalAll>=1e40),
+ E("e10","数の彼方","累計1e60。もはや誰も数えられない。",s=>s.totalAll>=1e60),
+ E("e11","はじめての覚醒","全てを捨てて、脳汁だけを持って生まれ変わった。\n失ったものより、得たものの方が多い気がした。",s=>s.prestiges>=1),
+ E("e12","輪廻の住人","10回の覚醒。リセットが快感になってきた。",s=>s.prestiges>=10),
+ E("e13","無限ループ","50回の覚醒。もう戻り方を忘れた。",s=>s.prestiges>=50),
+ E("e14","究極の断捨離","何も買わずに覚醒した。\n持たざる者こそ最強、という思想。",s=>s.noBuyPrestige>=1),
+ E("e15","ガチャの扉","はじめてガチャを引いた。音が良かった。ただそれだけで脳が喜んだ。",s=>s.pulls>=1),
+ E("e16","天井を見た男","90連。天井は、優しさではなく諦めの高さだ。",s=>s.pityMaxSeen>=PITY),
+ E("e17","SSRの光","黄金の光が画面を焼いた。指が震えた。",s=>hasRarityAtLeast("SSR")),
+ E("e18","URの衝撃","ピンクの閃光。部屋の空気が変わった。",s=>hasRarityAtLeast("UR")),
+ E("e19","神引き","虹が出た。人生で一番大きな声を出した。",s=>hasRarityAtLeast("GOD")),
+ E("e20","図鑑完成","全30種。集め終わった瞬間の、あの静けさ。",s=>ownedCount()>=CHARS.length),
+ E("e21","廃課金の果て","1,000連。財布ではなく、時間が溶けた。",s=>s.pulls>=1000),
+ E("e22","自動化の夜明け","施設を全種類そろえた。もう何もしなくても数字が増える。",s=>GENS.every(g=>(s.gen[g.id]||0)>0)),
+ E("e23","ドパ帝国","施設合計1,000個。あなたは快楽産業の頂点に立った。",s=>totalGens()>=1000),
+ E("e24","工場の音","1種類を100個そろえた。同じ音が100個。気持ちいい。",s=>GENS.some(g=>(s.gen[g.id]||0)>=100)),
+ E("e25","コンボ100","指が音符になった。リズムが脳を支配する。",s=>s.maxCombo>=100),
+ E("e26","コンボ500","時間の感覚が消える。これがゾーンか。",s=>s.maxCombo>=500),
+ E("e27","コンボ1000","もう自分が叩いているのか、叩かされているのか分からない。",s=>s.maxCombo>=1000),
+ E("e28","フィーバーの夜","フィーバー中に1,000回タップ。世界が金色だった。",s=>s.fevClicks>=1000),
+ E("e29","黄金コレクター","黄金のドパ玉を10個つかんだ。反射神経だけが友達。",s=>s.golden>=10),
+ E("e30","777","スロットが揃った瞬間の音。あれだけで一生いける。",s=>s.slot777>=1),
+ E("e31","ギャンブル依存","10回ハズレても回し続けた。次は当たる。次こそは。",s=>s.slotLose>=10),
+ E("e32","連打の化身","連打チャレンジ300回超え。人間をやめた速度。",s=>s.mashBest>=300),
+ E("e33","脳汁の海","脳汁1,000。もう普通の快楽では何も感じない。",s=>s.nj>=1000),
+ E("e34","実績の半分","実績を25個解除。コレクター気質が目を覚ます。",s=>achCount()>=25),
+ E("e35","実績コンプ","全実績解除。やり込みという名の沼の底。",s=>achCount()>=ACHS.length),
+ E("e36","静寂","音を消した。それでも指は止まらなかった。",s=>s.mutedOnce),
+ E("e37","探究者","全てのタブを開いた。仕様を読む者は強い。",s=>s.tabsSeen>=7),
+ E("e38","放置の美学","30分放置した。何もしないことも、また戦略。",s=>s.maxIdle>=1800),
+ E("e39","踏みとどまった者","データ削除を押して、やめた。\nここまでの時間は、確かにあなたのものだ。",s=>s.almostReset>=1),
+ E("e40","長い一日","合計5時間プレイ。外はもう明るい。",s=>s.playTime>=18000),
+ E("e41","【真】ドパガキ・インフィニティ",
+   "全てのエンディングを見た。\n\nドパミンは、数字ではなかった。\n増やすたびに何かが薄まり、それでも次を押した。\nあなたはずっと、押すことそのものを愛していた。\n\nそして今、押す理由がなくなった画面の前で、\nあなたはもう一度指を伸ばす。\n\n――おかえり、ドパガキ。",
+   s=>ENDS.filter(e=>e.id!=="e41").every(e=>s.ends[e.id])),
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+function newState(){
+  return {
+    v:1, dp:0, totalRun:0, totalAll:0, nj:0, njSpent:0,
+    clicks:0, clicksRun:0,
+    gen:{}, cu:{}, njLv:{}, chars:{}, ach:{}, ends:{},
+    pulls:0, pity:0, pityMaxSeen:0,
+    prestiges:0, noBuyPrestige:0, purchasesThisRun:0,
+    combo:0, maxCombo:0, comboT:0,
+    fever:0, fevers:0, fevClicks:0,
+    golden:0, slot777:0, slotLose:0, slotWin:0, mashBest:0, mashPlays:0,
+    playTime:0, idle:0, maxIdle:0, tabsSeen:1, seenTabs:{main:1},
+    mutedOnce:false, almostReset:0,
+    sound:true, fx:true,
+    lastSave:Date.now(), started:Date.now(),
+    eventT:45,
+  };
+}
+let S=newState();
+let endQueue=[], endShowing=false;
+
+/* ---------- save / load ---------- */
+function save(silent){
+  try{
+    S.lastSave=Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+    localStorage.setItem(SK("meta"), JSON.stringify({t:Date.now(),v:1}));
+    if(!silent) toast("💾 セーブしました");
+  }catch(e){ if(!silent) toast("⚠️ セーブ失敗（容量/権限）","red"); }
+}
+function load(){
+  let raw=null;
+  try{ raw=localStorage.getItem(SAVE_KEY); }catch(e){ return false; }
+  if(!raw) return false;
+  try{
+    const d=JSON.parse(raw); const base=newState();
+    S=Object.assign(base,d);
+    for(const k of ["gen","cu","njLv","chars","ach","ends","seenTabs"]) if(typeof S[k]!=="object"||!S[k]) S[k]={};
+    return true;
+  }catch(e){ return false; }
+}
+function wipe(){ try{ localStorage.removeItem(SAVE_KEY); localStorage.removeItem(SK("meta")); }catch(e){} }
+
+/* ============================================================
+   CALC
+   ============================================================ */
+function totalGens(){ return GENS.reduce((a,g)=>a+(S.gen[g.id]||0),0); }
+function totalClickLv(){ return CLICK_UPS.reduce((a,c)=>a+(S.cu[c.id]||0),0); }
+function totalNjLv(){ return NJ_SHOP.reduce((a,n)=>a+(S.njLv[n.id]||0),0); }
+function ownedCount(){ return Object.keys(S.chars).filter(k=>S.chars[k]>0).length; }
+function achCount(){ return Object.keys(S.ach).filter(k=>S.ach[k]).length; }
+function endCount(){ return Object.keys(S.ends).filter(k=>S.ends[k]).length; }
+const RORDER=["N","R","SR","SSR","UR","GOD"];
+function hasRarityAtLeast(r){
+  const i=RORDER.indexOf(r);
+  return CHARS.some(c=>(S.chars[c.id]||0)>0 && RORDER.indexOf(c.r)>=i);
+}
+function njLv(id){ return S.njLv[id]||0; }
+
+function charMul(){
+  let b=0;
+  for(const c of CHARS){ const n=S.chars[c.id]||0; if(n>0) b+=RARITY[c.r].bonus*n; }
+  return 1+b;
+}
+function achMul(){ return 1+achCount()*0.01; }
+function njMul(){ return 1+S.nj*0.02; }
+function omniMul(){ return Math.pow(1.4, njLv("n10")); }
+function endMul(){ return 1+endCount()*0.03; }
+function globalMul(){
+  return charMul()*achMul()*njMul()*omniMul()*endMul()*(S.fever>0?FEVER_MUL:1);
+}
+function comboMul(){ return 1+S.combo*0.02; }
+
+function clickBase(){
+  let add=1, mul=1, dpsPct=0;
+  for(const c of CLICK_UPS){
+    const lv=S.cu[c.id]||0; if(!lv)continue;
+    if(c.add) add+=c.add*lv;
+    if(c.pmul) mul*=Math.pow(c.pmul,lv);
+    if(c.dpsPct) dpsPct+=c.dpsPct*lv;
+  }
+  mul*=Math.pow(1.6, njLv("n1"));
+  let v=add*mul;
+  if(dpsPct>0) v+=dpsRaw()*dpsPct;
+  return v;
+}
+function dpsRaw(){
+  let v=0;
+  for(const g of GENS) v+=(S.gen[g.id]||0)*g.rate;
+  v*=Math.pow(1.35, njLv("n2"));
+  return v;
+}
+function DPC(){ return clickBase()*globalMul()*comboMul(); }
+function DPS(){ return dpsRaw()*globalMul(); }
+
+function genCost(g,n,have){
+  have=have===undefined?(S.gen[g.id]||0):have;
+  // sum of geometric series
+  return g.base*Math.pow(GEN_COST_MUL,have)*(Math.pow(GEN_COST_MUL,n)-1)/(GEN_COST_MUL-1);
+}
+function genMaxAfford(g){
+  const have=S.gen[g.id]||0, c=g.base*Math.pow(GEN_COST_MUL,have);
+  if(S.dp<c)return 0;
+  const n=Math.floor(Math.log(1+(S.dp*(GEN_COST_MUL-1))/c)/Math.log(GEN_COST_MUL));
+  return Math.max(0,Math.min(n,100000));
+}
+function cuCost(c){ return c.base*Math.pow(c.mul,S.cu[c.id]||0); }
+function njCost(n){ return Math.ceil(n.base*Math.pow(n.mul,njLv(n.id))); }
+function gachaCost(){ return Math.floor(GACHA_BASE*Math.pow(GACHA_GROW,Math.min(S.pulls,300))*Math.pow(2,S.prestiges*0.12)); }
+function prestReq(){ return 1e6*Math.pow(3.2,S.prestiges); }
+function prestGain(){
+  const t=S.totalRun;
+  if(t<prestReq())return 0;
+  let g=Math.floor(12*Math.pow(t/1e6,0.42));
+  g=Math.floor(g*(1+0.25*njLv("n8")));
+  return Math.max(1,g);
+}
+const FEVER_MUL=8;
+
+/* ============================================================
+   FX
+   ============================================================ */
+function toast(msg,cls){
+  const d=document.createElement("div");
+  d.className="toast"+(cls?" "+cls:""); d.innerHTML=msg;
+  $("#toasts").appendChild(d);
+  setTimeout(()=>d.remove(),3500);
+}
+function floatText(x,y,txt,color,size){
+  if(!S.fx)return;
+  const d=document.createElement("div");
+  d.className="float"; d.textContent=txt;
+  d.style.cssText=`left:${x}px;top:${y}px;color:${color||"#fff"};font-size:${size||20}px`;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),1000);
+}
+function burst(x,y,n,colors){
+  if(!S.fx)return;
+  for(let i=0;i<n;i++){
+    const p=document.createElement("div");
+    const s=rnd(4,11), a=rnd(0,Math.PI*2), d=rnd(40,150);
+    p.className="particle";
+    p.style.cssText=`left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${pick(colors)};--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),720);
+  }
+}
+function shake(){ if(!S.fx)return; document.body.classList.remove("shake"); void document.body.offsetWidth; document.body.classList.add("shake"); }
+
+/* ============================================================
+   CORE ACTIONS
+   ============================================================ */
+function gain(n,track){
+  S.dp+=n; S.totalRun+=n; S.totalAll+=n;
+}
+function doClick(ev){
+  S.idle=0;
+  const v=DPC();
+  gain(v);
+  S.clicks++; S.clicksRun++;
+  S.combo++; S.comboT=comboWindow();
+  if(S.combo>S.maxCombo)S.maxCombo=S.combo;
+  if(S.fever>0)S.fevClicks++;
+  const r=$("#bigbtn").getBoundingClientRect();
+  const x=ev&&ev.clientX?ev.clientX:r.left+r.width/2;
+  const y=ev&&ev.clientY?ev.clientY:r.top+r.height/2;
+  floatText(x,y-10,"+"+fmt(v),S.fever>0?"#ffd23a":(S.combo>50?"#b6ff3a":"#fff"),S.combo>100?26:20);
+  if(S.fx) burst(x,y,S.fever>0?10:5,["#ff3ea5","#ffd23a","#22e6ff","#b6ff3a","#a05cff"]);
+  beep(440+Math.min(S.combo,60)*9,0.05,"square",0.035);
+  if(S.combo%50===0){ shake(); chord([660,880,1100],0.15); toast(`🔥 ${S.combo} COMBO!!`,"gold"); }
+  $("#dp").classList.remove("pop"); void $("#dp").offsetWidth; $("#dp").classList.add("pop");
+  dirty.stats=true;
+}
+function comboWindow(){ return 1.6*(1+0.18*njLv("n4")); }
+
+/* ---------- purchase ---------- */
+let buyMode=1;
+function buyGen(g){
+  let n = buyMode==="max" ? genMaxAfford(g) : buyMode;
+  if(buyMode!=="max"){
+    // buy as many as affordable up to n
+    const maxA=genMaxAfford(g); n=Math.min(n,maxA);
+  }
+  if(n<=0){ beep(160,0.09,"sawtooth",0.04); return; }
+  const c=genCost(g,n);
+  if(S.dp<c) return;
+  S.dp-=c; S.gen[g.id]=(S.gen[g.id]||0)+n; S.purchasesThisRun+=n;
+  beep(520,0.09,"triangle",0.05); beep(780,0.09,"triangle",0.04);
+  toast(`🏭 ${g.nm} ×${n} 購入`,"gold");
+  dirty.gen=true; dirty.stats=true;
+}
+function buyCU(c){
+  const lv=S.cu[c.id]||0; if(lv>=c.max)return;
+  const cost=cuCost(c); if(S.dp<cost){beep(160,0.09,"sawtooth",0.04);return;}
+  S.dp-=cost; S.cu[c.id]=lv+1; S.purchasesThisRun++;
+  beep(660,0.1,"triangle",0.06); beep(990,0.1,"triangle",0.04);
+  dirty.cu=true; dirty.stats=true;
+}
+function buyNJ(n){
+  const lv=njLv(n.id); if(lv>=n.max)return;
+  const c=njCost(n); if(S.nj<c){beep(160,0.09,"sawtooth",0.04);return;}
+  S.nj-=c; S.njSpent+=c; S.njLv[n.id]=lv+1;
+  chord([523,659,784],0.2); toast(`💎 ${n.nm} Lv${lv+1}`,"pink");
+  dirty.nj=true; dirty.stats=true;
+}
+
+/* ---------- prestige ---------- */
+function prestige(){
+  const g=prestGain();
+  if(g<=0){ toast("まだ覚醒できない（累計"+fmt(prestReq())+"必要）","red"); return; }
+  if(!confirm(`覚醒しますか？\n\n獲得脳汁: ${fmt(g)}\n\nドパミン・施設・タップ強化はリセットされます。\n（キャラ・実績・エンディング・脳汁ショップは保持）`)) return;
+  if(S.purchasesThisRun===0) S.noBuyPrestige++;
+  S.nj+=g; S.prestiges++;
+  S.dp=startMoney(); S.totalRun=0; S.gen={}; S.cu={}; S.combo=0; S.purchasesThisRun=0; S.clicksRun=0;
+  chord([392,523,659,784,1047],0.3); shake();
+  toast(`🌈 覚醒！ 脳汁 +${fmt(g)}`,"pink");
+  dirty.all=true;
+}
+function startMoney(){ const lv=njLv("n6"); return lv? 1000*Math.pow(6,lv) : 0; }
+
+/* ============================================================
+   GACHA
+   ============================================================ */
+function rollRarity(force){
+  const luck=1+0.25*njLv("n3");
+  let pool=[];
+  for(const k of RORDER){
+    if(force==="SR"&&RORDER.indexOf(k)<RORDER.indexOf("SR"))continue;
+    if(force==="SSR"&&RORDER.indexOf(k)<RORDER.indexOf("SSR"))continue;
+    const boost=(k==="SR"||k==="SSR"||k==="UR"||k==="GOD")?luck:1;
+    pool.push([k,RARITY[k].w*boost]);
+  }
+  const tot=pool.reduce((a,p)=>a+p[1],0);
+  let r=Math.random()*tot;
+  for(const [k,w] of pool){ r-=w; if(r<=0) return k; }
+  return pool[0][0];
+}
+function rollOne(force){
+  const r=rollRarity(force);
+  const cands=CHARS.filter(c=>c.r===r);
+  const c=pick(cands);
+  const isNew=!(S.chars[c.id]>0);
+  S.chars[c.id]=(S.chars[c.id]||0)+1;
+  return {c,isNew};
+}
+function doGacha(n){
+  const cost=gachaCost()*(n===10?9:1);
+  if(S.dp<cost){ toast("ドパミンが足りない…","red"); beep(150,0.15,"sawtooth",0.05); return; }
+  S.dp-=cost;
+  const res=[];
+  for(let i=0;i<n;i++){
+    S.pulls++; S.pity++;
+    if(S.pity>S.pityMaxSeen)S.pityMaxSeen=S.pity;
+    let force=null;
+    if(S.pity>=PITY) force="SSR";
+    else if(n===10 && i===9 && !res.some(x=>RORDER.indexOf(x.c.r)>=2)) force="SR";
+    const o=rollOne(force);
+    if(RORDER.indexOf(o.c.r)>=RORDER.indexOf("SSR")) S.pity=0;
+    res.push(o);
+  }
+  showGacha(res);
+  dirty.dex=true; dirty.stats=true; dirty.gacha=true;
+}
+function showGacha(res){
+  const best=res.reduce((a,b)=>RORDER.indexOf(b.c.r)>RORDER.indexOf(a.c.r)?b:a);
+  const stage=$("#gachaStage"), orb=$("#gachaOrb"), txt=$("#gachaText"), grid=$("#resultGrid");
+  stage.classList.add("show");
+  orb.style.display="block"; orb.className=""; grid.style.display="none"; grid.innerHTML="";
+  $("#btnCloseG").style.display="none";
+  txt.textContent="ドパミンを注入中…";
+  beep(220,0.3,"sine",0.05);
+  let t=0;
+  const iv=setInterval(()=>{
+    t++; beep(300+t*70,0.06,"sine",0.04);
+    if(t===6){ orb.className=RARITY[best.c.r].orb; if(RORDER.indexOf(best.c.r)>=3){ txt.textContent="…！？"; shake(); } }
+  },170);
+  setTimeout(()=>{
+    clearInterval(iv);
+    orb.style.display="none"; grid.style.display="grid";
+    txt.textContent = RORDER.indexOf(best.c.r)>=4 ? "🌈 おめでとう！！！" : RORDER.indexOf(best.c.r)>=3 ? "✨ 大当たり！" : "結果";
+    res.forEach((o,i)=>{
+      const d=document.createElement("div");
+      d.className="rcard "+RARITY[o.c.r].cls;
+      d.style.animationDelay=(i*0.07)+"s";
+      d.innerHTML=`<span class="e">${o.c.em}</span><span class="n">${o.c.nm}</span><span class="tag">${RARITY[o.c.r].nm}</span>${o.isNew?'<span class="rnew">NEW</span>':""}`;
+      grid.appendChild(d);
+      setTimeout(()=>{
+        const idx=RORDER.indexOf(o.c.r);
+        beep(400+idx*180,0.1,"triangle",0.05);
+      },i*70);
+    });
+    if(RORDER.indexOf(best.c.r)>=3){ shake(); chord([523,659,784,1047],0.3);
+      const r=grid.getBoundingClientRect();
+      burst(r.left+r.width/2,r.top+r.height/2,50,["#ffd23a","#ff3ea5","#fff","#22e6ff"]);
+    }
+    $("#btnCloseG").style.display="block";
+  },1250);
+}
+
+/* ============================================================
+   EVENTS (golden orb / fever)
+   ============================================================ */
+function eventRate(){ return 1+0.20*njLv("n5"); }
+function spawnEvent(){
+  if(Math.random()<0.45) spawnGolden(); else startFever(rnd(12,20));
+}
+let goldenTimer=null;
+function spawnGolden(){
+  const el=$("#golden");
+  el.style.display="flex";
+  el.style.left=rnd(10,window.innerWidth-90)+"px";
+  el.style.top=rnd(80,window.innerHeight-190)+"px";
+  el.textContent=pick(["🟡","🌟","💫","🪙"]);
+  beep(880,0.15,"sine",0.05); beep(1320,0.15,"sine",0.04);
+  toast("🌟 黄金のドパ玉が出現！タップしろ！","gold");
+  clearTimeout(goldenTimer);
+  goldenTimer=setTimeout(()=>{ el.style.display="none"; },9000);
+}
+$("#golden").addEventListener("click",e=>{
+  e.stopPropagation();
+  const el=$("#golden"); el.style.display="none"; clearTimeout(goldenTimer);
+  S.golden++;
+  const roll=Math.random();
+  const r=el.getBoundingClientRect();
+  if(roll<0.35){ startFever(rnd(14,22)); }
+  else {
+    const amt=Math.max(DPS()*rnd(60,400), DPC()*rnd(80,500), 100);
+    gain(amt);
+    floatText(r.left+37,r.top,"+"+fmt(amt),"#ffd23a",30);
+    toast(`💰 +${fmt(amt)} ドパミン！`,"gold");
+  }
+  burst(r.left+37,r.top+37,45,["#ffd23a","#fff","#ff8a00"]);
+  shake(); chord([784,988,1175],0.22);
+});
+function startFever(sec){
+  S.fever=Math.max(S.fever,sec); S.fevers++;
+  $("#fevBanner").classList.add("show");
+  $("#bigbtn").classList.add("fever");
+  toast(`🔥 フィーバータイム！ 全収入 ×${FEVER_MUL}`,"pink");
+  chord([659,784,988,1319],0.25); shake();
+}
+
+/* ============================================================
+   MINIGAMES
+   ============================================================ */
+/* --- mash --- */
+let mash={live:false,count:0,t:0};
+$("#btnMash").onclick=()=>{
+  $("#mashWrap").style.display="block"; $("#slotWrap").style.display="none";
+  $("#mashWrap").scrollIntoView({behavior:"smooth",block:"center"});
+};
+$("#btnSlot").onclick=()=>{
+  $("#slotWrap").style.display="block"; $("#mashWrap").style.display="none";
+  $("#slotWrap").scrollIntoView({behavior:"smooth",block:"center"});
+};
+$("#mashArea").addEventListener("pointerdown",()=>{
+  if(!mash.live){
+    mash={live:true,count:0,t:10};
+    $("#mashArea").classList.add("live");
+    S.mashPlays++;
+    beep(660,0.1,"square",0.05);
+  } else {
+    mash.count++;
+    $("#mashArea").textContent=mash.count;
+    beep(500+mash.count*4,0.03,"square",0.03);
+    const r=$("#mashArea").getBoundingClientRect();
+    if(S.fx&&mash.count%5===0) burst(rnd(r.left,r.right),rnd(r.top,r.bottom),4,["#b6ff3a","#22e6ff"]);
+  }
+});
+function endMash(){
+  mash.live=false;
+  $("#mashArea").classList.remove("live");
+  const c=mash.count;
+  if(c>S.mashBest)S.mashBest=c;
+  const reward=Math.max(DPC()*c*2.2, DPS()*c*1.2, c*50);
+  gain(reward);
+  $("#mashArea").textContent=`${c}回！ +${fmt(reward)}`;
+  toast(`🔥 ${c}連打！ +${fmt(reward)} ドパミン`,"gold");
+  chord([523,659,784],0.25); shake();
+  setTimeout(()=>{ if(!mash.live)$("#mashArea").textContent="タップして開始！"; },3500);
+  dirty.stats=true;
+}
+
+/* --- slot --- */
+const SYM=["🍒","🍋","🔔","⭐","💎","🧠","🔥","7️⃣"];
+let spinning=false;
+$("#btnSpin").onclick=()=>{
+  if(spinning)return;
+  const bet=Math.floor(S.dp*0.10);
+  if(bet<10){ toast("賭けるドパミンが足りない","red"); return; }
+  S.dp-=bet; spinning=true;
+  $("#btnSpin").disabled=true;
+  const reels=[0,1,2].map(i=>$("#r"+i));
+  reels.forEach(r=>r.classList.add("spin"));
+  const cheat=0.12*njLv("n9");
+  const final=[];
+  const iv=setInterval(()=>{ reels.forEach(r=>r.textContent=pick(SYM)); beep(700,0.02,"square",0.02); },70);
+  [0,1,2].forEach(i=>{
+    setTimeout(()=>{
+      let s;
+      if(i>0 && Math.random()<0.16+cheat) s=final[0];
+      else s=pick(SYM);
+      final[i]=s;
+      if(i===2){
+        clearInterval(iv);
+        reels.forEach((r,j)=>{ r.classList.remove("spin"); r.textContent=final[j]; });
+        resolveSlot(final,bet);
+      } else { reels[i].classList.remove("spin"); reels[i].textContent=s; }
+      beep(400+i*160,0.1,"triangle",0.05);
+    },900+i*520);
+  });
+};
+function resolveSlot(f,bet){
+  spinning=false; $("#btnSpin").disabled=false;
+  const all=f[0]===f[1]&&f[1]===f[2];
+  const two=f[0]===f[1]||f[1]===f[2]||f[0]===f[2];
+  let mul=0,msg="";
+  if(all&&f[0]==="7️⃣"){ mul=100; msg="🎉 777!!! 大爆発 ×100"; S.slot777++; }
+  else if(all&&f[0]==="🧠"){ mul=50; msg="🧠 脳ぞろい ×50"; }
+  else if(all){ mul=15; msg="✨ 3つ揃い ×15"; }
+  else if(two){ mul=1.8; msg="🙂 2つ揃い ×1.8"; }
+  else { mul=0; msg="😇 ハズレ…"; S.slotLose++; }
+  if(mul>0){
+    const win=bet*mul; gain(win); S.slotWin++;
+    $("#slotMsg").innerHTML=`${msg} <b style="color:var(--gold)">+${fmt(win)}</b>`;
+    chord(mul>=15?[523,659,784,1047,1319]:[523,659],0.25);
+    if(mul>=15){ shake(); const r=$("#r1").getBoundingClientRect(); burst(r.left+32,r.top+40,60,["#ffd23a","#fff","#ff3ea5"]); }
+  } else {
+    $("#slotMsg").innerHTML=`${msg} <b style="color:var(--red)">-${fmt(bet)}</b>`;
+    beep(180,0.3,"sawtooth",0.05);
+  }
+  dirty.stats=true;
+}
+
+/* ============================================================
+   ACHIEVEMENTS & ENDINGS CHECK
+   ============================================================ */
+function checkAch(){
+  for(const a of ACHS){
+    if(S.ach[a.id])continue;
+    let ok=false; try{ ok=a.fn(S); }catch(e){}
+    if(ok){ S.ach[a.id]=1; toast(`🏆 実績解除: <b>${a.nm}</b>`,"gold"); chord([784,1047],0.2); dirty.ach=true; }
+  }
+}
+function checkEnds(){
+  for(const e of ENDS){
+    if(S.ends[e.id])continue;
+    let ok=false; try{ ok=e.fn(S); }catch(err){}
+    if(ok){ S.ends[e.id]=1; endQueue.push(e); dirty.end=true; }
+  }
+  if(endQueue.length && !endShowing) showEnd(endQueue.shift());
+}
+function showEnd(e){
+  endShowing=true;
+  const idx=ENDS.indexOf(e)+1;
+  const isTrue=e.id==="e41";
+  $("#eoNo").textContent = isTrue? "TRUE ENDING" : "ENDING "+String(idx).padStart(2,"0");
+  $("#eoNm").textContent = e.nm;
+  $("#eoDs").textContent = e.ds;
+  const ov=$("#endOverlay");
+  ov.classList.toggle("true",isTrue);
+  ov.classList.add("show");
+  if(isTrue){ chord([392,523,659,784,1047,1319],0.5); shake();
+    let n=0; const iv=setInterval(()=>{ burst(rnd(0,innerWidth),rnd(0,innerHeight),22,["#ff3ea5","#ffd23a","#22e6ff","#b6ff3a","#fff"]); if(++n>16)clearInterval(iv); },180);
+  } else { chord([523,659,784],0.35);
+    burst(innerWidth/2,innerHeight/2,40,["#ffd23a","#ff3ea5","#fff"]); }
+  save(true);
+}
+$("#eoBtn").onclick=()=>{
+  $("#endOverlay").classList.remove("show"); endShowing=false;
+  if(endQueue.length) setTimeout(()=>showEnd(endQueue.shift()),320);
+};
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const dirty={all:true,gen:true,cu:true,nj:true,dex:true,ach:true,end:true,stats:true,gacha:true};
+const els={};
+
+function buildLists(){
+  /* click ups */
+  const lc=$("#listClick"); lc.innerHTML="";
+  CLICK_UPS.forEach(c=>{
+    const d=document.createElement("div"); d.className="item"; d.dataset.cu=c.id;
+    d.innerHTML=`<div class="em">${c.em}</div><div class="body">
+      <div class="nm">${c.nm} <span class="tag lv" data-lv>Lv.0</span></div>
+      <div class="ds">${c.ds}</div></div>
+      <div class="rt"><div class="cost" data-cost>—</div></div>`;
+    d.onclick=()=>buyCU(c);
+    lc.appendChild(d); els["cu_"+c.id]=d;
+  });
+  /* gens */
+  const lg=$("#listGen"); lg.innerHTML="";
+  GENS.forEach(g=>{
+    const d=document.createElement("div"); d.className="item"; d.dataset.gen=g.id;
+    d.innerHTML=`<div class="em">${g.em}</div><div class="body">
+      <div class="nm">${g.nm} <span class="tag" data-rate></span></div>
+      <div class="ds">${g.ds}</div>
+      <div class="ds" data-prod></div></div>
+      <div class="rt"><div class="own" data-own>0</div><div class="cost" data-cost>—</div></div>`;
+    d.onclick=()=>buyGen(g);
+    lg.appendChild(d); els["g_"+g.id]=d;
+  });
+  /* nj shop */
+  const ln=$("#listNj"); ln.innerHTML="";
+  NJ_SHOP.forEach(n=>{
+    const d=document.createElement("div"); d.className="item";
+    d.innerHTML=`<div class="em">${n.em}</div><div class="body">
+      <div class="nm">${n.nm} <span class="tag lv" data-lv>Lv.0</span></div>
+      <div class="ds">${n.ds}</div></div>
+      <div class="rt"><div class="cost" data-cost>—</div></div>`;
+    d.onclick=()=>buyNJ(n);
+    ln.appendChild(d); els["nj_"+n.id]=d;
+  });
+  /* rates */
+  $("#rates").innerHTML = RORDER.map(k=>{
+    const tot=RORDER.reduce((a,x)=>a+RARITY[x].w,0);
+    return `${RARITY[k].nm}: ${(RARITY[k].w/tot*100).toFixed(2)}%`;
+  }).join(" / ") + "<br>※「ガチャ運」でSR以上の重みが上昇";
+}
+
+function renderGen(){
+  GENS.forEach((g,i)=>{
+    const d=els["g_"+g.id]; const have=S.gen[g.id]||0;
+    const prevHave = i===0?1:(S.gen[GENS[i-1].id]||0);
+    const unlocked = i===0 || prevHave>0 || S.totalAll>=g.base*0.3;
+    let n = buyMode==="max"?Math.max(1,genMaxAfford(g)):buyMode;
+    const cost=genCost(g,n);
+    d.querySelector("[data-own]").textContent=have;
+    d.querySelector("[data-cost]").innerHTML=`${fmt(cost)}${buyMode!==1?` <span class="tag">×${buyMode==="max"?genMaxAfford(g):buyMode}</span>`:""}`;
+    d.querySelector("[data-rate]").textContent=`+${fmt(g.rate)}/秒`;
+    d.querySelector("[data-prod]").textContent = have? `生産中: ${fmt(have*g.rate*Math.pow(1.35,njLv("n2"))*globalMul())}/秒` : "";
+    d.classList.toggle("locked",!unlocked);
+    d.classList.toggle("buyable",unlocked && S.dp>=cost && genMaxAfford(g)>0);
+    d.style.display = unlocked||i<=1 ? "" : (S.totalAll>=g.base*0.12?"":"none");
+    if(!unlocked && S.totalAll<g.base*0.12) d.style.display="none";
+  });
+}
+function renderCU(){
+  CLICK_UPS.forEach((c,i)=>{
+    const d=els["cu_"+c.id]; const lv=S.cu[c.id]||0;
+    const unl = i===0 || (S.cu[CLICK_UPS[i-1].id]||0)>0 || S.totalAll>=c.base*0.3;
+    d.querySelector("[data-lv]").textContent=`Lv.${lv}/${c.max}`;
+    const cost=cuCost(c);
+    d.querySelector("[data-cost]").textContent = lv>=c.max? "MAX" : fmt(cost);
+    d.classList.toggle("buyable",lv<c.max&&S.dp>=cost);
+    d.classList.toggle("locked",lv>=c.max);
+    d.style.display = unl||S.totalAll>=c.base*0.12 ? "" : "none";
+  });
+}
+function renderNJ(){
+  NJ_SHOP.forEach(n=>{
+    const d=els["nj_"+n.id]; const lv=njLv(n.id);
+    d.querySelector("[data-lv]").textContent=`Lv.${lv}/${n.max}`;
+    d.querySelector("[data-cost]").textContent = lv>=n.max? "MAX" : "💎"+fmt(njCost(n));
+    d.classList.toggle("buyable",lv<n.max&&S.nj>=njCost(n));
+    d.classList.toggle("locked",lv>=n.max);
+  });
+  $("#njShop").textContent=fmt(S.nj);
+}
+function renderDex(){
+  const g=$("#dexGrid"); g.innerHTML="";
+  CHARS.forEach(c=>{
+    const n=S.chars[c.id]||0;
+    const d=document.createElement("div");
+    d.className="dex "+RARITY[c.r].cls+(n?"":" un");
+    d.innerHTML=`<span class="e">${n?c.em:"❔"}</span><span class="n">${n?c.nm:"???"}</span>
+      <span class="tag">${RARITY[c.r].nm}</span>${n>1?`<span class="c">×${n}</span>`:""}`;
+    g.appendChild(d);
+  });
+  $("#dexCount").textContent=`${ownedCount()}/${CHARS.length}`;
+  const bonus=(charMul()-1)*100;
+  $("#charBonus").innerHTML=`所持キャラ合計ボーナス: <b style="color:var(--lime)">+${bonus.toFixed(1)}%</b><br>
+   <span class="muted">N +1% / R +3% / SR +9% / SSR +25% / UR +70% / 神 +200%（重複分も全部加算）</span>`;
+}
+function renderAch(){
+  const l=$("#listAch"); l.innerHTML="";
+  ACHS.forEach(a=>{
+    const got=!!S.ach[a.id];
+    const d=document.createElement("div"); d.className="item"+(got?" buyable":" locked");
+    d.style.cursor="default";
+    d.innerHTML=`<div class="em">${got?"🏆":"🔒"}</div><div class="body">
+      <div class="nm">${got?a.nm:"???"}</div><div class="ds">${a.ds}</div></div>`;
+    l.appendChild(d);
+  });
+  $("#achCount").textContent=`${achCount()}/${ACHS.length}（+${achCount()}%）`;
+}
+function renderEnd(){
+  const g=$("#endGrid"); g.innerHTML="";
+  ENDS.forEach((e,i)=>{
+    const got=!!S.ends[e.id];
+    const d=document.createElement("div");
+    d.className="endc"+(got?" got":" lock");
+    d.innerHTML=`<div class="no">${e.id==="e41"?"TRUE":"NO."+String(i+1).padStart(2,"0")}</div>
+      <div class="nm">${got?e.nm:"？？？"}</div>
+      <div class="ds">${got?e.ds.split("\n")[0]:"未解放"}</div>`;
+    if(got) d.onclick=()=>{ endQueue.push(e); if(!endShowing) showEnd(endQueue.shift()); };
+    g.appendChild(d);
+  });
+  $("#endCount").textContent=`${endCount()}/${ENDS.length}（+${endCount()*3}%）`;
+}
+function renderStats(){
+  const rows=[
+    ["累計ドパミン（全期間）",fmt(S.totalAll)],
+    ["今回の累計",fmt(S.totalRun)],
+    ["総タップ数",S.clicks.toLocaleString("ja-JP")],
+    ["最大コンボ",S.maxCombo],
+    ["覚醒回数",S.prestiges],
+    ["脳汁（所持/使用）",fmt(S.nj)+" / "+fmt(S.njSpent)],
+    ["ガチャ回数",S.pulls],
+    ["キャラ図鑑",ownedCount()+"/"+CHARS.length],
+    ["実績",achCount()+"/"+ACHS.length],
+    ["エンディング",endCount()+"/"+ENDS.length],
+    ["黄金のドパ玉",S.golden],
+    ["フィーバー回数",S.fevers],
+    ["スロット 勝/負",S.slotWin+" / "+S.slotLose],
+    ["777",S.slot777],
+    ["連打記録",S.mashBest],
+    ["施設 合計",totalGens()],
+    ["合計プレイ時間",fmtTime(S.playTime)],
+    ["最長放置",fmtTime(S.maxIdle)],
+    ["合計倍率",`×${fmt(globalMul())}`],
+  ];
+  $("#statTable").innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+}
+function renderGacha(){
+  const c=gachaCost();
+  $("#gachaInfo").innerHTML=`単発: <b style="color:var(--gold)">${fmt(c)}</b> ドパミン ／ 10連: <b style="color:var(--gold)">${fmt(c*9)}</b>（1回分お得）<br>
+    <span class="muted">回すほど少し高くなる。キャラは重複するほど強い。</span>`;
+  $("#btnG1").disabled=S.dp<c; $("#btnG10").disabled=S.dp<c*9;
+  $("#pityN").textContent=S.pity;
+  $("#pityBar").style.width=(S.pity/PITY*100)+"%";
+  $("#mashBest").textContent=S.mashBest;
+}
+
+let lastHead=0;
+function renderHead(){
+  $("#dp").textContent=fmt(S.dp);
+  $("#dps").textContent=fmt(DPS());
+  const dpc=DPC();
+  $("#dpc").textContent=fmt(dpc); $("#dpc2").textContent=fmt(dpc);
+  $("#nj").textContent=fmt(S.nj);
+  $("#totmul").textContent="×"+fmt(globalMul()*comboMul());
+  $("#chipFev").classList.toggle("on",S.fever>0);
+  // combo
+  const cb=$("#comboBox");
+  if(S.combo>0){ cb.textContent=`${S.combo} COMBO ×${comboMul().toFixed(2)}`; cb.classList.toggle("hot",S.combo>=50); }
+  else { cb.textContent=""; cb.classList.remove("hot"); }
+  $("#comboBar").firstElementChild.style.width=(S.combo>0? clamp(S.comboT/comboWindow(),0,1)*100:0)+"%";
+  // prestige
+  const g=prestGain(), req=prestReq();
+  $("#prestInfo").innerHTML = g>0
+    ? `いま覚醒すると <b style="color:var(--pink)">脳汁 +${fmt(g)}</b>（脳汁1つで全収入 +2%）<br><span class="muted">今回の累計: ${fmt(S.totalRun)}</span>`
+    : `覚醒に必要な今回の累計: <b>${fmt(req)}</b><br><span class="muted">現在: ${fmt(S.totalRun)}（${(S.totalRun/req*100).toFixed(2)}%）</span>`;
+  $("#prestBar").style.width=clamp(S.totalRun/req,0,1)*100+"%";
+  $("#btnPrest").disabled=g<=0;
+  $("#btnPrest").textContent = g>0? `🌈 覚醒する（脳汁 +${fmt(g)}）` : "🌈 覚醒（条件未達）";
+  // fever
+  if(S.fever>0){ $("#fevT").textContent=Math.ceil(S.fever); $("#fevMul").textContent=FEVER_MUL; }
+}
+
+function renderAll(){
+  renderGen();renderCU();renderNJ();renderDex();renderAch();renderEnd();renderStats();renderGacha();
+}
+
+/* ============================================================
+   LOOP
+   ============================================================ */
+let last=performance.now(), acc=0, slow=0;
+function loop(now){
+  const dt=Math.min((now-last)/1000,1); last=now;
+  // income
+  const inc=DPS()*dt;
+  if(inc>0) gain(inc);
+  S.playTime+=dt; S.idle+=dt;
+  if(S.idle>S.maxIdle)S.maxIdle=S.idle;
+  // combo decay
+  if(S.combo>0){ S.comboT-=dt; if(S.comboT<=0){ S.combo=0; } }
+  // fever
+  if(S.fever>0){ S.fever-=dt; if(S.fever<=0){ S.fever=0; $("#fevBanner").classList.remove("show"); $("#bigbtn").classList.remove("fever"); } }
+  // events
+  S.eventT-=dt*eventRate();
+  if(S.eventT<=0){ S.eventT=rnd(50,120); spawnEvent(); }
+  // mash
+  if(mash.live){ mash.t-=dt; $("#mashBar").style.width=clamp(mash.t/10,0,1)*100+"%"; if(mash.t<=0) endMash(); }
+
+  renderHead();
+  slow+=dt;
+  if(slow>0.22){
+    slow=0;
+    checkAch(); checkEnds();
+    const t=activeTab;
+    if(t==="up"){renderGen();renderCU();}
+    else if(t==="gacha")renderGacha();
+    else if(t==="dex"){renderNJ(); if(dirty.dex){renderDex();dirty.dex=false;}}
+    else if(t==="ach"&&dirty.ach){renderAch();dirty.ach=false;}
+    else if(t==="end"&&dirty.end){renderEnd();dirty.end=false;}
+    else if(t==="set")renderStats();
+  }
+  acc+=dt;
+  if(acc>10){ acc=0; save(true); }
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================
+   UI WIRING
+   ============================================================ */
+let activeTab="main";
+$$("nav button").forEach(b=>{
+  b.onclick=()=>{
+    $$("nav button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    $$(".panel").forEach(p=>p.classList.remove("active"));
+    activeTab=b.dataset.tab;
+    $("#p-"+activeTab).classList.add("active");
+    if(!S.seenTabs[activeTab]){ S.seenTabs[activeTab]=1; S.tabsSeen=Object.keys(S.seenTabs).length; }
+    beep(500,0.05,"sine",0.03);
+    window.scrollTo({top:0,behavior:"instant"});
+    if(activeTab==="dex"){renderDex();renderNJ();}
+    if(activeTab==="ach")renderAch();
+    if(activeTab==="end")renderEnd();
+    if(activeTab==="set")renderStats();
+    if(activeTab==="gacha")renderGacha();
+    if(activeTab==="up"){renderGen();renderCU();}
+  };
+});
+$("#bigbtn").addEventListener("pointerdown",e=>{ e.preventDefault(); ac(); doClick(e); });
+document.addEventListener("keydown",e=>{ if(e.code==="Space"&&activeTab==="main"){ e.preventDefault(); doClick(); }});
+
+$$("[data-buy]").forEach(b=>{
+  b.onclick=()=>{
+    $$("[data-buy]").forEach(x=>x.classList.add("ghost"));
+    b.classList.remove("ghost");
+    const v=b.dataset.buy;
+    buyMode = v==="max"?"max":parseInt(v);
+    renderGen();
+  };
+});
+$("#btnG1").onclick=()=>doGacha(1);
+$("#btnG10").onclick=()=>doGacha(10);
+$("#btnCloseG").onclick=()=>{ $("#gachaStage").classList.remove("show"); renderGacha(); renderDex(); };
+$("#btnPrest").onclick=prestige;
+$("#btnSave").onclick=()=>save(false);
+$("#btnSound").onclick=()=>{
+  S.sound=!S.sound; if(!S.sound)S.mutedOnce=true;
+  $("#btnSound").textContent=S.sound?"🔊 音: ON":"🔇 音: OFF";
+};
+$("#btnFx").onclick=()=>{ S.fx=!S.fx; $("#btnFx").textContent=S.fx?"✨ エフェクト: ON":"🚫 エフェクト: OFF"; };
+$("#btnExport").onclick=()=>{
+  try{
+    const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+    prompt("このコードをコピーして保管してください:",code);
+  }catch(e){ toast("エクスポート失敗","red"); }
+};
+$("#btnImport").onclick=()=>{
+  const c=prompt("セーブコードを貼り付け:");
+  if(!c)return;
+  try{
+    const d=JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
+    S=Object.assign(newState(),d);
+    save(true); toast("📥 インポート完了"); renderAll();
+  }catch(e){ toast("コードが不正です","red"); }
+};
+$("#btnReset").onclick=()=>{
+  if(confirm("本当に全データを削除しますか？\n\n（エンディング・図鑑・実績も全部消えます）")){
+    if(confirm("本当に本当に？ 戻せませんよ。")){
+      wipe(); location.reload(); return;
+    }
+  }
+  S.almostReset++;
+  toast("…やめておいた。えらい。","pink");
+  checkEnds();
+};
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function offlineGains(){
+  const t=S.lastSave||Date.now();
+  const sec=clamp((Date.now()-t)/1000,0,60*60*12);
+  if(sec<60)return;
+  const eff=0.35*(1+0.12*njLv("n7"));
+  const amt=dpsRaw()*charMul()*achMul()*njMul()*omniMul()*endMul()*sec*eff;
+  if(amt<=0)return;
+  gain(amt);
+  setTimeout(()=>{
+    toast(`😴 オフライン ${fmtTime(sec)} で <b>+${fmt(amt)}</b> ドパミン獲得！`,"gold");
+  },600);
+}
+(function boot(){
+  const loaded=load();
+  buildLists();
+  $("#btnSound").textContent=S.sound?"🔊 音: ON":"🔇 音: OFF";
+  $("#btnFx").textContent=S.fx?"✨ エフェクト: ON":"🚫 エフェクト: OFF";
+  $("[data-buy='1']").classList.remove("ghost");
+  if(loaded){ offlineGains(); toast("💾 セーブデータを読み込みました"); }
+  else { toast("🧠 ようこそ、ドパガキ。まずは真ん中を連打しろ。","pink"); }
+  renderAll(); renderHead();
+  window.addEventListener("beforeunload",()=>save(true));
+  document.addEventListener("visibilitychange",()=>{ if(document.hidden) save(true); });
+  requestAnimationFrame(t=>{ last=t; requestAnimationFrame(loop); });
+})();
+</script>
+</body>
+</html>
