@@ -2,6 +2,7 @@
 <html lang=ja>
 <head>
     <meta charset=utf-8>
+    <base href="https://ks-seed0310.github.io/dopagaki_game/">
     <style>
       a{
         color:#2196f3;
@@ -52,7 +53,7 @@
 </head>
 <body>
     <noscript><h1 style="color:red">JavaScriptを有効にしてください。</h1></noscript>
-    <h1>ドパガキゲームスタジオ</h1>
+    <h1>ドパガキゲームスタジオ(AI)</h1>
     <details>
         <summary><span>About</span></summary>
         <p>ふと、「色々なAIに全く同じプロンプトを投げてゲームを作らせたらどうなるのだろう」と気になり作ってみることにしました。</p>
@@ -63,7 +64,7 @@
         <p>実行しているプロンプト: (v1)</p>
         <p>遊びたいから、ドパガキのためだけに作られたドパガキが絶対に飽きないドパガキが大歓喜するゲームを作って。(Endを大量に用意したり、いろいろな要素を詰め込んだ省略なしの完全版(HTML)を作って。)
 <br>
-localStorageに何かしらのデータを保存する場合は、キーを「dopagaki_game/&lt;geminiやchatgptなどのAIの名前(小文字)&gt;/&lt;"3.6Flash"や"3.5Luna"のようなバージョン&gt;/&lt;カウンタ(被らないようにするため。001~)&gt;/saves/&lt;保存キー&gt;」にして。 
+localStorageに何かしらのデータを保存する場合は、キーを「dopagaki_game/&lt;geminiやchatgptなどのAIの名前(小文字)&gt;/&lt;"3.6Flash"や"3.5Luna"のようなバージョン。&lt;バージョン&gt;&lt;詳細名(LunaやOpas、Flashなど)&gt;の順番に書く。&gt;/&lt;カウンタ(被らないようにするため。001~)&gt;/saves/&lt;保存キー&gt;」にして。 
 </p>
     </details>
     <h2><a href="javascript:!function(){const l=document.getElementById('list');l.open=true;l.scrollIntoView()}()">遊ぶ</a></h2>
@@ -79,8 +80,8 @@ localStorageに何かしらのデータを保存する場合は、キーを「do
                             <li>
                                 <details id="list_chatgpt_5.6Luna">
                                     <summary class="other">5.6 Luna</summary>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/chatgpt/5.6Luna/game001.html">DOPAGAKI ULTRA∞</a></p>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/chatgpt/5.6Luna/game002.html">ドパガキ・インフィニティ</a></p>
+                                    <p><a href="chatgpt/5.6Luna/game001.html">DOPAGAKI ULTRA∞</a></p>
+                                    <p><a href="chatgpt/5.6Luna/game002.html">ドパガキ・インフィニティ</a></p>
                                 </details>
                             </li>
                         </ul>
@@ -93,22 +94,56 @@ localStorageに何かしらのデータを保存する場合は、キーを「do
                             <li>
                                 <details id="list_gemini_3.6_flash">
                                     <summary class="other">3.6 Flash</summary>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.6Flash/game001.html">【極限】ドパガキ専用ドパドパBrainrotシミュレーター【超完全版】</a></p>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.6Flash/game002.html">超ドパガキ専用！ドーパミン・インフレ・クライシス</a></p>
+                                    <p><a href="gemini/3.6Flash/game001.html">【極限】ドパガキ専用ドパドパBrainrotシミュレーター【超完全版】</a></p>
+                                    <p><a href="gemini/3.6Flash/game002.html">超ドパガキ専用！ドーパミン・インフレ・クライシス</a></p>
                                 </details>
                             </li>
                             <li>
                                 <details id="list_gemini_3.6_thinking">
                                     <summary class="other">3.6 Thinking</summary>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.6Thinking/game001.html">ハイパー脳汁ドパガキクライシス：無限連打と10の終末</a></p>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.6Thinking/game002.html">ドパガキハクスラダンジョン：無限の神神神神装備と過剰スキルビルド</a></p>
+                                    <p><a href="gemini/3.6Thinking/game001.html">ハイパー脳汁ドパガキクライシス：無限連打と10の終末</a></p>
+                                    <p><a href="gemini/3.6Thinking/game002.html">ドパガキハクスラダンジョン：無限の神神神神装備と過剰スキルビルド</a></p>
                                 </details>
                             </li>
                             <li>
                                 <details id="list_gemini_3.1_pro">
                                     <summary class="other">3.1 Pro</summary>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.1Pro/game001.html">ドパガキ大歓喜！限界突破インフレRPG</a></p>
-                                    <p><a href="https://ks-seed0310.github.io/dopagaki_game/gemini/3.1Pro/game002.html">DOPA-CLICKER -無限の欲望-</a></p>
+                                    <p><a href="gemini/3.1Pro/game001.html">ドパガキ大歓喜！限界突破インフレRPG</a></p>
+                                    <p><a href="gemini/3.1Pro/game002.html">DOPA-CLICKER -無限の欲望-</a></p>
+                                </details>
+                            </li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details id="list_claude">
+                        <summary class="other">Claude</summary>
+                        <ul>
+                            <li>
+                                <details id="list_claude_5_opus">
+                                    <summary class="other">Opus 5</summary>
+                                    <p><a href="claude/5Opus/game001.html">ドパガキ・インフィニティ 〜脳汁ぶっぱ大宇宙〜</a></p>
+                                    <p><a href="claude/5Opus/game002.html">ドパサバイバー 〜脳が焼ける15分〜</a></p>
+                                </details>
+                            </li>
+                            <li>
+                                
+                            </li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <details id="list_grok">
+                        <summary class="other">Grok</summary>
+                        <ul>
+                            <li>
+                                <details id="list_grok_4.6_fast">
+                                    
+                                </details>
+                            </li>
+                            <li>
+                                <details id="list_grok_4.6_build">
+                                    
                                 </details>
                             </li>
                         </ul>
