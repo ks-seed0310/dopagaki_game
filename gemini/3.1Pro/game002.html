@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOPA-CLICKER -無限の欲望-</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #00ff00;
+            --panel-bg: #1a1a1a;
+            --btn-bg: #333;
+            --btn-hover: #555;
+            --accent: #ff00ff;
+        }
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            margin: 0; padding: 10px;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { margin: 5px 0; text-align: center; }
+        .rainbow-text {
+            background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: rainbow 2s linear infinite;
+        }
+        @keyframes rainbow { 100% { filter: hue-rotate(360deg); } }
+        .shake { animation: shake 0.5s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            25% { transform: translate(-1px, -2px) rotate(-1deg); }
+            50% { transform: translate(-3px, 0px) rotate(1deg); }
+            75% { transform: translate(3px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -1px) rotate(0deg); }
+        }
+        #header {
+            display: flex; justify-content: space-around;
+            background: var(--panel-bg); padding: 10px; border-bottom: 3px solid var(--accent);
+            font-size: 1.5rem; position: sticky; top: 0; z-index: 100;
+        }
+        .currency { color: gold; text-shadow: 0 0 5px gold; font-size: 2rem; }
+        #main-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .panel {
+            background: var(--panel-bg); border: 2px solid #444; border-radius: 10px;
+            padding: 15px; flex: 1; min-width: 300px;
+        }
+        button {
+            background: var(--btn-bg); color: #fff; border: 2px solid #555;
+            padding: 10px; margin: 5px; cursor: pointer; font-weight: bold; border-radius: 5px;
+            transition: 0.1s; width: calc(100% - 10px); font-size: 1.2rem;
+        }
+        button:active { transform: scale(0.95); background: var(--accent); }
+        .btn-gacha { background: #ff0055; border-color: #fff; font-size: 1.5rem; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        
+        #dopa-button {
+            width: 100%; height: 150px; font-size: 3rem; background: linear-gradient(45deg, #ff0000, #ff00ff);
+            border: 5px solid white; border-radius: 20px; text-shadow: 2px 2px 0 #000;
+            box-shadow: 0 0 20px var(--accent); cursor: pointer; position: relative; overflow: hidden;
+        }
+        #dopa-button:active { transform: scale(0.9); box-shadow: 0 0 50px var(--accent); }
+        
+        .floating-text {
+            position: absolute; color: white; font-size: 2rem; font-weight: bold;
+            pointer-events: none; animation: floatUp 1s forwards; text-shadow: 0 0 5px #000;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+
+        .gacha-result { margin-top: 10px; max-height: 150px; overflow-y: auto; background: #000; padding: 5px; font-size: 0.9rem;}
+        .rarity-N { color: #aaa; } .rarity-R { color: #55f; } .rarity-SR { color: #fd0; }
+        .rarity-SSR { color: #f0f; font-weight: bold; text-shadow: 0 0 5px #f0f; }
+        .rarity-UR { background: linear-gradient(to right, red, yellow, lime, cyan, magenta); -webkit-background-clip: text; color: transparent; font-size: 1.5rem; font-weight: bold; animation: shake 0.2s infinite; }
+        
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); color: white; display: none;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+            text-align: center;
+        }
+        #overlay h1 { font-size: 4rem; margin-bottom: 20px; }
+        #overlay p { font-size: 1.5rem; }
+        #secret-dot { position: fixed; bottom: 5px; right: 5px; width: 5px; height: 5px; background: #111; cursor: pointer; }
+        
+        .dark-web { border-color: red !important; }
+        .dark-web h2 { color: red; text-shadow: 0 0 5px red; }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div>💵 DOPA-COIN: <span id="coins" class="currency">0</span></div>
+        <div>⏱ 収入/秒: <span id="cps">0</span></div>
+        <div>🏆 Endings: <span id="endings-count">0</span>/13</div>
+    </div>
+
+    <div id="main-container">
+        <!-- クリック＆強化エリア -->
+        <div class="panel">
+            <h2 class="rainbow-text">脳汁を絞り出せ！！</h2>
+            <button id="dopa-button">DOPA-CLICK!!</button>
+            <hr>
+            <h3>アップグレード (SHOP)</h3>
+            <button id="btn-up-click">👆 クリック力UP (コスト: <span id="cost-click">10</span>)</button>
+            <button id="btn-up-auto">🤖 自動タップツール (コスト: <span id="cost-auto">50</span>)</button>
+            <button id="btn-up-factory">🏭 脳汁工場 (コスト: <span id="cost-factory">1000</span>)</button>
+            <p>現在のクリック力: <span id="click-power">1</span></p>
+        </div>
+
+        <!-- ガチャエリア -->
+        <div class="panel">
+            <h2>🎰 射幸心ポンプ (ガチャ) 🎰</h2>
+            <p>1回 500 COIN</p>
+            <button id="btn-gacha-1" class="btn-gacha">単発ガチャを回す</button>
+            <button id="btn-gacha-10" class="btn-gacha">10連ガチャを回す</button>
+            <hr>
+            <h3>獲得アイテム</h3>
+            <div id="inventory">UR: 0 | SSR: 0 | SR: 0 | R: 0 | N: 0</div>
+            <div id="gacha-log" class="gacha-result"></div>
+        </div>
+
+        <!-- 闇ウェブ (ギャンブル・イベント) -->
+        <div class="panel dark-web">
+            <h2>☠️ DARK WEB ☠️</h2>
+            <button id="btn-gamble-double">🎲 ダブルアップ (全額賭け 50%で2倍)</button>
+            <button id="btn-gamble-loan">💳 闇金から10,000借りる (利子ヤバい)</button>
+            <button id="btn-ad-fake">📺 広告を見て10,0000コインGET!!</button>
+            <button id="btn-reincarnate" style="display:none; background:white; color:black;">👼 輪廻転生 (全てを失い、初期化)</button>
+        </div>
+
+        <!-- エンディング図鑑 -->
+        <div class="panel">
+            <h2>📜 エンディング図鑑</h2>
+            <ul id="endings-list">
+                <!-- エンディングがここに追加される -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- 隠し要素 -->
+    <div id="secret-dot"></div>
+
+    <!-- オーバーレイ (エンディング画面) -->
+    <div id="overlay">
+        <h1 id="overlay-title" class="rainbow-text">ENDING</h1>
+        <p id="overlay-desc">説明文</p>
+        <button id="btn-restart" style="width: 200px; margin-top: 30px;">ゲームに戻る</button>
+    </div>
+
+<script>
+    // --- セーブデータ設定 ---
+    const SAVE_KEY = 'dopagaki_game/gemini/3.1Pro/002/saves/saveData';
+    
+    // --- ゲームステータス初期値 ---
+    const defaultState = {
+        coins: 0,
+        clickPower: 1,
+        autoPower: 0,
+        costs: { click: 10, auto: 50, factory: 1000 },
+        stats: {
+            totalClicks: 0,
+            gachaRolls: 0,
+            gachaFails: 0, // SSR以上が出なかった連続回数
+            adClicks: 0,
+            loans: 0,
+            playTime: 0
+        },
+        inventory: { UR: 0, SSR: 0, SR: 0, R: 0, N: 0 },
+        endings: [] // 取得済みエンディングIDの配列
+    };
+
+    let state = JSON.parse(JSON.stringify(defaultState));
+
+    // --- エンディング定義 ---
+    const ENDINGS = {
+        1: { title: "【腱鞘炎エンド】", desc: "手動で1,000回タップした。指がぶっ壊れた。" },
+        2: { title: "【資本主義の豚エンド】", desc: "10,000,000コイン到達。金が全てだ。" },
+        3: { title: "【大富豪エンド】", desc: "ダブルアップで大勝利。脳汁が止まらない。" },
+        4: { title: "【破産エンド】", desc: "ダブルアップで全財産を失った。アホくさ。" },
+        5: { title: "【借金まみれエンド】", desc: "闇金に手を出し、利子でコインがマイナス10万を突破。東京湾へGO。" },
+        6: { title: "【神引きエンド】", desc: "排出率0.1%のURアイテムを引き当てた！今日死ぬかもしれない。" },
+        7: { title: "【爆死エンド】", desc: "ガチャを連続100回引いてSSR以上ゼロ。スマホを壁に投げつけた。" },
+        8: { title: "【情報弱者エンド】", desc: "怪しい広告を10回もクリックした。カモネギ乙。" },
+        9: { title: "【コンプリートエンド】", desc: "すべてのレアリティのアイテムを集めた！ガチャマスター！" },
+        10: { title: "【不労所得エンド】", desc: "自動収入が毎秒10,000を超えた。もう働かなくていい。" },
+        11: { title: "【虚無エンド】", desc: "画面の隅の怪しいピクセルを押してしまった。世界が崩壊した。" },
+        12: { title: "【輪廻転生エンド】", desc: "自らの意志で全てを捨て、強くてニューゲームした。" },
+        13: { title: "【DOPA-GODエンド】", desc: "これ以外の12個のエンディングを全て回収した。君は真のドパガキだ！" }
+    };
+
+    // --- ガチャの排出率と中身 ---
+    const GACHA_RATES = [
+        { rarity: 'UR', prob: 0.001, name: "🌌 宇宙の真理" },
+        { rarity: 'SSR', prob: 0.03, name: "🗡️ 伝説の聖剣 / 👸 美少女フィギュア" },
+        { rarity: 'SR', prob: 0.15, name: "💻 光るゲーミングPC" },
+        { rarity: 'R', prob: 0.319, name: "🥫 魔剤エナジードリンク" },
+        { rarity: 'N', prob: 0.50, name: "🪨 その辺の石ころ / 🌿 雑草" }
+    ];
+
+    // --- DOM要素 ---
+    const elCoins = document.getElementById('coins');
+    const elCps = document.getElementById('cps');
+    const elClickPower = document.getElementById('click-power');
+    const elCostClick = document.getElementById('cost-click');
+    const elCostAuto = document.getElementById('cost-auto');
+    const elCostFactory = document.getElementById('cost-factory');
+    const elGachaLog = document.getElementById('gacha-log');
+    const elInventory = document.getElementById('inventory');
+    const elEndingsCount = document.getElementById('endings-count');
+    const elEndingsList = document.getElementById('endings-list');
+    const elReincarnate = document.getElementById('btn-reincarnate');
+
+    // --- ロード＆セーブ ---
+    function loadGame() {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                state = { ...defaultState, ...parsed };
+                // 階層が深いオブジェクトの安全なマージ
+                state.costs = { ...defaultState.costs, ...(parsed.costs || {}) };
+                state.stats = { ...defaultState.stats, ...(parsed.stats || {}) };
+                state.inventory = { ...defaultState.inventory, ...(parsed.inventory || {}) };
+            } catch (e) {
+                console.error("セーブデータの読み込みに失敗しました", e);
+            }
+        }
+        updateUI();
+        updateEndingsList();
+    }
+
+    function saveGame() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    }
+
+    // --- UI更新 ---
+    function updateUI() {
+        elCoins.innerText = Math.floor(state.coins).toLocaleString();
+        elCps.innerText = state.autoPower.toLocaleString();
+        elClickPower.innerText = state.clickPower.toLocaleString();
+        elCostClick.innerText = Math.floor(state.costs.click).toLocaleString();
+        elCostAuto.innerText = Math.floor(state.costs.auto).toLocaleString();
+        elCostFactory.innerText = Math.floor(state.costs.factory).toLocaleString();
+        
+        elInventory.innerText = `UR: ${state.inventory.UR} | SSR: ${state.inventory.SSR} | SR: ${state.inventory.SR} | R: ${state.inventory.R} | N: ${state.inventory.N}`;
+        elEndingsCount.innerText = state.endings.length;
+
+        if (state.endings.length >= 5) {
+            elReincarnate.style.display = 'block';
+        }
+
+        // DOPA-GOD判定
+        if (state.endings.length === 12 && !state.endings.includes(13)) {
+            triggerEnding(13);
+        }
+    }
+
+    function updateEndingsList() {
+        elEndingsList.innerHTML = '';
+        for (let i = 1; i <= 13; i++) {
+            const li = document.createElement('li');
+            if (state.endings.includes(i)) {
+                li.innerText = `${ENDINGS[i].title} : ${ENDINGS[i].desc}`;
+                li.style.color = '#0f0';
+            } else {
+                li.innerText = `【？？？？】 : 条件を満たして解放せよ`;
+                li.style.color = '#555';
+            }
+            elEndingsList.appendChild(li);
+        }
+    }
+
+    // --- メインシステム ---
+    function addCoins(amount) {
+        state.coins += amount;
+        updateUI();
+        checkMoneyEndings();
+    }
+
+    // フローティングテキスト生成（脳汁演出）
+    function createFloatingText(x, y, text, isCrit = false) {
+        const div = document.createElement('div');
+        div.className = 'floating-text';
+        div.innerText = text;
+        div.style.left = `${x}px`;
+        div.style.top = `${y}px`;
+        if (isCrit) {
+            div.style.color = '#ff00ff';
+            div.style.fontSize = '3rem';
+            div.classList.add('shake');
+        }
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 1000);
+    }
+
+    // メインクリック
+    document.getElementById('dopa-button').addEventListener('click', (e) => {
+        let gain = state.clickPower;
+        let isCrit = Math.random() < 0.1; // 10%クリティカル
+        if (isCrit) gain *= 5;
+
+        addCoins(gain);
+        state.stats.totalClicks++;
+
+        // 演出
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX !== 0 ? e.clientX : rect.left + rect.width / 2;
+        const y = e.clientY !== 0 ? e.clientY : rect.top + rect.height / 2;
+        createFloatingText(x - 20 + Math.random()*40, y - 20, `+${gain}`, isCrit);
+
+        // 腱鞘炎エンド判定
+        if (state.stats.totalClicks >= 1000 && !state.endings.includes(1)) {
+            triggerEnding(1);
+        }
+    });
+
+    // ショップ購入処理
+    function buyUpgrade(type, basePowerAdd) {
+        if (state.coins >= state.costs[type]) {
+            state.coins -= state.costs[type];
+            if (type === 'click') state.clickPower += basePowerAdd;
+            else state.autoPower += basePowerAdd;
+            
+            state.costs[type] *= 1.5; // コスト1.5倍
+            updateUI();
+            
+            // 不労所得エンド判定
+            if (state.autoPower >= 10000 && !state.endings.includes(10)) {
+                triggerEnding(10);
+            }
+        }
+    }
+
+    document.getElementById('btn-up-click').addEventListener('click', () => buyUpgrade('click', 1));
+    document.getElementById('btn-up-auto').addEventListener('click', () => buyUpgrade('auto', 5));
+    document.getElementById('btn-up-factory').addEventListener('click', () => buyUpgrade('factory', 100));
+
+    // ガチャシステム
+    function rollGacha(times) {
+        const cost = 500 * times;
+        if (state.coins < cost) return; // 金がない
+        state.coins -= cost;
+        state.stats.gachaRolls += times;
+
+        let logHTML = '';
+        let gotHighRarity = false;
+
+        for (let i = 0; i < times; i++) {
+            const rand = Math.random();
+            let acc = 0;
+            let result = GACHA_RATES[GACHA_RATES.length - 1]; // デフォルトはN
+            
+            for (const rate of GACHA_RATES) {
+                acc += rate.prob;
+                if (rand <= acc) {
+                    result = rate;
+                    break;
+                }
+            }
+
+            state.inventory[result.rarity]++;
+            logHTML += `<div class="rarity-${result.rarity}">[${result.rarity}] ${result.name}</div>`;
+
+            if (result.rarity === 'UR' || result.rarity === 'SSR') {
+                gotHighRarity = true;
+                state.stats.gachaFails = 0;
+                
+                // 神引きエンド判定
+                if (result.rarity === 'UR' && !state.endings.includes(6)) {
+                    triggerEnding(6);
+                }
+            } else {
+                state.stats.gachaFails++;
+            }
+        }
+
+        elGachaLog.innerHTML = logHTML + elGachaLog.innerHTML;
+        // ログが長くなりすぎないように
+        if (elGachaLog.children.length > 50) {
+            while (elGachaLog.children.length > 50) elGachaLog.removeChild(elGachaLog.lastChild);
+        }
+
+        // コンプリートエンド判定
+        if (!state.endings.includes(9) && 
+            state.inventory.UR > 0 && state.inventory.SSR > 0 && 
+            state.inventory.SR > 0 && state.inventory.R > 0 && state.inventory.N > 0) {
+            triggerEnding(9);
+        }
+
+        // 爆死エンド判定
+        if (state.stats.gachaFails >= 100 && !state.endings.includes(7)) {
+            triggerEnding(7);
+        }
+
+        updateUI();
+    }
+
+    document.getElementById('btn-gacha-1').addEventListener('click', () => rollGacha(1));
+    document.getElementById('btn-gacha-10').addEventListener('click', () => rollGacha(10));
+
+    // 闇ウェブ要素
+    document.getElementById('btn-gamble-double').addEventListener('click', () => {
+        if (state.coins <= 0) return;
+        const bet = state.coins;
+        if (Math.random() < 0.5) {
+            // 勝ち
+            state.coins += bet; // 倍になる
+            if (state.coins > 1000000 && !state.endings.includes(3)) triggerEnding(3);
+        } else {
+            // 負け
+            state.coins = 0;
+            if (bet >= 10000 && !state.endings.includes(4)) triggerEnding(4);
+        }
+        updateUI();
+    });
+
+    document.getElementById('btn-gamble-loan').addEventListener('click', () => {
+        state.coins += 10000;
+        state.stats.loans++;
+        // 闇金なので、後で恐ろしい利子マイナス処理が毎秒走る
+        updateUI();
+    });
+
+    document.getElementById('btn-ad-fake').addEventListener('click', () => {
+        state.stats.adClicks++;
+        alert("【エラー】広告の読み込みに失敗しました。しかしあなたの情報は抜き取られました。");
+        if (state.stats.adClicks >= 10 && !state.endings.includes(8)) {
+            triggerEnding(8);
+        }
+    });
+
+    // 輪廻転生
+    document.getElementById('btn-reincarnate').addEventListener('click', () => {
+        if (!state.endings.includes(12)) {
+            triggerEnding(12);
+        } else {
+            if(confirm("本当に全てを失い最初からやり直しますか？（エンディング図鑑は残ります）")){
+                resetForReincarnation();
+            }
+        }
+    });
+
+    // 隠し要素（虚無エンド）
+    document.getElementById('secret-dot').addEventListener('click', () => {
+        if (!state.endings.includes(11)) triggerEnding(11);
+    });
+
+    // --- 自動処理ループ ---
+    setInterval(() => {
+        state.stats.playTime++;
+        
+        // 自動タップ収入
+        if (state.autoPower > 0) {
+            state.coins += state.autoPower;
+        }
+
+        // 闇金の利子 (10秒ごとに借金額の10%複利でコインが減る。借金回数に応じて悪化)
+        if (state.stats.loans > 0 && state.stats.playTime % 2 === 0) {
+            const debtPenalty = 1000 * state.stats.loans * Math.pow(1.1, state.stats.loans);
+            state.coins -= debtPenalty;
+        }
+
+        updateUI();
+        checkMoneyEndings();
+        
+        // 自動セーブ (5秒ごと)
+        if (state.stats.playTime % 5 === 0) saveGame();
+        
+    }, 1000);
+
+    // --- エンディング・状態チェック ---
+    function checkMoneyEndings() {
+        if (state.coins >= 10000000 && !state.endings.includes(2)) {
+            triggerEnding(2);
+        }
+        if (state.coins <= -100000 && !state.endings.includes(5)) {
+            triggerEnding(5);
+        }
+    }
+
+    function triggerEnding(id) {
+        if (state.endings.includes(id)) return;
+        state.endings.push(id);
+        saveGame();
+        
+        const endData = ENDINGS[id];
+        document.getElementById('overlay-title').innerText = endData.title;
+        document.getElementById('overlay-desc').innerText = endData.desc;
+        document.getElementById('overlay').style.display = 'flex';
+        
+        // BGMや効果音の代わりに画面を激しく揺らす
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 1000);
+    }
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+        document.getElementById('overlay').style.display = 'none';
+        updateEndingsList();
+        
+        // 破産や借金エンドの場合は救済処置で少し状態を戻す（ゲームオーバーで進行不可を防ぐ）
+        if (state.coins < 0) {
+            state.coins = 0;
+            state.stats.loans = 0; // 闇金リセット
+            saveGame();
+            updateUI();
+        }
+        
+        // 輪廻転生エンドから戻った時の処理
+        if (document.getElementById('overlay-title').innerText === ENDINGS[12].title) {
+            resetForReincarnation();
+        }
+    });
+
+    function resetForReincarnation() {
+        const savedEndings = [...state.endings];
+        state = JSON.parse(JSON.stringify(defaultState));
+        state.endings = savedEndings;
+        saveGame();
+        updateUI();
+        updateEndingsList();
+        elGachaLog.innerHTML = '';
+    }
+
+    // --- 初期化 ---
+    loadGame();
+
+</script>
+</body>
+</html>
