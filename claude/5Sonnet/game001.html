@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ドーパミン全開サマー☀️〜伝説の夏休み〜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-a:#160B33; --bg-b:#241245; --panel:#1F1345; --panel-2:#2A1958;
+    --ink:#0B0620; --paper:#FFF8F0;
+    --pink:#FF3E9A; --yellow:#FFE156; --cyan:#3EDBFF; --lime:#9CFF6B; --purple:#B06CFF; --orange:#FF8A3D;
+    --study:#3EDBFF; --body:#FF5C5C; --friend:#FFC93C; --money:#2ED47A; --game:#B06CFF; --mischief:#FF8A3D;
+    --shadow-off: 5px 5px 0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;
+    color:var(--paper);
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,62,154,0.35), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(62,219,255,0.30), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(176,108,255,0.30), transparent 50%),
+      linear-gradient(160deg,var(--bg-a),var(--bg-b));
+    overflow-x:hidden;
+  }
+  #app{position:relative; min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:24px 14px 60px;}
+  .screen{display:none; width:100%; max-width:760px;}
+  .screen.active{display:block; animation:popIn .35s ease;}
+  @keyframes popIn{from{opacity:0; transform:translateY(14px) scale(.98);} to{opacity:1; transform:translateY(0) scale(1);}}
+
+  .card{
+    background:var(--panel);
+    border:3px solid var(--ink);
+    border-radius:22px;
+    box-shadow:var(--shadow-off) var(--ink);
+    padding:26px 24px;
+  }
+  .hard-btn{
+    font-family:inherit;
+    cursor:pointer;
+    border:3px solid var(--ink);
+    border-radius:16px;
+    background:var(--yellow);
+    color:var(--ink);
+    font-weight:800;
+    padding:14px 18px;
+    font-size:16px;
+    box-shadow:var(--shadow-off) var(--ink);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .hard-btn:active{ transform:translate(4px,4px); box-shadow:1px 1px 0 var(--ink); }
+  .hard-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .hard-btn.alt{ background:var(--cyan); }
+  .hard-btn.pink{ background:var(--pink); color:var(--paper); }
+  .hard-btn.ghost{ background:transparent; color:var(--paper); }
+  .hard-btn.small{ padding:9px 12px; font-size:13px; border-radius:12px; box-shadow:3px 3px 0 var(--ink); }
+  .hard-btn.small:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+
+  /* ---------- TITLE ---------- */
+  #screen-title .logo{
+    text-align:center; margin-bottom:6px;
+    font-size:15px; letter-spacing:.08em; color:var(--yellow); font-weight:800;
+  }
+  #screen-title h1{
+    text-align:center; font-size:clamp(30px,7vw,46px); margin:4px 0 4px;
+    line-height:1.2; font-weight:900;
+    color:var(--paper);
+    text-shadow:3px 3px 0 var(--pink), 6px 6px 0 var(--ink);
+  }
+  #screen-title .sub{ text-align:center; color:#D8CCFF; margin-bottom:26px; font-size:14px; }
+  .title-btns{ display:flex; flex-direction:column; gap:14px; max-width:340px; margin:0 auto; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(2px); opacity:.5; animation:float 7s ease-in-out infinite; z-index:-1;}
+  @keyframes float{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-16px);} }
+  .playcount{ text-align:center; margin-top:18px; font-size:12px; color:#B7A9E8; }
+
+  /* ---------- GAME ---------- */
+  .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .daychip{ background:var(--pink); border:3px solid var(--ink); border-radius:14px; padding:8px 16px; font-weight:800; box-shadow:3px 3px 0 var(--ink); }
+  .progress-track{ flex:1; height:14px; background:var(--ink); border-radius:8px; margin:0 12px; overflow:hidden; border:2px solid var(--ink);}
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--lime),var(--cyan)); transition:width .4s ease; }
+
+  .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; margin-bottom:16px; }
+  .stat-row{ display:flex; align-items:center; gap:8px; font-size:12px; }
+  .stat-label{ width:78px; flex-shrink:0; display:flex; align-items:center; gap:4px; font-weight:700; }
+  .stat-track{ flex:1; height:12px; background:rgba(0,0,0,.35); border-radius:7px; overflow:hidden; border:2px solid var(--ink); }
+  .stat-fill{ height:100%; border-radius:5px; transition:width .5s cubic-bezier(.2,1,.3,1); }
+  .stat-val{ width:26px; text-align:right; font-weight:800; }
+
+  .narrative{
+    background:var(--panel-2); border:3px solid var(--ink); border-radius:16px;
+    padding:16px 18px; margin-bottom:16px; min-height:54px; font-size:15px; line-height:1.6;
+  }
+  .log-title{ font-size:12px; color:#B7A9E8; margin:0 0 6px 2px; font-weight:700;}
+  .log-box{ max-height:96px; overflow-y:auto; font-size:12.5px; color:#CFC2F5; margin-bottom:18px; padding-right:4px; }
+  .log-box div{ padding:3px 0; border-bottom:1px dashed rgba(255,255,255,.08); }
+
+  .actions-title{ font-weight:800; margin:0 0 10px 2px; font-size:14px; }
+  .action-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .action-btn{
+    text-align:left; display:flex; flex-direction:column; gap:2px;
+  }
+  .action-btn .emo{ font-size:22px; }
+  .action-btn .lbl{ font-size:14px; font-weight:800; }
+
+  /* ---------- EVENT MODAL ---------- */
+  #event-modal{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(6,3,20,.72); z-index:50; padding:16px;
+  }
+  #event-modal.hidden{ display:none; }
+  .event-card{ max-width:440px; width:100%; text-align:center; animation:popIn .25s ease; }
+  .event-card .tag{ display:inline-block; background:var(--orange); color:var(--ink); font-weight:800; padding:4px 12px; border-radius:10px; border:2px solid var(--ink); font-size:12px; margin-bottom:12px; }
+  .event-card p{ font-size:15px; line-height:1.7; margin:0 0 18px; }
+  .event-choices{ display:flex; flex-direction:column; gap:10px; }
+
+  /* ---------- ENDING ---------- */
+  #screen-ending .ending-card{ text-align:center; }
+  .ending-emoji{ font-size:64px; margin-bottom:6px; }
+  .ending-new{ display:inline-block; background:var(--lime); color:var(--ink); font-weight:900; font-size:11px; padding:3px 10px; border-radius:10px; border:2px solid var(--ink); margin-bottom:10px; }
+  .ending-title{ font-size:clamp(22px,5vw,30px); font-weight:900; margin:4px 0 10px; text-shadow:2px 2px 0 var(--ink); }
+  .ending-desc{ font-size:14.5px; line-height:1.8; color:#EDE4FF; margin-bottom:18px; }
+  .recap-title{ font-size:12px; color:#B7A9E8; margin-bottom:8px; }
+  .ending-btns{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:18px; }
+
+  /* ---------- GALLERY ---------- */
+  .gallery-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .gallery-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .gitem{ border:3px solid var(--ink); border-radius:14px; padding:12px; background:var(--panel-2); box-shadow:3px 3px 0 var(--ink); min-height:96px; }
+  .gitem.locked{ opacity:.55; display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .gitem .ge{ font-size:22px; }
+  .gitem .gt{ font-weight:800; font-size:13px; margin:4px 0 2px; }
+  .gitem .gd{ font-size:11px; color:#CFC2F5; line-height:1.5; }
+
+  /* ---------- CONFETTI ---------- */
+  #confetti-layer{ position:fixed; inset:0; pointer-events:none; z-index:80; overflow:hidden; }
+  .confetti-piece{ position:absolute; top:-5%; width:9px; height:14px; opacity:.9; animation:fall linear forwards; }
+  @keyframes fall{ to{ transform:translateY(115vh) rotate(540deg); opacity:1; } }
+
+  .mute-btn{ position:fixed; top:14px; right:14px; z-index:60; }
+
+  @media(max-width:420px){
+    .stats-grid{ grid-template-columns:1fr; }
+    .action-grid{ grid-template-columns:1fr; }
+    .gallery-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button class="hard-btn small mute-btn" id="muteBtn" type="button">🔊 音</button>
+<div id="confetti-layer"></div>
+
+<div id="app">
+
+  <!-- TITLE -->
+  <section class="screen active" id="screen-title">
+    <div class="card">
+      <div class="logo">DOPAMINE SUMMER QUEST</div>
+      <h1>ドーパミン全開<br>サマー☀️</h1>
+      <p class="sub">30日間の夏休み、キミはどんな伝説を作る?<br>選択肢だらけ・エンディング18種類・やりこみ自由!</p>
+      <div class="title-btns">
+        <button class="hard-btn pink" id="btnNewGame" type="button">▶ あたらしくはじめる</button>
+        <button class="hard-btn alt" id="btnContinue" type="button">⏯ つづきから</button>
+        <button class="hard-btn" id="btnGallery" type="button">📖 エンド図鑑を見る</button>
+      </div>
+      <div class="playcount" id="playcountText"></div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="screen-game">
+    <div class="card">
+      <div class="topbar">
+        <div class="daychip" id="dayChip">Day 1/30</div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="narrative" id="narrative">さあ、夏休みが始まった!今日は何をする?</div>
+
+      <div class="log-title">これまでの記録</div>
+      <div class="log-box" id="logBox"></div>
+
+      <div class="actions-title">きょうの行動をえらぶ</div>
+      <div class="action-grid" id="actionGrid"></div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="screen" id="screen-gallery">
+    <div class="card">
+      <div class="gallery-head">
+        <div>
+          <div style="font-weight:900;font-size:20px;">📖 エンド図鑑</div>
+          <div style="font-size:12px;color:#B7A9E8;" id="galleryCount">0 / 18 コンプリート</div>
+        </div>
+        <button class="hard-btn small" id="btnGalleryBack" type="button">← もどる</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <!-- ENDING -->
+  <section class="screen" id="screen-ending">
+    <div class="card ending-card">
+      <div id="endingNewBadge"></div>
+      <div class="ending-emoji" id="endingEmoji">🏁</div>
+      <div class="ending-title" id="endingTitle">エンド</div>
+      <div class="ending-desc" id="endingDesc"></div>
+      <div class="recap-title">最終ステータス</div>
+      <div class="stats-grid" id="endingStatsGrid" style="margin-bottom:6px;"></div>
+      <div class="ending-btns">
+        <button class="hard-btn pink" id="btnPlayAgain" type="button">🔄 もう一度あそぶ</button>
+        <button class="hard-btn alt" id="btnSeeGallery" type="button">📖 エンド図鑑</button>
+        <button class="hard-btn" id="btnToTitle" type="button">🏠 タイトルへ</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- EVENT MODAL -->
+<div id="event-modal" class="hidden">
+  <div class="card event-card">
+    <div class="tag">できごと!</div>
+    <p id="eventText"></p>
+    <div class="event-choices" id="eventChoices"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= CONFIG / KEYS ================= */
+  var SAVE_KEY = 'dopagaki_game/claude/5Sonnet/001/saves/current';
+  var GALLERY_KEY = 'dopagaki_game/claude/5Sonnet/001/saves/endings_unlocked';
+  var PLAYCOUNT_KEY = 'dopagaki_game/claude/5Sonnet/001/saves/playcount';
+  var TOTAL_DAYS = 30;
+
+  var STAT_META = {
+    study:    {label:'学力',     emoji:'📚', color:'var(--study)'},
+    body:     {label:'体力',     emoji:'💪', color:'var(--body)'},
+    friend:   {label:'友情',     emoji:'🤝', color:'var(--friend)'},
+    money:    {label:'お金',     emoji:'💰', color:'var(--money)'},
+    game:     {label:'ゲーム力', emoji:'🎮', color:'var(--game)'},
+    mischief: {label:'悪さ度',   emoji:'😈', color:'var(--mischief)'}
+  };
+  var STAT_KEYS = ['study','body','friend','money','game','mischief'];
+
+  /* ================= HELPERS ================= */
+  function $(id){ return document.getElementById(id); }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function clamp(v){ return Math.max(0, Math.min(100, v)); }
+  function pick(arr){ return arr[randInt(0, arr.length-1)]; }
+
+  function safeGet(key){
+    try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  function safeSet(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); return true; }
+    catch(e){ console.error('storage error', e); return false; }
+  }
+  function safeRemove(key){ try{ localStorage.removeItem(key); }catch(e){} }
+
+  /* ================= AUDIO ================= */
+  var audioCtx = null, muted = false;
+  function ensureAudio(){
+    if(!audioCtx){
+      try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    }
+  }
+  function beep(freq, dur, type){
+    if(muted || !audioCtx) { if(!muted){ ensureAudio(); } if(!audioCtx) return; }
+    try{
+      var o = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      o.type = type || 'square';
+      o.frequency.value = freq;
+      g.gain.value = 0.05;
+      o.connect(g); g.connect(audioCtx.destination);
+      var t = audioCtx.currentTime;
+      o.start(t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.stop(t + dur + 0.02);
+    }catch(e){}
+  }
+  function jingle(){
+    var notes = [523,659,784,1046];
+    notes.forEach(function(f,i){
+      setTimeout(function(){ beep(f, 0.18, 'triangle'); }, i*140);
+    });
+  }
+  $('muteBtn').addEventListener('click', function(){
+    ensureAudio();
+    muted = !muted;
+    $('muteBtn').textContent = muted ? '🔇 音' : '🔊 音';
+  });
+
+  /* ================= ACTIONS ================= */
+  var ACTIONS = [
+    { id:'study', label:'勉強する', emoji:'📚',
+      flavor:['参考書を1冊終わらせた!','集中して問題集を解きまくった!','予習復習をばっちりやった!'],
+      apply:function(s){ s.stats.study=clamp(s.stats.study+randInt(8,14)); s.stats.body=clamp(s.stats.body-randInt(1,4)); s.stats.friend=clamp(s.stats.friend-randInt(0,2)); return pick(this.flavor); } },
+    { id:'exercise', label:'体を動かす', emoji:'🏃',
+      flavor:['公園を全力ダッシュした!','筋トレで汗だくになった!','素振り1000回やりきった!'],
+      apply:function(s){ s.stats.body=clamp(s.stats.body+randInt(8,14)); s.stats.study=clamp(s.stats.study-randInt(1,3)); return pick(this.flavor); } },
+    { id:'friends', label:'友達と遊ぶ', emoji:'🤝',
+      flavor:['公園でドロケイをした!','カラオケで熱唱した!','みんなでたこ焼きを作った!'],
+      apply:function(s){ s.stats.friend=clamp(s.stats.friend+randInt(8,14)); s.stats.money=clamp(s.stats.money-randInt(2,5)); return pick(this.flavor); } },
+    { id:'game', label:'ゲームする', emoji:'🎮',
+      flavor:['新記録を叩き出した!','ランクが1つ上がった!','攻略法をひらめいた!'],
+      apply:function(s){ s.stats.game=clamp(s.stats.game+randInt(8,14)); s.stats.study=clamp(s.stats.study-randInt(1,3)); s.stats.body=clamp(s.stats.body-randInt(1,3)); return pick(this.flavor); } },
+    { id:'work', label:'お手伝い・バイト', emoji:'💴',
+      flavor:['お駄賃をたっぷりもらった!','お店の手伝いで稼いだ!','空き缶を集めて換金した!'],
+      apply:function(s){ s.stats.money=clamp(s.stats.money+randInt(8,14)); s.stats.body=clamp(s.stats.body-randInt(1,3)); s.stats.friend=clamp(s.stats.friend-randInt(0,2)); return pick(this.flavor); } },
+    { id:'mischief', label:'悪さする', emoji:'😈',
+      flavor:['いたずらが大成功した!','こっそり秘密基地を作った!','先生の目を盗んでサボった!'],
+      apply:function(s){
+        s.stats.mischief=clamp(s.stats.mischief+randInt(8,14));
+        var r=Math.random();
+        if(r<0.3){ s.stats.money=clamp(s.stats.money+randInt(3,8)); }
+        else if(r<0.6){ s.stats.friend=clamp(s.stats.friend-randInt(2,6)); }
+        return pick(this.flavor);
+      } }
+  ];
+
+  /* ================= EVENTS ================= */
+  var EVENTS = [
+    { id:'lostwallet', text:'道でお財布を拾った!どうする?', choices:[
+        { label:'交番に届ける', apply:function(s){ s.stats.friend=clamp(s.stats.friend+6); return 'えらい!交番の人にとても感謝された。'; } },
+        { label:'こっそりもらう', apply:function(s){ s.stats.money=clamp(s.stats.money+15); s.stats.mischief=clamp(s.stats.mischief+8); return '中身をそっといただいた…お金は増えたが胸がざわつく。'; } }
+    ]},
+    { id:'cat', text:'公園の茂みで弱った子猫を見つけた!', choices:[
+        { label:'保護して世話をする', apply:function(s){ s.flags.savedAnimals=(s.flags.savedAnimals||0)+1; s.stats.friend=clamp(s.stats.friend+5); return '子猫はすっかり元気になり、キミによく懐いた。'; } },
+        { label:'見なかったことにする', apply:function(s){ s.stats.mischief=clamp(s.stats.mischief+3); return 'なんとなく後ろめたい気持ちのまま歩き去った。'; } }
+    ]},
+    { id:'testresult', cond:function(s){ return s.stats.study>=40; }, text:'テストが返ってきた!結果は上々!', choices:[
+        { label:'もっと頑張る', apply:function(s){ s.stats.study=clamp(s.stats.study+10); return 'やる気に火がついて、さらに勉強に打ち込んだ。'; } },
+        { label:'今日はご褒美で遊ぶ', apply:function(s){ s.stats.friend=clamp(s.stats.friend+6); s.stats.game=clamp(s.stats.game+6); return '自分にご褒美!友達と思いきり遊んだ。'; } }
+    ]},
+    { id:'rival', cond:function(s){ return s.stats.game>=35; }, text:'噂のゲームの達人から対戦を申し込まれた!', choices:[
+        { label:'受けて立つ', apply:function(s){
+            if(s.stats.game>=50){ s.stats.game=clamp(s.stats.game+12); s.flags.rivalWin=true; return '大接戦の末、見事に勝利した!称号を手に入れた。'; }
+            s.stats.game=clamp(s.stats.game+4); s.stats.mischief=clamp(s.stats.mischief+2);
+            return '惜しくも負けてしまったが、いい経験になった。';
+        } },
+        { label:'今日はやめておく', apply:function(s){ s.stats.body=clamp(s.stats.body+4); return '誘いを断って、外で軽く体を動かした。'; } }
+    ]},
+    { id:'timecapsule', cond:function(s){ return !s.flags.treasure; }, text:'空き地で古びた箱のようなものを発見した…まるで宝箱だ。', choices:[
+        { label:'開けてみる', apply:function(s){ s.flags.treasure=true; s.stats.money=clamp(s.stats.money+20); return '中には昔のお宝がザクザク!大興奮で持ち帰った。'; } },
+        { label:'怖いので放置する', apply:function(s){ s.stats.mischief=clamp(s.stats.mischief-2); return '見なかったことにして、そそくさとその場を離れた。'; } }
+    ]},
+    { id:'quarrel', cond:function(s){ return s.stats.friend>=20; }, text:'仲の良い友達とケンカしてしまった…', choices:[
+        { label:'すぐ謝る', apply:function(s){ s.stats.friend=clamp(s.stats.friend+8); return '素直に謝ったら、すぐに仲直りできた。'; } },
+        { label:'意地を張る', apply:function(s){ s.stats.friend=clamp(s.stats.friend-10); s.flags.betrayed=true; return '意地を張り続け、気まずい空気のまま日が暮れた。'; } }
+    ]},
+    { id:'festival', text:'町で夏祭りが開催中!', choices:[
+        { label:'屋台を食べ歩く', apply:function(s){ s.stats.money=clamp(s.stats.money-6); s.stats.friend=clamp(s.stats.friend+6); return 'りんご飴とたこ焼きで大満足の夜だった。'; } },
+        { label:'花火大会を静かに見る', apply:function(s){ s.stats.body=clamp(s.stats.body+3); s.stats.study=clamp(s.stats.study+3); return '静かな川辺で花火を見ながら物思いにふけった。'; } }
+    ]},
+    { id:'rain', text:'記録的な大雨で1日中家に閉じ込められた…', choices:[
+        { label:'読書で乗り切る', apply:function(s){ s.stats.study=clamp(s.stats.study+8); return '分厚い本を一気に読み終えた。'; } },
+        { label:'ゲーム三昧で乗り切る', apply:function(s){ s.stats.game=clamp(s.stats.game+8); return '雨の日はゲーム日和!夢中で遊び続けた。'; } }
+    ]},
+    { id:'allowance', text:'お小遣いの使い道で家族会議になった!', choices:[
+        { label:'貯金する', apply:function(s){ s.stats.money=clamp(s.stats.money+8); return '貯金箱がずっしり重くなっていくのが嬉しい。'; } },
+        { label:'パーっと使う', apply:function(s){ s.stats.friend=clamp(s.stats.friend+8); s.stats.money=clamp(s.stats.money-8); return 'みんなにジュースをおごって大盛り上がりした。'; } }
+    ]},
+    { id:'heat', text:'記録的な猛暑日がやってきた!どう過ごす?', choices:[
+        { label:'プールで泳ぐ', apply:function(s){ s.stats.body=clamp(s.stats.body+8); return '思いきり泳いで真っ黒に日焼けした。'; } },
+        { label:'クーラーの部屋でダラダラ', apply:function(s){ s.stats.mischief=clamp(s.stats.mischief+5); s.stats.body=clamp(s.stats.body-3); return '涼しい部屋から一歩も出なかった…。'; } }
+    ]},
+    { id:'contest', cond:function(s){ return s.stats.game>=55; }, text:'地元のゲーム大会にエントリーできるチャンスが!', choices:[
+        { label:'出場する', apply:function(s){
+            if(s.stats.game>=65){ s.stats.game=clamp(s.stats.game+15); s.stats.money=clamp(s.stats.money+10); s.flags.contestWin=true; return '大会で優勝し、賞金と栄光を手に入れた!'; }
+            s.stats.game=clamp(s.stats.game+5);
+            return '予選敗退…だが貴重な経験になった。';
+        } },
+        { label:'まだ早いと辞退する', apply:function(s){ s.stats.study=clamp(s.stats.study+5); return '今は基礎固めが先だと、机に向かった。'; } }
+    ]},
+    { id:'strangerhelp', text:'道に迷っているおじいさんを見かけた。', choices:[
+        { label:'家まで送っていく', apply:function(s){ s.stats.friend=clamp(s.stats.friend+5); return 'とても感謝され、あたたかい気持ちになった。'; } },
+        { label:'急いでいるので通り過ぎる', apply:function(s){ s.stats.mischief=clamp(s.stats.mischief+4); return '見て見ぬふりをして通り過ぎてしまった。'; } }
+    ]},
+    { id:'secretbase', cond:function(s){ return s.stats.mischief>=25; }, text:'裏山にとっておきの秘密基地を作れそうな場所を見つけた!', choices:[
+        { label:'本格的に基地を作る', apply:function(s){ s.stats.mischief=clamp(s.stats.mischief+10); s.stats.friend=clamp(s.stats.friend+4); return '仲間と力を合わせて立派な秘密基地が完成した!'; } },
+        { label:'やめておく', apply:function(s){ s.stats.study=clamp(s.stats.study+3); return '危なそうなのでやめて、家で大人しく過ごした。'; } }
+    ]}
+  ];
+
+  /* ================= ENDINGS (checked in priority order) ================= */
+  var ENDINGS = [
+    { id:'treasure', emoji:'🏆', title:'伝説の宝探し王エンド',
+      cond:function(s){ return !!s.flags.treasure && s.stats.money>=45; },
+      desc:'あの夏に見つけた宝物は、キミの人生を大きく変えた。ちょっとした冒険心が、まさかの大金星に繋がったのだ。町では「宝探しの天才」として語り継がれている。' },
+    { id:'animal', emoji:'🐾', title:'どうぶつ博士エンド',
+      cond:function(s){ return (s.flags.savedAnimals||0)>=2; },
+      desc:'夏休み中、キミはたくさんの命を助けた。その優しさは近所でも評判になり、将来は獣医さんになる夢を見つけたようだ。動物たちはキミが大好き。' },
+    { id:'perfect', emoji:'👑', title:'完全体エンド(パーフェクト)',
+      cond:function(s){ return s.stats.study>=65 && s.stats.body>=65 && s.stats.friend>=65 && s.stats.money>=65 && s.stats.game>=65; },
+      desc:'勉強もスポーツもゲームも友情もお金も、すべてを極めた伝説の夏。キミはもはや「隙のない完璧超人」として、学校中の憧れの的になった。' },
+    { id:'empty', emoji:'🌫️', title:'なにもしなかった夏エンド',
+      cond:function(s){ return STAT_KEYS.every(function(k){ return s.stats[k]<=18; }); },
+      desc:'気づけば夏休みは終わっていた。何をしていたのか、自分でもよく思い出せない。来年こそは…そう心に誓う9月の始業式だった。' },
+    { id:'studyghost', emoji:'🤓', title:'ガリ勉オバケエンド',
+      cond:function(s){ return s.stats.study>=75 && s.stats.body<=25; },
+      desc:'夏休みのほとんどを机の前で過ごし、成績は学年トップに。しかし体力はガリガリで、外に出るだけで息切れしてしまう。勉強の鬼、爆誕。' },
+    { id:'gameaddict', emoji:'🕹️', title:'ゲーム廃人エンド',
+      cond:function(s){ return s.stats.game>=70 && s.stats.friend<=20 && s.stats.body<=20; },
+      desc:'画面の中の世界だけがすべてになった夏。腕前は誰にも負けないが、気づけば外の友達とは疎遠に。部屋にはコントローラーの跡が残っている。' },
+    { id:'runaway', emoji:'🚪', title:'家出エンド',
+      cond:function(s){ return s.stats.mischief>=75 && s.stats.friend<=25; },
+      desc:'やんちゃが過ぎて、家族とも友達ともすれ違ってしまった。ある夜、リュック一つで家を飛び出したキミを待っていたのは、思いがけない自由と孤独だった。' },
+    { id:'debt', emoji:'💸', title:'借金地獄エンド',
+      cond:function(s){ return s.stats.money<=10 && s.stats.mischief>=50; },
+      desc:'調子に乗って散財&いたずらを繰り返した結果、お小遣い帳は真っ赤っか。夏休みの終わりに待っていたのは、お母さんからの長〜いお説教だった。' },
+    { id:'koushien', emoji:'⚾', title:'甲子園メンバーエンド',
+      cond:function(s){ return s.stats.body>=65 && s.stats.friend>=55; },
+      desc:'仲間と汗を流し続けた夏、キミはチームの主力メンバーに選ばれた。グラウンドに響く声援と、チームの絆。最高の夏休みになった。' },
+    { id:'worldtrip', emoji:'✈️', title:'世界一周旅行エンド',
+      cond:function(s){ return s.stats.money>=55 && s.stats.friend>=55; },
+      desc:'コツコツ貯めたお金と、仲間たちとの絆。この夏の経験がきっかけで、家族と一緒に世界を旅する大きな夢に向かって歩き出した。' },
+    { id:'youtuber', emoji:'📹', title:'人気YouTuberエンド',
+      cond:function(s){ return s.stats.game>=55 && s.stats.friend>=55 && s.stats.money>=35; },
+      desc:'ゲームの腕前と友達とのワイワイ感を動画に撮り続けた結果、チャンネル登録者が爆増!夏休みの終わりには、ちょっとした有名人になっていた。' },
+    { id:'genius', emoji:'🎓', title:'天才学者エンド',
+      cond:function(s){ return s.stats.study>=70; },
+      desc:'夏休み明けのテストで、まさかの全国トップクラス。先生も両親も驚くほどの成長を遂げ、「天才」の噂が学校中に広まった。' },
+    { id:'athlete', emoji:'🏅', title:'プロアスリートエンド',
+      cond:function(s){ return s.stats.body>=70; },
+      desc:'鍛え抜かれた体と底なしのスタミナ。地区大会でも圧倒的な結果を残し、将来はプロを目指せると太鼓判を押された。' },
+    { id:'popular', emoji:'🎉', title:'リア充爆発エンド',
+      cond:function(s){ return s.stats.friend>=70; },
+      desc:'クラス中、いや学年中に友達ができた夏。誰からも慕われる人気者になり、夏休み明けの教室はキミの話題で持ちきりだった。' },
+    { id:'rich', emoji:'💰', title:'大富豪エンド',
+      cond:function(s){ return s.stats.money>=70; },
+      desc:'コツコツ働き、賢く貯めたお金は誰よりも多くなった。将来は実業家になるかも?小さな頃からお金の使い方が上手な子だった。' },
+    { id:'progamer', emoji:'🎮', title:'プロゲーマーエンド',
+      cond:function(s){ return s.stats.game>=70; },
+      desc:'圧倒的なプレイスキルでゲームコミュニティの伝説となった夏。将来はeスポーツの舞台に立つかもしれない、そんな予感がする。' },
+    { id:'badkid', emoji:'😈', title:'伝説の悪ガキエンド',
+      cond:function(s){ return s.stats.mischief>=70; },
+      desc:'いたずらといたずらの連続で、近所中の語り草になった夏休み。怒られてばかりだったけれど、誰よりも自由で刺激的な毎日を過ごした。' },
+    { id:'normal', emoji:'☀️', title:'普通の夏休みエンド',
+      cond:function(){ return true; },
+      desc:'特別に何かを極めたわけではないけれど、勉強も遊びも少しずつ楽しんだ、ちょうどいいバランスの夏休みだった。それもまた、悪くない。' }
+  ];
+
+  /* ================= STATE ================= */
+  var state = null;
+
+  function freshState(){
+    var stats = {};
+    STAT_KEYS.forEach(function(k){ stats[k] = 20; });
+    return { day:1, stats:stats, flags:{}, usedEvents:[], log:[] };
+  }
+
+  /* ================= SCREENS ================= */
+  function showScreen(name){
+    ['title','game','gallery','ending'].forEach(function(n){
+      $('screen-'+n).classList.toggle('active', n===name);
+    });
+    window.scrollTo(0,0);
+  }
+
+  /* ================= TITLE ================= */
+  function renderTitle(){
+    var saved = safeGet(SAVE_KEY);
+    $('btnContinue').disabled = !saved;
+    var pc = safeGet(PLAYCOUNT_KEY) || 0;
+    $('playcountText').textContent = 'これまでのプレイ回数: ' + pc + '回';
+  }
+
+  $('btnNewGame').addEventListener('click', function(){
+    ensureAudio(); beep(660,0.09,'square');
+    state = freshState();
+    saveCurrent();
+    showScreen('game');
+    renderGame('さあ、夏休みが始まった!今日は何をする?');
+  });
+  $('btnContinue').addEventListener('click', function(){
+    ensureAudio(); beep(660,0.09,'square');
+    var saved = safeGet(SAVE_KEY);
+    if(!saved) return;
+    state = saved;
+    if(!state.log) state.log = [];
+    if(!state.usedEvents) state.usedEvents = [];
+    if(!state.flags) state.flags = {};
+    showScreen('game');
+    renderGame('冒険の続きだ!今日は何をする?');
+  });
+  $('btnGallery').addEventListener('click', function(){
+    ensureAudio(); beep(500,0.08,'triangle');
+    renderGallery();
+    showScreen('gallery');
+  });
+  $('btnGalleryBack').addEventListener('click', function(){
+    beep(400,0.08,'triangle');
+    showScreen('title');
+    renderTitle();
+  });
+  $('btnSeeGallery').addEventListener('click', function(){
+    renderGallery();
+    showScreen('gallery');
+  });
+  $('btnToTitle').addEventListener('click', function(){
+    showScreen('title');
+    renderTitle();
+  });
+  $('btnPlayAgain').addEventListener('click', function(){
+    beep(660,0.09,'square');
+    state = freshState();
+    saveCurrent();
+    showScreen('game');
+    renderGame('新しい夏休みが始まった!今日は何をする?');
+  });
+
+  /* ================= GAME RENDER ================= */
+  function buildStatsGrid(container, stats, animate){
+    container.innerHTML = '';
+    STAT_KEYS.forEach(function(k){
+      var meta = STAT_META[k];
+      var row = document.createElement('div');
+      row.className = 'stat-row';
+      row.innerHTML =
+        '<div class="stat-label">'+meta.emoji+' '+meta.label+'</div>'+
+        '<div class="stat-track"><div class="stat-fill" style="background:'+meta.color+'; width:'+(animate?0:stats[k])+'%"></div></div>'+
+        '<div class="stat-val">'+stats[k]+'</div>';
+      container.appendChild(row);
+      if(animate){
+        setTimeout(function(){
+          row.querySelector('.stat-fill').style.width = stats[k]+'%';
+        }, 30);
+      }
+    });
+  }
+
+  function buildActionGrid(){
+    var grid = $('actionGrid');
+    grid.innerHTML = '';
+    ACTIONS.forEach(function(a){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'hard-btn action-btn';
+      btn.innerHTML = '<span class="emo">'+a.emoji+'</span><span class="lbl">'+a.label+'</span>';
+      btn.addEventListener('click', function(){ performAction(a.id); });
+      grid.appendChild(btn);
+    });
+  }
+  buildActionGrid();
+
+  function setActionsEnabled(enabled){
+    var btns = document.querySelectorAll('#actionGrid .action-btn');
+    btns.forEach(function(b){ b.disabled = !enabled; });
+  }
+
+  function pushLog(msg){
+    state.log.unshift(msg);
+    if(state.log.length > 40) state.log.length = 40;
+  }
+
+  function renderGame(narrativeText){
+    $('dayChip').textContent = 'Day ' + state.day + '/' + TOTAL_DAYS;
+    $('progressFill').style.width = Math.min(100, (state.day-1)/TOTAL_DAYS*100) + '%';
+    buildStatsGrid($('statsGrid'), state.stats, true);
+    if(narrativeText) $('narrative').textContent = narrativeText;
+    var logBox = $('logBox');
+    logBox.innerHTML = '';
+    state.log.slice(0,8).forEach(function(l){
+      var d = document.createElement('div');
+      d.textContent = l;
+      logBox.appendChild(d);
+    });
+    setActionsEnabled(true);
+  }
+
+  function performAction(actionId){
+    ensureAudio();
+    var action = null;
+    for(var i=0;i<ACTIONS.length;i++){ if(ACTIONS[i].id===actionId){ action = ACTIONS[i]; break; } }
+    if(!action) return;
+    setActionsEnabled(false);
+    beep(520, 0.07, 'square');
+    var msg = action.apply(state);
+    pushLog('【Day '+state.day+'】'+action.emoji+' '+action.label+' → '+msg);
+    $('narrative').textContent = msg;
+    buildStatsGrid($('statsGrid'), state.stats, true);
+    setTimeout(function(){ proceedAfterAction(); }, 260);
+  }
+
+  function proceedAfterAction(){
+    var available = EVENTS.filter(function(e){
+      return state.usedEvents.indexOf(e.id) === -1 && (!e.cond || e.cond(state));
+    });
+    var pool = available.length ? available : EVENTS.filter(function(e){ return !e.cond || e.cond(state); });
+    if(Math.random() < 0.45 && pool.length){
+      var ev = pool[randInt(0, pool.length-1)];
+      showEvent(ev);
+    } else {
+      endDay();
+    }
+  }
+
+  function showEvent(ev){
+    state.usedEvents.push(ev.id);
+    $('eventText').textContent = ev.text;
+    var choicesBox = $('eventChoices');
+    choicesBox.innerHTML = '';
+    ev.choices.forEach(function(c){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'hard-btn';
+      btn.textContent = c.label;
+      btn.addEventListener('click', function(){
+        beep(600, 0.08, 'triangle');
+        var msg = c.apply(state);
+        pushLog('【Day '+state.day+'・できごと】'+msg);
+        $('event-modal').classList.add('hidden');
+        renderGame(msg);
+        buildStatsGrid($('statsGrid'), state.stats, true);
+        endDay();
+      });
+      choicesBox.appendChild(btn);
+    });
+    $('event-modal').classList.remove('hidden');
+  }
+
+  function endDay(){
+    state.day++;
+    saveCurrent();
+    if(state.day > TOTAL_DAYS){
+      finishGame();
+    } else {
+      renderGame();
+    }
+  }
+
+  function saveCurrent(){ safeSet(SAVE_KEY, state); }
+
+  /* ================= ENDING ================= */
+  function getUnlockedEndings(){ return safeGet(GALLERY_KEY) || []; }
+  function unlockEnding(id){
+    var arr = getUnlockedEndings();
+    var isNew = arr.indexOf(id) === -1;
+    if(isNew){ arr.push(id); safeSet(GALLERY_KEY, arr); }
+    return isNew;
+  }
+  function incrementPlayCount(){
+    var pc = safeGet(PLAYCOUNT_KEY) || 0;
+    safeSet(PLAYCOUNT_KEY, pc+1);
+  }
+
+  function finishGame(){
+    var ending = null;
+    for(var i=0;i<ENDINGS.length;i++){
+      if(ENDINGS[i].cond(state)){ ending = ENDINGS[i]; break; }
+    }
+    if(!ending) ending = ENDINGS[ENDINGS.length-1];
+
+    var isNew = unlockEnding(ending.id);
+    safeRemove(SAVE_KEY);
+    incrementPlayCount();
+
+    $('endingEmoji').textContent = ending.emoji;
+    $('endingTitle').textContent = ending.title;
+    $('endingDesc').textContent = ending.desc;
+    $('endingNewBadge').innerHTML = isNew ? '<div class="ending-new">✨ NEW ENDING!</div>' : '';
+    buildStatsGrid($('endingStatsGrid'), state.stats, false);
+
+    showScreen('ending');
+    spawnConfetti();
+    jingle();
+  }
+
+  /* ================= GALLERY ================= */
+  function renderGallery(){
+    var unlocked = getUnlockedEndings();
+    $('galleryCount').textContent = unlocked.length + ' / ' + ENDINGS.length + ' コンプリート';
+    var grid = $('galleryGrid');
+    grid.innerHTML = '';
+    ENDINGS.forEach(function(e){
+      var item = document.createElement('div');
+      var isUnlocked = unlocked.indexOf(e.id) !== -1;
+      if(isUnlocked){
+        item.className = 'gitem';
+        item.innerHTML =
+          '<div class="ge">'+e.emoji+'</div>'+
+          '<div class="gt">'+e.title+'</div>'+
+          '<div class="gd">'+e.desc+'</div>';
+      } else {
+        item.className = 'gitem locked';
+        item.textContent = '❓';
+      }
+      grid.appendChild(item);
+    });
+  }
+
+  /* ================= CONFETTI ================= */
+  function spawnConfetti(){
+    var layer = $('confetti-layer');
+    var colors = ['#FF3E9A','#FFE156','#3EDBFF','#9CFF6B','#B06CFF','#FF8A3D'];
+    for(var i=0;i<70;i++){
+      (function(){
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random()*100 + 'vw';
+        piece.style.background = colors[randInt(0,colors.length-1)];
+        piece.style.animationDuration = (2 + Math.random()*1.8) + 's';
+        piece.style.animationDelay = (Math.random()*0.6) + 's';
+        piece.style.borderRadius = Math.random()<0.5 ? '50%' : '2px';
+        layer.appendChild(piece);
+        setTimeout(function(){ piece.remove(); }, 4200);
+      })();
+    }
+  }
+
+  /* ================= BACKGROUND BLOBS (title decoration) ================= */
+  function addBlobs(){
+    var colors = ['var(--pink)','var(--cyan)','var(--lime)','var(--purple)'];
+    for(var i=0;i<4;i++){
+      var b = document.createElement('div');
+      b.className = 'blob';
+      var size = 90 + Math.random()*90;
+      b.style.width = size+'px';
+      b.style.height = size+'px';
+      b.style.background = colors[i % colors.length];
+      b.style.top = (Math.random()*80)+'%';
+      b.style.left = (Math.random()*90)+'%';
+      b.style.animationDelay = (Math.random()*3)+'s';
+      document.body.appendChild(b);
+    }
+  }
+  addBlobs();
+
+  /* ================= INIT ================= */
+  renderTitle();
+  showScreen('title');
+
+})();
+</script>
+</body>
+</html>
