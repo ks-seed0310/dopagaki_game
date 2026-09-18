@@ -1,0 +1,3674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドパガキの大冒険 〜完全版〜</title>
+<style>
+  :root {
+    --bg: #0a0a1a;
+    --bg2: #111128;
+    --bg3: #1a1a35;
+    --accent: #ff6b35;
+    --accent2: #ffbe0b;
+    --accent3: #8338ec;
+    --accent4: #06d6a0;
+    --accent5: #ff006e;
+    --text: #f0f0ff;
+    --text2: #aaa8cc;
+    --border: #2a2a5a;
+    --hp-color: #06d6a0;
+    --mp-color: #8338ec;
+    --exp-color: #ffbe0b;
+    --shadow: 0 0 20px rgba(131,56,236,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', 'Hiragino Kaku Gothic Pro', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* ===== SCREENS ===== */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ===== TITLE SCREEN ===== */
+  #title-screen {
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #1a0a3a 0%, #0a0a1a 70%);
+    position: relative;
+    overflow: hidden;
+  }
+  #title-screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+      radial-gradient(2px 2px at 20% 30%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 80% 15%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 50% 70%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 10% 80%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 90% 60%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 35% 50%, #aaf 100%, transparent),
+      radial-gradient(1px 1px at 65% 25%, #faf 100%, transparent);
+    animation: twinkle 3s infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+  .title-box {
+    text-align: center;
+    z-index: 1;
+    padding: 40px;
+  }
+  .title-logo {
+    font-size: 3.5em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff6b35, #ffbe0b, #8338ec);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 10px;
+    line-height: 1.1;
+    animation: logoGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes logoGlow {
+    0% { filter: drop-shadow(0 0 10px #ff6b35); }
+    100% { filter: drop-shadow(0 0 20px #8338ec); }
+  }
+  .title-sub {
+    font-size: 1.1em;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+  }
+  .title-version {
+    font-size: 0.8em;
+    color: var(--text2);
+    margin-bottom: 30px;
+  }
+  .title-char {
+    font-size: 5em;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+  }
+  .title-menu { display: flex; flex-direction: column; gap: 12px; }
+  .title-btn {
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
+    border: 2px solid var(--accent3);
+    color: var(--text);
+    padding: 14px 50px;
+    font-size: 1.1em;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 2px;
+  }
+  .title-btn:hover {
+    background: linear-gradient(135deg, var(--accent3), var(--accent5));
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(131,56,236,0.6);
+  }
+  .title-btn.continue-btn { border-color: var(--accent2); }
+  .title-btn.continue-btn:hover { background: linear-gradient(135deg, var(--accent2), var(--accent)); }
+
+  /* ===== GAME SCREEN ===== */
+  #game-screen {
+    flex-direction: column;
+    padding: 0;
+  }
+  /* Header */
+  .game-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-char { font-size: 1.8em; }
+  .header-name {
+    font-size: 0.95em;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .header-level {
+    font-size: 0.8em;
+    color: var(--text2);
+  }
+  .bars { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+  .bar-row { display: flex; align-items: center; gap: 6px; font-size: 0.72em; }
+  .bar-label { width: 22px; color: var(--text2); font-weight: 700; }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  .bar-fill.hp { background: var(--hp-color); }
+  .bar-fill.mp { background: var(--mp-color); }
+  .bar-fill.exp { background: var(--exp-color); }
+  .bar-num { min-width: 55px; text-align: right; color: var(--text2); }
+  .header-gold {
+    font-size: 0.9em;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+  .header-map-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s;
+  }
+  .header-map-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Main content */
+  .game-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 70px);
+  }
+  /* Sidebar */
+  .game-sidebar {
+    width: 200px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 12px 8px;
+    gap: 4px;
+  }
+  .sidebar-section-title {
+    font-size: 0.65em;
+    color: var(--text2);
+    letter-spacing: 2px;
+    padding: 8px 8px 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .sidebar-section-title:first-child { border-top: none; margin-top: 0; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text2);
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85em;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--border); }
+  .nav-btn.active { background: rgba(131,56,236,0.2); color: var(--accent3); border-color: var(--accent3); }
+  .nav-icon { font-size: 1.1em; }
+
+  /* Content Area */
+  .game-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .content-panel { display: none; }
+  .content-panel.active { display: block; }
+
+  /* ===== ADVENTURE (Main) ===== */
+  .area-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .area-name {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 4px;
+  }
+  .area-desc {
+    font-size: 0.85em;
+    color: var(--text2);
+  }
+  .scene-art {
+    font-size: 4em;
+    text-align: center;
+    margin: 10px 0;
+    animation: float 4s ease-in-out infinite;
+  }
+  .message-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+    line-height: 1.7;
+    min-height: 80px;
+  }
+  .message-box p { margin-bottom: 6px; }
+  .message-box p:last-child { margin-bottom: 0; }
+  .msg-system { color: var(--accent4); }
+  .msg-event { color: var(--accent2); }
+  .msg-danger { color: var(--accent5); }
+  .msg-reward { color: var(--accent); }
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .action-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+  }
+  .action-btn:hover {
+    border-color: var(--accent3);
+    box-shadow: 0 0 12px rgba(131,56,236,0.3);
+    transform: translateY(-2px);
+  }
+  .action-btn:active { transform: translateY(0); }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .action-btn:disabled:hover { transform: none; box-shadow: none; border-color: var(--border); }
+  .action-icon { font-size: 1.5em; }
+  .action-name { font-weight: 700; font-size: 0.9em; }
+  .action-desc { font-size: 0.75em; color: var(--text2); }
+
+  /* ===== BATTLE SCREEN ===== */
+  #battle-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #battle-overlay.active { display: flex; }
+  .battle-box {
+    background: var(--bg2);
+    border: 2px solid var(--accent5);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 0 40px rgba(255,0,110,0.4);
+    animation: battleEntrance 0.4s ease;
+  }
+  @keyframes battleEntrance {
+    0% { transform: scale(0.8) translateY(30px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .battle-title {
+    text-align: center;
+    font-size: 0.8em;
+    color: var(--accent5);
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+  }
+  .battle-scene {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .battle-entity {
+    flex: 1;
+    text-align: center;
+  }
+  .entity-art {
+    font-size: 3.5em;
+    display: block;
+    margin-bottom: 6px;
+    animation: shake 0.5s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  .entity-name {
+    font-size: 0.85em;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--accent2);
+  }
+  .entity-hp-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .entity-hp-fill {
+    height: 100%;
+    background: var(--hp-color);
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+  .entity-hp-text { font-size: 0.75em; color: var(--text2); }
+  .battle-vs {
+    font-size: 1.5em;
+    font-weight: 900;
+    color: var(--accent5);
+    align-self: center;
+  }
+  .battle-log {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.82em;
+    line-height: 1.7;
+    min-height: 80px;
+    margin-bottom: 14px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .battle-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .battle-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+  }
+  .battle-btn:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 0 10px rgba(255,107,53,0.3); }
+  .battle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .battle-btn.skill-btn { border-color: var(--accent3); }
+  .battle-btn.skill-btn:hover:not(:disabled) { box-shadow: 0 0 10px rgba(131,56,236,0.5); }
+  .battle-btn.item-btn { border-color: var(--accent4); }
+  .battle-btn.flee-btn { border-color: var(--text2); }
+
+  /* ===== DAMAGE NUMBERS ===== */
+  .damage-float {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.8em;
+    font-weight: 900;
+    z-index: 999;
+    animation: floatUp 1s ease forwards;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+  }
+
+  /* ===== STATUS PANEL ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat-card-title {
+    font-size: 0.7em;
+    color: var(--text2);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.85em;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: var(--text2); }
+  .stat-value { font-weight: 700; color: var(--accent2); }
+  .achievement-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .achievement-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 0.8em;
+    opacity: 0.4;
+    transition: all 0.3s;
+  }
+  .achievement-card.unlocked {
+    opacity: 1;
+    border-color: var(--accent2);
+    background: rgba(255,190,11,0.1);
+  }
+  .achievement-icon { font-size: 1.5em; margin-bottom: 4px; }
+  .achievement-name { font-weight: 700; color: var(--accent2); font-size: 0.9em; }
+  .achievement-desc { color: var(--text2); font-size: 0.85em; }
+
+  /* ===== SHOP ===== */
+  .shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .shop-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .shop-item:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .shop-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .shop-item-icon { font-size: 2em; }
+  .shop-item-name { font-weight: 700; font-size: 0.9em; }
+  .shop-item-type { font-size: 0.7em; color: var(--text2); }
+  .shop-item-desc { font-size: 0.8em; color: var(--text2); margin-bottom: 10px; }
+  .shop-item-footer { display: flex; justify-content: space-between; align-items: center; }
+  .shop-price { color: var(--accent2); font-weight: 700; }
+  .shop-buy-btn {
+    background: var(--accent3);
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s;
+  }
+  .shop-buy-btn:hover { background: var(--accent5); }
+  .shop-buy-btn:disabled { background: var(--bg3); color: var(--text2); cursor: not-allowed; }
+
+  /* ===== INVENTORY ===== */
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .inv-slot {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+  .inv-slot:hover { border-color: var(--accent3); }
+  .inv-slot.empty { opacity: 0.3; cursor: default; }
+  .inv-slot:hover.empty { border-color: var(--border); }
+  .inv-slot-icon { font-size: 1.6em; }
+  .inv-slot-name { font-size: 0.65em; color: var(--text2); }
+  .inv-slot-count {
+    font-size: 0.7em;
+    background: var(--accent3);
+    color: white;
+    padding: 1px 5px;
+    border-radius: 8px;
+  }
+  .equip-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .equip-slot {
+    background: var(--bg2);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .equip-slot-label { color: var(--text2); min-width: 40px; }
+  .equip-slot-item { color: var(--accent4); font-weight: 700; }
+
+  /* ===== SKILLS ===== */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 0.2s;
+  }
+  .skill-card.learned { border-color: var(--accent3); }
+  .skill-card.locked { opacity: 0.5; }
+  .skill-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .skill-icon { font-size: 1.8em; }
+  .skill-name { font-weight: 700; font-size: 0.9em; }
+  .skill-level { font-size: 0.7em; color: var(--accent3); }
+  .skill-desc { font-size: 0.8em; color: var(--text2); margin-bottom: 8px; }
+  .skill-cost { font-size: 0.75em; color: var(--mp-color); }
+  .skill-learn-btn {
+    background: var(--bg3);
+    border: 1px solid var(--accent3);
+    color: var(--accent3);
+    padding: 5px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.75em;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .skill-learn-btn:hover { background: var(--accent3); color: white; }
+  .skill-learn-btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--border); color: var(--text2); }
+
+  /* ===== WORLD MAP ===== */
+  #map-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #map-overlay.active { display: flex; }
+  .map-box {
+    background: var(--bg2);
+    border: 2px solid var(--accent3);
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .map-title {
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--accent2);
+    margin-bottom: 20px;
+  }
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .map-area {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+  }
+  .map-area:hover:not(.locked) { border-color: var(--accent); transform: translateY(-3px); }
+  .map-area.current { border-color: var(--accent2); background: rgba(255,190,11,0.1); }
+  .map-area.locked { opacity: 0.4; cursor: not-allowed; }
+  .map-area-icon { font-size: 2.5em; margin-bottom: 8px; }
+  .map-area-name { font-size: 0.85em; font-weight: 700; margin-bottom: 4px; }
+  .map-area-level { font-size: 0.72em; color: var(--text2); }
+  .map-close-btn {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .map-close-btn:hover { border-color: var(--text); color: var(--text); }
+
+  /* ===== GACHA ===== */
+  .gacha-area {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .gacha-machine {
+    font-size: 6em;
+    margin: 20px 0;
+    animation: float 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .gacha-machine:active { transform: scale(0.9); }
+  .gacha-pull-btn {
+    background: linear-gradient(135deg, var(--accent3), var(--accent5));
+    border: none;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin: 10px 8px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(131,56,236,0.4);
+  }
+  .gacha-pull-btn:hover { transform: scale(1.05); box-shadow: 0 6px 25px rgba(131,56,236,0.6); }
+  .gacha-result {
+    background: var(--bg2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+    display: none;
+    animation: resultPop 0.5s ease;
+  }
+  @keyframes resultPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .gacha-rarity {
+    font-size: 1.2em;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .rarity-N { color: var(--text2); }
+  .rarity-R { color: #4fc3f7; }
+  .rarity-SR { color: #ba68c8; }
+  .rarity-SSR { color: var(--accent2); text-shadow: 0 0 10px var(--accent2); }
+  .rarity-LEGEND { 
+    background: linear-gradient(135deg, #ff6b35, #ffbe0b, #8338ec);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.5em;
+    animation: legendPulse 1s ease-in-out infinite alternate;
+  }
+  @keyframes legendPulse {
+    0% { filter: drop-shadow(0 0 5px gold); }
+    100% { filter: drop-shadow(0 0 20px gold); }
+  }
+  .gacha-item-icon { font-size: 4em; margin: 10px 0; }
+  .gacha-item-name { font-size: 1.1em; font-weight: 700; }
+  .gacha-item-desc { font-size: 0.85em; color: var(--text2); margin-top: 6px; }
+
+  /* ===== QUESTS ===== */
+  .quest-list { display: flex; flex-direction: column; gap: 10px; }
+  .quest-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 0.2s;
+  }
+  .quest-card.active { border-color: var(--accent); }
+  .quest-card.completed { border-color: var(--accent4); opacity: 0.7; }
+  .quest-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .quest-icon { font-size: 1.6em; }
+  .quest-name { font-weight: 700; font-size: 0.9em; }
+  .quest-status {
+    font-size: 0.7em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
+  }
+  .quest-status.active { background: rgba(255,107,53,0.2); color: var(--accent); }
+  .quest-status.completed { background: rgba(6,214,160,0.2); color: var(--accent4); }
+  .quest-status.locked { background: rgba(255,255,255,0.1); color: var(--text2); }
+  .quest-progress {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .quest-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.5s;
+  }
+  .quest-desc { font-size: 0.8em; color: var(--text2); margin-bottom: 8px; }
+  .quest-reward { font-size: 0.75em; color: var(--accent2); }
+  .quest-complete-btn {
+    background: var(--accent4);
+    border: none;
+    color: var(--bg);
+    padding: 6px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-weight: 700;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .quest-complete-btn:hover { transform: scale(1.05); }
+
+  /* ===== CRAFTING ===== */
+  .craft-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .craft-recipe {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 0.2s;
+  }
+  .craft-recipe:hover { border-color: var(--accent4); }
+  .craft-result { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .craft-icon { font-size: 2em; }
+  .craft-name { font-weight: 700; font-size: 0.9em; }
+  .craft-quality { font-size: 0.7em; color: var(--accent4); }
+  .craft-materials { margin-bottom: 10px; }
+  .material-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78em;
+    padding: 3px 0;
+  }
+  .material-icon { font-size: 1.1em; }
+  .material-name { flex: 1; color: var(--text2); }
+  .material-have { font-weight: 700; }
+  .material-have.enough { color: var(--accent4); }
+  .material-have.lack { color: var(--accent5); }
+  .craft-btn {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--accent4);
+    color: var(--accent4);
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.82em;
+    transition: all 0.2s;
+  }
+  .craft-btn:hover:not(:disabled) { background: var(--accent4); color: var(--bg); }
+  .craft-btn:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--border); color: var(--text2); }
+
+  /* ===== MINI GAMES ===== */
+  .minigame-select {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .minigame-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s;
+  }
+  .minigame-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .minigame-icon { font-size: 3em; margin-bottom: 8px; }
+  .minigame-name { font-weight: 700; margin-bottom: 4px; }
+  .minigame-reward { font-size: 0.78em; color: var(--accent2); }
+  
+  /* Memory Game */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 360px;
+    margin: 0 auto 16px;
+  }
+  .memory-card {
+    aspect-ratio: 1;
+    background: var(--bg3);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    user-select: none;
+  }
+  .memory-card.flipped { background: var(--bg2); border-color: var(--accent3); }
+  .memory-card.matched { background: rgba(6,214,160,0.2); border-color: var(--accent4); }
+
+  /* Number Game */
+  .num-display {
+    font-size: 3em;
+    font-weight: 900;
+    text-align: center;
+    color: var(--accent2);
+    margin: 20px 0;
+    letter-spacing: 8px;
+    min-height: 1.5em;
+  }
+  .num-input-row { display: flex; gap: 8px; justify-content: center; }
+  .num-input {
+    background: var(--bg3);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-size: 1.5em;
+    padding: 10px 16px;
+    border-radius: 10px;
+    width: 200px;
+    text-align: center;
+    letter-spacing: 6px;
+  }
+  .num-submit-btn {
+    background: var(--accent3);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .num-submit-btn:hover { background: var(--accent5); }
+
+  /* Fishing */
+  .fishing-area {
+    text-align: center;
+    padding: 20px;
+  }
+  .fishing-scene {
+    font-size: 5em;
+    margin: 20px 0;
+    position: relative;
+    height: 150px;
+  }
+  .fishing-rod {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    font-size: 3em;
+  }
+  .fishing-bobber {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5em;
+    transition: bottom 0.3s;
+  }
+  .fishing-wait-bar {
+    height: 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .fishing-wait-fill {
+    height: 100%;
+    background: var(--accent4);
+    border-radius: 6px;
+    transition: width 0.1s linear;
+  }
+  .fishing-catch-btn {
+    background: var(--accent5);
+    border: none;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: none;
+  }
+  .fishing-catch-btn:hover { transform: scale(1.1); }
+
+  /* ===== LORE / STORY ===== */
+  .lore-list { display: flex; flex-direction: column; gap: 10px; }
+  .lore-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lore-card:hover { border-color: var(--accent3); }
+  .lore-card.locked { opacity: 0.4; }
+  .lore-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .lore-icon { font-size: 1.5em; }
+  .lore-title { font-weight: 700; font-size: 0.9em; }
+  .lore-preview { font-size: 0.8em; color: var(--text2); line-height: 1.6; }
+
+  /* ===== LORE DETAIL OVERLAY ===== */
+  #lore-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 160;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #lore-overlay.active { display: flex; }
+  .lore-detail-box {
+    background: var(--bg2);
+    border: 1px solid var(--accent3);
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .lore-detail-icon { font-size: 3em; text-align: center; margin-bottom: 14px; }
+  .lore-detail-title { font-size: 1.2em; font-weight: 700; color: var(--accent2); margin-bottom: 14px; text-align: center; }
+  .lore-detail-text { font-size: 0.9em; color: var(--text2); line-height: 1.8; white-space: pre-line; }
+  .lore-close-btn {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lore-close-btn:hover { border-color: var(--text); color: var(--text); }
+
+  /* ===== NOTIFICATIONS ===== */
+  #notif-area {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+  .notif {
+    background: var(--bg2);
+    border-left: 4px solid var(--accent4);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.85em;
+    max-width: 280px;
+    animation: notifIn 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .notif.warn { border-left-color: var(--accent5); }
+  .notif.gold { border-left-color: var(--accent2); }
+  .notif.level { border-left-color: var(--accent3); }
+  @keyframes notifIn {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ===== ENDING SCREEN ===== */
+  #ending-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0,0,0,0.95);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    flex-direction: column;
+  }
+  #ending-overlay.active { display: flex; }
+  .ending-box {
+    background: var(--bg2);
+    border: 2px solid var(--accent2);
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    animation: endingPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  @keyframes endingPop {
+    0% { transform: scale(0.3) rotate(-5deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .ending-title { font-size: 1.8em; font-weight: 900; margin-bottom: 8px; }
+  .ending-icon { font-size: 5em; margin: 16px 0; animation: float 2s ease-in-out infinite; }
+  .ending-text { font-size: 0.9em; color: var(--text2); line-height: 1.8; margin-bottom: 20px; white-space: pre-line; }
+  .ending-stats { 
+    background: var(--bg3); 
+    border-radius: 12px; 
+    padding: 14px; 
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .ending-stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85em; border-bottom: 1px solid var(--border); }
+  .ending-stat-row:last-child { border-bottom: none; }
+  .ending-btn {
+    background: linear-gradient(135deg, var(--accent3), var(--accent5));
+    border: none;
+    color: white;
+    padding: 14px 30px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin: 8px;
+    transition: all 0.25s;
+  }
+  .ending-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(131,56,236,0.5); }
+
+  /* ===== ITEM DETAIL OVERLAY ===== */
+  #item-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 175;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #item-overlay.active { display: flex; }
+  .item-detail-box {
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+  }
+  .item-detail-icon { font-size: 4em; margin-bottom: 10px; }
+  .item-detail-name { font-size: 1.1em; font-weight: 700; color: var(--accent2); margin-bottom: 6px; }
+  .item-detail-desc { font-size: 0.85em; color: var(--text2); margin-bottom: 16px; line-height: 1.6; }
+  .item-detail-btns { display: flex; gap: 8px; justify-content: center; }
+  .item-use-btn {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .item-use-btn:hover { background: var(--accent5); }
+  .item-equip-btn {
+    background: var(--accent3);
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .item-equip-btn:hover { background: var(--accent5); }
+  .item-close-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 8px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+  }
+  .item-close-btn:hover { border-color: var(--text); color: var(--text); }
+
+  /* ===== SETTINGS ===== */
+  .settings-section { margin-bottom: 20px; }
+  .settings-title { font-size: 0.8em; color: var(--text2); letter-spacing: 2px; margin-bottom: 10px; }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .toggle-btn {
+    width: 44px; height: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .toggle-btn.on { background: var(--accent3); border-color: var(--accent3); }
+  .toggle-btn::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: white;
+    transition: left 0.3s;
+  }
+  .toggle-btn.on::after { left: 22px; }
+
+  /* ===== UTILITIES ===== */
+  .section-title {
+    font-size: 0.75em;
+    letter-spacing: 3px;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .gold-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,190,11,0.15);
+    border: 1px solid rgba(255,190,11,0.3);
+    color: var(--accent2);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.82em;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--text); color: var(--text); }
+  .reward-animation {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    pointer-events: none;
+    display: none;
+  }
+  .reward-animation.active { display: block; }
+  .reward-particle {
+    position: absolute;
+    font-size: 2em;
+    animation: particleFly 1.5s ease forwards;
+  }
+  @keyframes particleFly {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-200px) scale(0); opacity: 0; }
+  }
+  .progress-area { padding: 16px 0; }
+  .panel-header { margin-bottom: 20px; }
+  .panel-header h2 { font-size: 1.3em; font-weight: 700; color: var(--accent2); }
+  .panel-header p { font-size: 0.85em; color: var(--text2); margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    .game-sidebar { width: 52px; padding: 8px 4px; }
+    .nav-btn span:not(.nav-icon) { display: none; }
+    .stats-grid, .shop-grid, .skills-grid, .craft-grid, .minigame-select, .action-grid, .achievement-grid { grid-template-columns: 1fr; }
+    .inventory-grid { grid-template-columns: repeat(3, 1fr); }
+    .map-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="title-screen" class="screen active">
+  <div class="title-box">
+    <div class="title-char">🐾</div>
+    <div class="title-logo">ドパガキの大冒険</div>
+    <div class="title-sub">DOPAGAKI GRAND QUEST</div>
+    <div class="title-version">完全版 v2.0 — ALL ENDINGS EDITION</div>
+    <div class="title-menu">
+      <button class="title-btn continue-btn" id="continue-btn" style="display:none" onclick="continueGame()">▶ 続きから</button>
+      <button class="title-btn" onclick="startNewGame()">⚔ 新しい冒険を始める</button>
+      <button class="title-btn" onclick="showSettings()" style="border-color: var(--text2); font-size:0.9em;">⚙ 設定</button>
+    </div>
+    <div style="margin-top: 24px; font-size: 0.75em; color: var(--text2);">
+      🏆 全12エンディング &nbsp;|&nbsp; ✨ ガチャ &nbsp;|&nbsp; 🗡 バトル &nbsp;|&nbsp; 🎣 ミニゲーム &nbsp;|&nbsp; 📖 ロア
+    </div>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="game-screen" class="screen">
+  <!-- Header -->
+  <div class="game-header">
+    <div class="header-char" id="hdr-char">🐾</div>
+    <div>
+      <div class="header-name" id="hdr-name">ドパガキ</div>
+      <div class="header-level" id="hdr-level">Lv.1 冒険者</div>
+    </div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="bar-label">HP</div>
+        <div class="bar-track"><div class="bar-fill hp" id="bar-hp" style="width:100%"></div></div>
+        <div class="bar-num" id="bar-hp-num">100/100</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">MP</div>
+        <div class="bar-track"><div class="bar-fill mp" id="bar-mp" style="width:100%"></div></div>
+        <div class="bar-num" id="bar-mp-num">50/50</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">EXP</div>
+        <div class="bar-track"><div class="bar-fill exp" id="bar-exp" style="width:0%"></div></div>
+        <div class="bar-num" id="bar-exp-num">0/100</div>
+      </div>
+    </div>
+    <div class="header-gold">💰 <span id="hdr-gold">0</span>G</div>
+    <button class="header-map-btn" onclick="openMap()">🗺 マップ</button>
+  </div>
+
+  <!-- Main -->
+  <div class="game-main">
+    <!-- Sidebar -->
+    <div class="game-sidebar">
+      <div class="sidebar-section-title">冒険</div>
+      <button class="nav-btn active" data-panel="adventure" onclick="switchPanel('adventure', this)">
+        <span class="nav-icon">⚔</span><span>フィールド</span>
+      </button>
+      <button class="nav-btn" data-panel="quests" onclick="switchPanel('quests', this)">
+        <span class="nav-icon">📋</span><span>クエスト</span>
+      </button>
+      <button class="nav-btn" data-panel="minigames" onclick="switchPanel('minigames', this)">
+        <span class="nav-icon">🎮</span><span>ミニゲーム</span>
+      </button>
+      <div class="sidebar-section-title">キャラ</div>
+      <button class="nav-btn" data-panel="status" onclick="switchPanel('status', this)">
+        <span class="nav-icon">📊</span><span>ステータス</span>
+      </button>
+      <button class="nav-btn" data-panel="skills" onclick="switchPanel('skills', this)">
+        <span class="nav-icon">✨</span><span>スキル</span>
+      </button>
+      <button class="nav-btn" data-panel="inventory" onclick="switchPanel('inventory', this)">
+        <span class="nav-icon">🎒</span><span>アイテム</span>
+      </button>
+      <div class="sidebar-section-title">施設</div>
+      <button class="nav-btn" data-panel="shop" onclick="switchPanel('shop', this)">
+        <span class="nav-icon">🏪</span><span>ショップ</span>
+      </button>
+      <button class="nav-btn" data-panel="gacha" onclick="switchPanel('gacha', this)">
+        <span class="nav-icon">🎰</span><span>ガチャ</span>
+      </button>
+      <button class="nav-btn" data-panel="craft" onclick="switchPanel('craft', this)">
+        <span class="nav-icon">⚒</span><span>クラフト</span>
+      </button>
+      <div class="sidebar-section-title">その他</div>
+      <button class="nav-btn" data-panel="lore" onclick="switchPanel('lore', this)">
+        <span class="nav-icon">📖</span><span>ロア</span>
+      </button>
+      <button class="nav-btn" data-panel="settings" onclick="switchPanel('settings', this)">
+        <span class="nav-icon">⚙</span><span>設定</span>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="game-content">
+
+      <!-- ADVENTURE PANEL -->
+      <div class="content-panel active" id="panel-adventure">
+        <div class="area-header">
+          <div class="area-name" id="area-name">はじまりの村</div>
+          <div class="area-desc" id="area-desc">平和な村の外れ。ここから冒険が始まる。</div>
+        </div>
+        <div class="scene-art" id="scene-art">🏡</div>
+        <div class="message-box" id="message-box">
+          <p class="msg-system">ドパガキは村の外れに立っている。</p>
+          <p>「さあ、冒険を始めよう！」</p>
+        </div>
+        <div class="action-grid" id="action-grid">
+          <button class="action-btn" onclick="doExplore()">
+            <span class="action-icon">🔍</span>
+            <span class="action-name">探索する</span>
+            <span class="action-desc">周囲を調べる</span>
+          </button>
+          <button class="action-btn" onclick="doBattle()">
+            <span class="action-icon">⚔</span>
+            <span class="action-name">戦う</span>
+            <span class="action-desc">敵を探して戦闘</span>
+          </button>
+          <button class="action-btn" onclick="doRest()">
+            <span class="action-icon">💤</span>
+            <span class="action-name">休む</span>
+            <span class="action-desc">HP・MP回復</span>
+          </button>
+          <button class="action-btn" onclick="doEvent()">
+            <span class="action-icon">🎲</span>
+            <span class="action-name">ランダムイベント</span>
+            <span class="action-desc">何かが起こるかも</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- QUESTS PANEL -->
+      <div class="content-panel" id="panel-quests">
+        <div class="panel-header">
+          <h2>📋 クエスト</h2>
+          <p>依頼をこなして報酬をゲット！</p>
+        </div>
+        <div class="quest-list" id="quest-list"></div>
+      </div>
+
+      <!-- MINIGAMES PANEL -->
+      <div class="content-panel" id="panel-minigames">
+        <div class="panel-header">
+          <h2>🎮 ミニゲーム</h2>
+          <p>遊んで報酬をゲット！</p>
+        </div>
+        <div id="minigame-home">
+          <div class="minigame-select">
+            <div class="minigame-card" onclick="startMinigame('memory')">
+              <div class="minigame-icon">🃏</div>
+              <div class="minigame-name">神経衰弱</div>
+              <div class="minigame-reward">報酬: ゴールド + EXP</div>
+            </div>
+            <div class="minigame-card" onclick="startMinigame('numbers')">
+              <div class="minigame-icon">🔢</div>
+              <div class="minigame-name">数字記憶</div>
+              <div class="minigame-reward">報酬: 大量EXP</div>
+            </div>
+            <div class="minigame-card" onclick="startMinigame('fishing')">
+              <div class="minigame-icon">🎣</div>
+              <div class="minigame-name">釣り</div>
+              <div class="minigame-reward">報酬: 素材アイテム</div>
+            </div>
+            <div class="minigame-card" onclick="startMinigame('quiz')">
+              <div class="minigame-icon">❓</div>
+              <div class="minigame-name">なんでもクイズ</div>
+              <div class="minigame-reward">報酬: レアアイテム</div>
+            </div>
+          </div>
+        </div>
+        <div id="minigame-area" style="display:none"></div>
+      </div>
+
+      <!-- STATUS PANEL -->
+      <div class="content-panel" id="panel-status">
+        <div class="panel-header">
+          <h2>📊 ステータス</h2>
+          <p>ドパガキの現在の状態</p>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="section-title">実績</div>
+        <div class="achievement-grid" id="achievement-grid"></div>
+      </div>
+
+      <!-- SKILLS PANEL -->
+      <div class="content-panel" id="panel-skills">
+        <div class="panel-header">
+          <h2>✨ スキル</h2>
+          <p>SPを使ってスキルを習得！</p>
+        </div>
+        <div style="margin-bottom: 12px; font-size: 0.85em; color: var(--accent3);">SP: <span id="sp-count" style="font-weight:700">0</span></div>
+        <div class="skills-grid" id="skills-grid"></div>
+      </div>
+
+      <!-- INVENTORY PANEL -->
+      <div class="content-panel" id="panel-inventory">
+        <div class="panel-header">
+          <h2>🎒 アイテム</h2>
+          <p>所持アイテム一覧</p>
+        </div>
+        <div class="section-title">装備</div>
+        <div class="equip-grid" id="equip-grid"></div>
+        <div class="section-title" style="margin-top:16px">アイテム</div>
+        <div class="inventory-grid" id="inventory-grid"></div>
+      </div>
+
+      <!-- SHOP PANEL -->
+      <div class="content-panel" id="panel-shop">
+        <div class="panel-header">
+          <h2>🏪 ショップ</h2>
+          <p>所持金: <span class="gold-badge">💰 <span id="shop-gold">0</span>G</span></p>
+        </div>
+        <div class="shop-grid" id="shop-grid"></div>
+      </div>
+
+      <!-- GACHA PANEL -->
+      <div class="content-panel" id="panel-gacha">
+        <div class="panel-header">
+          <h2>🎰 ガチャ</h2>
+          <p>運命のカプセルを回そう！</p>
+        </div>
+        <div class="gacha-area">
+          <div style="font-size: 0.85em; color: var(--text2); margin-bottom: 10px;">所持金: <span class="gold-badge">💰 <span id="gacha-gold">0</span>G</span></div>
+          <div class="gacha-machine" onclick="singleGacha()">🎰</div>
+          <div style="font-size: 0.82em; color: var(--text2); margin-bottom: 16px;">
+            N〜LEGEND の5段階レアリティ<br>SSR以上は超豪華演出！
+          </div>
+          <div>
+            <button class="gacha-pull-btn" onclick="singleGacha()">🎲 1回ガチャ (50G)</button>
+            <button class="gacha-pull-btn" onclick="tenGacha()">💎 10連ガチャ (450G)</button>
+          </div>
+          <div class="gacha-result" id="gacha-result"></div>
+          <div id="gacha-history" style="margin-top: 16px; font-size: 0.78em; color: var(--text2);"></div>
+        </div>
+      </div>
+
+      <!-- CRAFT PANEL -->
+      <div class="content-panel" id="panel-craft">
+        <div class="panel-header">
+          <h2>⚒ クラフト</h2>
+          <p>素材を組み合わせてアイテムを作ろう！</p>
+        </div>
+        <div class="craft-grid" id="craft-grid"></div>
+      </div>
+
+      <!-- LORE PANEL -->
+      <div class="content-panel" id="panel-lore">
+        <div class="panel-header">
+          <h2>📖 ロア &amp; 物語</h2>
+          <p>世界の謎と歴史を解き明かそう</p>
+        </div>
+        <div class="lore-list" id="lore-list"></div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="content-panel" id="panel-settings">
+        <div class="panel-header">
+          <h2>⚙ 設定</h2>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">ゲームプレイ</div>
+          <div class="settings-row">
+            <span>サウンドエフェクト</span>
+            <div class="toggle-btn on" id="toggle-sfx" onclick="toggleSetting('sfx')"></div>
+          </div>
+          <div class="settings-row">
+            <span>戦闘アニメーション</span>
+            <div class="toggle-btn on" id="toggle-anim" onclick="toggleSetting('anim')"></div>
+          </div>
+          <div class="settings-row">
+            <span>オートセーブ</span>
+            <div class="toggle-btn on" id="toggle-save" onclick="toggleSetting('save')"></div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">データ</div>
+          <div class="settings-row">
+            <span>進捗をリセット</span>
+            <button onclick="resetGame()" style="background:rgba(255,0,110,0.2);border:1px solid var(--accent5);color:var(--accent5);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.82em;">⚠ リセット</button>
+          </div>
+          <div class="settings-row">
+            <span>バージョン</span>
+            <span style="color:var(--text2); font-size:0.85em;">完全版 v2.0</span>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">チート（デバッグ）</div>
+          <div class="settings-row">
+            <span>ゴールド+1000</span>
+            <button onclick="G.gold+=1000;saveGame();updateHeader();" style="background:rgba(255,190,11,0.2);border:1px solid var(--accent2);color:var(--accent2);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.82em;">💰 追加</button>
+          </div>
+          <div class="settings-row">
+            <span>EXP MAX</span>
+            <button onclick="gainExp(9999);" style="background:rgba(131,56,236,0.2);border:1px solid var(--accent3);color:var(--accent3);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.82em;">✨ 追加</button>
+          </div>
+          <div class="settings-row">
+            <span>HP/MP全回復</span>
+            <button onclick="G.hp=G.maxHp;G.mp=G.maxMp;updateHeader();notify('HP・MPが全回復した！');" style="background:rgba(6,214,160,0.2);border:1px solid var(--accent4);color:var(--accent4);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:0.82em;">💚 回復</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /game-content -->
+  </div><!-- /game-main -->
+</div><!-- /game-screen -->
+
+<!-- BATTLE OVERLAY -->
+<div id="battle-overlay">
+  <div class="battle-box">
+    <div class="battle-title">⚔ BATTLE ⚔</div>
+    <div class="battle-scene">
+      <div class="battle-entity" id="b-player">
+        <span class="entity-art" id="b-player-art">🐾</span>
+        <div class="entity-name" id="b-player-name">ドパガキ</div>
+        <div class="entity-hp-bar"><div class="entity-hp-fill" id="b-player-hp" style="width:100%"></div></div>
+        <div class="entity-hp-text" id="b-player-hp-text">100/100</div>
+        <div style="font-size:0.72em; color:var(--mp-color); margin-top:3px;" id="b-player-mp-text">MP: 50/50</div>
+      </div>
+      <div class="battle-vs">VS</div>
+      <div class="battle-entity" id="b-enemy">
+        <span class="entity-art" id="b-enemy-art">🐺</span>
+        <div class="entity-name" id="b-enemy-name">ウルフ</div>
+        <div class="entity-hp-bar"><div class="entity-hp-fill" id="b-enemy-hp" style="width:100%"></div></div>
+        <div class="entity-hp-text" id="b-enemy-hp-text">30/30</div>
+        <div style="font-size:0.72em;color:var(--text2);margin-top:3px;" id="b-enemy-status"></div>
+      </div>
+    </div>
+    <div class="battle-log" id="battle-log"></div>
+    <div class="battle-actions">
+      <button class="battle-btn" id="btn-attack" onclick="battleAction('attack')">⚔ 攻撃</button>
+      <button class="battle-btn skill-btn" id="btn-skill" onclick="openSkillMenu()">✨ スキル</button>
+      <button class="battle-btn item-btn" id="btn-item" onclick="battleAction('item')">🧪 アイテム</button>
+      <button class="battle-btn flee-btn" id="btn-flee" onclick="battleAction('flee')">💨 逃げる</button>
+    </div>
+    <div id="skill-menu" style="display:none; margin-top:10px; display:none;"></div>
+  </div>
+</div>
+
+<!-- MAP OVERLAY -->
+<div id="map-overlay">
+  <div class="map-box">
+    <div class="map-title">🗺 ワールドマップ</div>
+    <div class="map-grid" id="map-grid"></div>
+    <button class="map-close-btn" onclick="closeMap()">✕ 閉じる</button>
+  </div>
+</div>
+
+<!-- LORE DETAIL OVERLAY -->
+<div id="lore-overlay">
+  <div class="lore-detail-box">
+    <div class="lore-detail-icon" id="lore-icon"></div>
+    <div class="lore-detail-title" id="lore-title"></div>
+    <div class="lore-detail-text" id="lore-text"></div>
+    <button class="lore-close-btn" onclick="closeLore()">✕ 閉じる</button>
+  </div>
+</div>
+
+<!-- ITEM DETAIL OVERLAY -->
+<div id="item-overlay">
+  <div class="item-detail-box">
+    <div class="item-detail-icon" id="item-icon"></div>
+    <div class="item-detail-name" id="item-name"></div>
+    <div class="item-detail-desc" id="item-desc"></div>
+    <div class="item-detail-btns" id="item-btns"></div>
+  </div>
+</div>
+
+<!-- ENDING OVERLAY -->
+<div id="ending-overlay">
+  <div class="ending-box" id="ending-box"></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notif-area"></div>
+
+<!-- REWARD ANIMATION -->
+<div class="reward-animation" id="reward-anim"></div>
+
+<script>
+// ===== SAVE KEY =====
+const SAVE_KEY = 'dopagaki_game/claude/4.6Sonnet/001/saves/main';
+const SETTINGS_KEY = 'dopagaki_game/claude/4.6Sonnet/001/saves/settings';
+
+// ===== GAME STATE =====
+let G = {};
+let BATTLE = null;
+let SETTINGS = { sfx: true, anim: true, save: true };
+let fishingState = null;
+let memoryState = null;
+let numberState = null;
+let quizState = null;
+
+// ===== DATA: AREAS =====
+const AREAS = [
+  { id: 'village', name: 'はじまりの村', icon: '🏡', desc: '平和な村の外れ。ここから冒険が始まる。', minLevel: 1, unlocked: true, enemies: ['wolf','slime','bat'], art: '🏡', color: '#06d6a0' },
+  { id: 'forest', name: 'もりの森', icon: '🌲', desc: '深い森。木々の間から何かの視線を感じる。', minLevel: 3, unlocked: false, enemies: ['goblin','orc','treant'], art: '🌲', color: '#3d9970' },
+  { id: 'cave', name: '暗闇の洞窟', icon: '🕳', desc: '真っ暗な洞窟。宝と危険が潜んでいる。', minLevel: 5, unlocked: false, enemies: ['bat','spider','zombie'], art: '🕳', color: '#636e72' },
+  { id: 'desert', name: 'ほのおの砂漠', icon: '🏜', desc: '灼熱の砂漠。強い魔物が住んでいる。', minLevel: 8, unlocked: false, enemies: ['sandworm','scorpion','ifrit'], art: '🏜', color: '#e17055' },
+  { id: 'ocean', name: '海の境界', icon: '🌊', desc: '広大な海。伝説の生き物が潜んでいるとか。', minLevel: 12, unlocked: false, enemies: ['shark','siren','kraken'], art: '🌊', color: '#0984e3' },
+  { id: 'sky', name: '天空の城', icon: '🏰', desc: '雲の上に浮かぶ謎の城。最終決戦の場。', minLevel: 15, unlocked: false, enemies: ['angel','demon','finalBoss'], art: '🏰', color: '#a29bfe' },
+  { id: 'void', name: '虚無の空間', icon: '🌀', desc: '全てが終わった後の世界。ここに何かがある。', minLevel: 20, unlocked: false, enemies: ['shadow','void','chaos'], art: '🌀', color: '#6c5ce7' },
+  { id: 'paradise', name: '楽園', icon: '🌸', desc: '夢のような美しい場所。平和の象徴。', minLevel: 1, unlocked: false, enemies: ['fairy','unicorn'], art: '🌸', color: '#fd79a8' },
+  { id: 'volcano', name: '火山', icon: '🌋', desc: '噴火する巨大火山。最強の炎の魔物が棲む。', minLevel: 18, unlocked: false, enemies: ['magma','phoenix','volcano'], art: '🌋', color: '#d63031' },
+];
+
+// ===== DATA: ENEMIES =====
+const ENEMIES = {
+  slime: { name: 'スライム', art: '🟢', hp: 20, maxHp: 20, atk: 5, def: 1, exp: 15, gold: 10, desc: 'よわいけどかわいい' },
+  wolf: { name: 'ウルフ', art: '🐺', hp: 35, maxHp: 35, atk: 12, def: 3, exp: 25, gold: 18, desc: '牙が鋭い狼' },
+  bat: { name: 'バット', art: '🦇', hp: 25, maxHp: 25, atk: 8, def: 2, exp: 20, gold: 12, desc: '素早い吸血コウモリ', speed: 2 },
+  goblin: { name: 'ゴブリン', art: '👺', hp: 50, maxHp: 50, atk: 18, def: 5, exp: 40, gold: 30, desc: '意地悪な小鬼' },
+  orc: { name: 'オーク', art: '👹', hp: 80, maxHp: 80, atk: 25, def: 10, exp: 65, gold: 50, desc: '力強いオーク戦士' },
+  treant: { name: 'トレント', art: '🌳', hp: 120, maxHp: 120, atk: 20, def: 15, exp: 90, gold: 70, desc: '巨大な木の精霊', regen: 5 },
+  spider: { name: 'スパイダー', art: '🕷', hp: 45, maxHp: 45, atk: 22, def: 4, exp: 50, gold: 35, desc: '毒を持つ大蜘蛛', poison: true },
+  zombie: { name: 'ゾンビ', art: '🧟', hp: 70, maxHp: 70, atk: 15, def: 8, exp: 55, gold: 40, desc: '不死のゾンビ', regen: 3 },
+  sandworm: { name: 'サンドワーム', art: '🪱', hp: 100, maxHp: 100, atk: 30, def: 12, exp: 100, gold: 80, desc: '砂漠を泳ぐ巨大ワーム' },
+  scorpion: { name: 'スコーピオン', art: '🦂', hp: 85, maxHp: 85, atk: 28, def: 14, exp: 90, gold: 75, desc: '毒針を持つサソリ', poison: true },
+  ifrit: { name: 'イフリート', art: '🔥', hp: 150, maxHp: 150, atk: 40, def: 18, exp: 160, gold: 130, desc: '炎の精霊王' },
+  shark: { name: 'シャーク', art: '🦈', hp: 130, maxHp: 130, atk: 35, def: 16, exp: 140, gold: 110, desc: '巨大サメ' },
+  siren: { name: 'セイレーン', art: '🧜', hp: 110, maxHp: 110, atk: 30, def: 14, exp: 120, gold: 100, desc: '歌で惑わす海の魔物', charm: true },
+  kraken: { name: 'クラーケン', art: '🐙', hp: 200, maxHp: 200, atk: 45, def: 22, exp: 220, gold: 180, desc: '伝説の大海獣' },
+  angel: { name: '타락天使', art: '👼', hp: 180, maxHp: 180, atk: 42, def: 20, exp: 200, gold: 160, desc: '堕落した天使' },
+  demon: { name: 'デーモン', art: '😈', hp: 220, maxHp: 220, atk: 55, def: 25, exp: 250, gold: 200, desc: '暗黒の悪魔王' },
+  finalBoss: { name: '暗黒竜ドラゴス', art: '🐲', hp: 500, maxHp: 500, atk: 70, def: 30, exp: 1000, gold: 500, desc: '最強の暗黒竜！', isBoss: true },
+  shadow: { name: '虚無の影', art: '🕳', hp: 300, maxHp: 300, atk: 60, def: 35, exp: 600, gold: 300, desc: '全てを飲み込む影', isBoss: true },
+  void: { name: 'ヴォイドロード', art: '🌀', hp: 400, maxHp: 400, atk: 80, def: 40, exp: 800, gold: 400, desc: '虚無の支配者', isBoss: true },
+  chaos: { name: '混沌の神', art: '💀', hp: 999, maxHp: 999, atk: 99, def: 50, exp: 9999, gold: 9999, desc: '全ての混沌の源', isBoss: true, isTrueFinal: true },
+  fairy: { name: 'フェアリー', art: '🧚', hp: 30, maxHp: 30, atk: 10, def: 5, exp: 30, gold: 50, desc: '気まぐれな妖精。倒さない方がいいかも' },
+  unicorn: { name: 'ユニコーン', art: '🦄', hp: 200, maxHp: 200, atk: 40, def: 20, exp: 300, gold: 200, desc: '神聖な一角馬', isBoss: true },
+  magma: { name: 'マグマゴーレム', art: '🪨', hp: 250, maxHp: 250, atk: 65, def: 45, exp: 400, gold: 250, desc: '溶岩の巨人' },
+  phoenix: { name: 'フェニックス', art: '🦅', hp: 350, maxHp: 350, atk: 75, def: 35, exp: 700, gold: 450, desc: '不死鳥。倒したはずが…', revive: true, isBoss: true },
+  volcano: { name: '火山神ウルカン', art: '🌋', hp: 800, maxHp: 800, atk: 90, def: 50, exp: 2000, gold: 1000, desc: '火山を司る古代神', isBoss: true },
+};
+
+// ===== DATA: SKILLS =====
+const ALL_SKILLS = [
+  { id: 'fireball', name: 'ファイアボール', icon: '🔥', desc: '炎の玉を放つ。敵に大ダメージ。', mpCost: 15, dmg: 2.0, reqLevel: 1, spCost: 1, learned: false, type: 'attack' },
+  { id: 'heal', name: 'ヒール', icon: '💚', desc: '自分のHPを30回復する。', mpCost: 10, heal: 30, reqLevel: 2, spCost: 1, learned: false, type: 'heal' },
+  { id: 'thunder', name: 'サンダー', icon: '⚡', desc: '雷撃で敵を攻撃。スタンさせることがある。', mpCost: 20, dmg: 2.5, stun: 0.3, reqLevel: 4, spCost: 2, learned: false, type: 'attack' },
+  { id: 'shield', name: 'シールド', icon: '🛡', desc: '3ターン守りを固める。防御力2倍。', mpCost: 12, reqLevel: 3, spCost: 1, learned: false, type: 'buff' },
+  { id: 'blizzard', name: 'ブリザード', icon: '❄', desc: '氷の嵐で敵を凍らせる。', mpCost: 25, dmg: 3.0, freeze: 0.4, reqLevel: 7, spCost: 3, learned: false, type: 'attack' },
+  { id: 'regen', name: 'リジェネ', icon: '♻', desc: '3ターン、毎ターンHPが15回復する。', mpCost: 18, reqLevel: 6, spCost: 2, learned: false, type: 'buff' },
+  { id: 'meteor', name: 'メテオ', icon: '☄', desc: '隕石を呼ぶ最強攻撃魔法！', mpCost: 40, dmg: 5.0, reqLevel: 12, spCost: 5, learned: false, type: 'attack' },
+  { id: 'holy', name: 'ホーリー', icon: '✝', desc: '聖なる力。アンデッドに超効果。', mpCost: 30, dmg: 3.5, reqLevel: 9, spCost: 3, learned: false, type: 'attack' },
+  { id: 'revive', name: 'リバイブ', icon: '💫', desc: '戦闘不能になっても1度だけ復活する。', mpCost: 50, reqLevel: 15, spCost: 5, learned: false, type: 'passive' },
+  { id: 'berserk', name: 'バーサーク', icon: '💢', desc: '攻撃力を3倍にするが防御ゼロになる。', mpCost: 20, reqLevel: 10, spCost: 3, learned: false, type: 'buff' },
+  { id: 'drain', name: 'ドレイン', icon: '🩸', desc: '敵のHPを吸収して回復する。', mpCost: 22, dmg: 2.0, drain: 0.5, reqLevel: 8, spCost: 2, learned: false, type: 'attack' },
+  { id: 'ultima', name: 'アルティマ', icon: '🌟', desc: '全てを超える究極魔法。MP全消費。', mpCost: 99, dmg: 10.0, reqLevel: 20, spCost: 10, learned: false, type: 'attack' },
+];
+
+// ===== DATA: ITEMS =====
+const ITEM_DATA = {
+  potion: { name: 'ポーション', icon: '🧪', desc: 'HPを50回復する。', type: 'consumable', effect: { hp: 50 } },
+  highPotion: { name: 'ハイポーション', icon: '💊', desc: 'HPを150回復する。', type: 'consumable', effect: { hp: 150 } },
+  megaPotion: { name: 'メガポーション', icon: '🍶', desc: 'HPを全回復する。', type: 'consumable', effect: { hp: 9999 } },
+  mana: { name: 'エーテル', icon: '🔵', desc: 'MPを30回復する。', type: 'consumable', effect: { mp: 30 } },
+  highMana: { name: 'ハイエーテル', icon: '💙', desc: 'MPを全回復する。', type: 'consumable', effect: { mp: 9999 } },
+  antidote: { name: '毒消し', icon: '🟢', desc: '毒状態を治す。', type: 'consumable', effect: { cure: 'poison' } },
+  bomb: { name: '爆弾', icon: '💣', desc: '敵に100の固定ダメージ。', type: 'consumable', effect: { dmg: 100 } },
+  elixir: { name: 'エリクサー', icon: '✨', desc: 'HP・MPを全回復する。', type: 'consumable', effect: { hp: 9999, mp: 9999 } },
+  sword: { name: 'ブロンズソード', icon: '🗡', desc: '攻撃力+15', type: 'weapon', effect: { atk: 15 } },
+  steelSword: { name: 'スチールソード', icon: '⚔', desc: '攻撃力+30', type: 'weapon', effect: { atk: 30 } },
+  magicSword: { name: '魔剣ルーンブレード', icon: '🌟', desc: '攻撃力+60、魔力+20', type: 'weapon', effect: { atk: 60, matk: 20 } },
+  shield: { name: 'ウッドシールド', icon: '🛡', desc: '防御力+10', type: 'armor', effect: { def: 10 } },
+  armor: { name: 'チェインアーマー', icon: '🥷', desc: '防御力+20', type: 'armor', effect: { def: 20 } },
+  robe: { name: '魔法使いのローブ', icon: '🧙', desc: '防御力+10、MP+50', type: 'armor', effect: { def: 10, mp: 50 } },
+  ring: { name: '力の指輪', icon: '💍', desc: '攻撃力+10、防御力+5', type: 'accessory', effect: { atk: 10, def: 5 } },
+  amulet: { name: '守護のお守り', icon: '📿', desc: '防御力+15、HP+50', type: 'accessory', effect: { def: 15, hp: 50 } },
+  herb: { name: 'やくそう', icon: '🌿', desc: 'クラフト素材。回復薬の材料。', type: 'material' },
+  ore: { name: '鉄鉱石', icon: '🪨', desc: 'クラフト素材。武器・防具の材料。', type: 'material' },
+  scale: { name: 'ドラゴンの鱗', icon: '🐉', desc: '希少な素材。最強装備に使う。', type: 'material' },
+  crystal: { name: '魔力水晶', icon: '🔮', desc: '魔法アイテムの素材。', type: 'material' },
+  darkShard: { name: '暗黒の欠片', icon: '💎', desc: '虚無から生まれた素材。', type: 'material' },
+  keyA: { name: '古い鍵A', icon: '🗝', desc: '何かを開く鍵。', type: 'key' },
+  keyB: { name: '銀の鍵B', icon: '🔑', desc: '銀製の鍵。', type: 'key' },
+  map: { name: '秘密の地図', icon: '🗺', desc: '隠しエリアへの道を示す地図。', type: 'key' },
+  legendSword: { name: '伝説の剣エクスカリバー', icon: '⚜', desc: '攻撃力+100、聖属性付与', type: 'weapon', effect: { atk: 100 } },
+  darkArmor: { name: '暗黒鎧', icon: '🖤', desc: '防御力+80、暗黒耐性', type: 'armor', effect: { def: 80 } },
+  godRing: { name: '神の指輪', icon: '🌠', desc: '全ステータス+30', type: 'accessory', effect: { atk: 30, def: 30, hp: 100 } },
+};
+
+// ===== DATA: SHOP =====
+const SHOP_ITEMS = [
+  { id: 'potion', price: 50 },
+  { id: 'highPotion', price: 150 },
+  { id: 'mana', price: 80 },
+  { id: 'antidote', price: 30 },
+  { id: 'bomb', price: 200 },
+  { id: 'herb', price: 20 },
+  { id: 'ore', price: 50 },
+  { id: 'sword', price: 300 },
+  { id: 'shield', price: 250 },
+  { id: 'armor', price: 500 },
+  { id: 'ring', price: 400 },
+  { id: 'robe', price: 450 },
+  { id: 'elixir', price: 999 },
+];
+
+// ===== DATA: GACHA POOL =====
+const GACHA_POOL = [
+  // N
+  { id:'potion', rarity:'N', weight:40 },
+  { id:'mana', rarity:'N', weight:30 },
+  { id:'herb', rarity:'N', weight:40 },
+  { id:'antidote', rarity:'N', weight:30 },
+  // R
+  { id:'highPotion', rarity:'R', weight:15 },
+  { id:'highMana', rarity:'R', weight:10 },
+  { id:'ore', rarity:'R', weight:15 },
+  { id:'bomb', rarity:'R', weight:10 },
+  { id:'sword', rarity:'R', weight:8 },
+  { id:'shield', rarity:'R', weight:8 },
+  // SR
+  { id:'steelSword', rarity:'SR', weight:4 },
+  { id:'armor', rarity:'SR', weight:4 },
+  { id:'ring', rarity:'SR', weight:3 },
+  { id:'robe', rarity:'SR', weight:3 },
+  { id:'crystal', rarity:'SR', weight:3 },
+  { id:'scale', rarity:'SR', weight:2 },
+  // SSR
+  { id:'magicSword', rarity:'SSR', weight:1.5 },
+  { id:'darkArmor', rarity:'SSR', weight:1 },
+  { id:'amulet', rarity:'SSR', weight:1 },
+  { id:'elixir', rarity:'SSR', weight:0.8 },
+  { id:'darkShard', rarity:'SSR', weight:0.7 },
+  // LEGEND
+  { id:'legendSword', rarity:'LEGEND', weight:0.2 },
+  { id:'godRing', rarity:'LEGEND', weight:0.15 },
+  { id:'megaPotion', rarity:'LEGEND', weight:0.1 },
+];
+
+// ===== DATA: CRAFTING =====
+const RECIPES = [
+  { result: 'highPotion', name: 'ハイポーション', icon: '💊', materials: [{id:'herb',count:3},{id:'potion',count:2}] },
+  { result: 'steelSword', name: 'スチールソード', icon: '⚔', materials: [{id:'ore',count:5},{id:'sword',count:1}] },
+  { result: 'magicSword', name: '魔剣ルーンブレード', icon: '🌟', materials: [{id:'steelSword',count:1},{id:'crystal',count:3}] },
+  { result: 'darkArmor', name: '暗黒鎧', icon: '🖤', materials: [{id:'armor',count:1},{id:'darkShard',count:5},{id:'scale',count:3}] },
+  { result: 'legendSword', name: 'エクスカリバー', icon: '⚜', materials: [{id:'magicSword',count:1},{id:'scale',count:10},{id:'darkShard',count:5}] },
+  { result: 'elixir', name: 'エリクサー', icon: '✨', materials: [{id:'herb',count:10},{id:'crystal',count:5},{id:'highPotion',count:2}] },
+];
+
+// ===== DATA: QUESTS =====
+const QUEST_DATA = [
+  { id:'q1', name: '初めての戦闘', icon: '⚔', desc: 'スライムを3匹倒せ', reward: {gold:100, exp:50}, target: {type:'kill', enemy:'slime', count:3}, progress: 0, status: 'active' },
+  { id:'q2', name: '森の開拓者', icon: '🌲', desc: 'もりの森を解放せよ', reward: {gold:200, exp:100, item:'ore'}, target: {type:'area', area:'forest'}, progress: 0, status: 'locked' },
+  { id:'q3', name: '黄金の収集家', icon: '💰', desc: 'ゴールドを1000G集めろ', reward: {exp:200, item:'ring'}, target: {type:'gold', amount:1000}, progress: 0, status: 'active' },
+  { id:'q4', name: '魔法使いへの道', icon: '✨', desc: 'スキルを3つ習得せよ', reward: {gold:300, exp:300, item:'crystal'}, target: {type:'skills', count:3}, progress: 0, status: 'active' },
+  { id:'q5', name: 'ドラゴン討伐', icon: '🐲', desc: '暗黒竜ドラゴスを倒せ', reward: {gold:1000, exp:2000, item:'scale'}, target: {type:'kill', enemy:'finalBoss', count:1}, progress: 0, status: 'locked' },
+  { id:'q6', name: 'ガチャ中毒', icon: '🎰', desc: 'ガチャを10回引け', reward: {gold:500, exp:400}, target: {type:'gacha', count:10}, progress: 0, status: 'active' },
+  { id:'q7', name: '熟練の旅人', icon: '🗺', desc: 'レベル10に達せよ', reward: {gold:500, exp:500, item:'amulet', sp:3}, target: {type:'level', amount:10}, progress: 0, status: 'active' },
+  { id:'q8', name: 'クラフトマスター', icon: '⚒', desc: 'アイテムを3つクラフトせよ', reward: {gold:400, exp:350, item:'darkShard'}, target: {type:'craft', count:3}, progress: 0, status: 'active' },
+  { id:'q9', name: 'ゴブリンキラー', icon: '👺', desc: 'ゴブリンを5匹倒せ', reward: {gold:300, exp:250, item:'ore'}, target: {type:'kill', enemy:'goblin', count:5}, progress: 0, status: 'locked' },
+  { id:'q10', name: '世界の救済者', icon: '🌟', desc: '混沌の神を倒して世界を救え', reward: {gold:9999, exp:99999, item:'godRing', sp:10}, target: {type:'kill', enemy:'chaos', count:1}, progress: 0, status: 'locked' },
+];
+
+// ===== DATA: LORE =====
+const LORE_DATA = [
+  { id:'l1', icon:'📜', title:'世界の成り立ち', preview:'はるか昔、この世界は光と闇の2神によって…', text: `はるか昔、この世界は「光の神エリオス」と「暗黒神カオス」の2つの力によって作られた。
+
+エリオスは大地と海を作り、生命に光を与えた。
+カオスは夜と影を作り、生命に死の概念を与えた。
+
+しかし二神はやがて対立し、大戦争が起こった。
+エリオスはカオスを封印することに成功したが、その過程で自らも虚無の彼方へと消えてしまった。
+
+世界はその後、人間・エルフ・ドワーフなど多くの種族が栄えた。
+だが封印が弱まり、カオスの力が再び溢れ始めている…
+
+あなたはこの世界の命運を背負う勇者だ。`, unlocked: true },
+  { id:'l2', icon:'🐾', title:'ドパガキとは', preview:'ドパガキは生まれながらの冒険者だと言われている…', text: `ドパガキは、古い予言に記された「星の導き子」と呼ばれる存在だ。
+
+生まれた時、その額に光り輝く星の印があったという。
+普通の子供として育ったが、ある日突然に世界が変わり始めた。
+
+「君が選ばれた者だ」——謎の老人はそう言った。
+
+ドパガキの持つ力は未知数だ。
+冒険を続けるほどに、その力は目覚めていく。
+
+そして全てのエンディングを見た時、
+真の使命が明らかになるだろう。`, unlocked: true },
+  { id:'l3', icon:'🌲', title:'もりの森の伝説', preview:'この森には古い精霊が棲んでいると言われている…', text: `もりの森は、この世界で最も古い森だと言われている。
+樹齢1000年を超える木々が静かに立ち並び、その間を無数の精霊が漂っている。
+
+「木の精霊トレント」はその森の守護者だ。
+正しき心の者には道を示し、邪なる者には牙を向く。
+
+かつてここに「緑の王」と呼ばれるエルフが住んでいた。
+しかし彼は暗黒神の力に魅了され、森を闇に染めようとした。
+
+今でも彼の亡霊が森の奥深くをさまよっているという。`, unlocked: false },
+  { id:'l4', icon:'🏜', title:'ほのおの砂漠の秘密', preview:'砂漠の中心には、灼熱の石碑があると言われている…', text: `ほのおの砂漠の中心部——そこには「炎の神殿」と呼ばれる遺跡がある。
+
+古代文明が残したこの神殿の中に、
+伝説の魔法「アルティマ」を記した石板が眠っているという。
+
+イフリートはその番人だ。
+何千年もの間、神殿を守り続けてきた炎の精霊王。
+
+彼を倒した者だけが、石板に触れる資格を得る。
+そして石板の言葉を解読できた者は——
+この世界の真実を知ることができると言われている。`, unlocked: false },
+  { id:'l5', icon:'🏰', title:'天空の城の謎', preview:'雲の上に浮かぶ城。そこには何があるのか…', text: `天空の城は、かつて「光の神エリオス」が住んでいた場所だ。
+
+エリオスが姿を消した後、城は時間の外に取り残された。
+そこに住む者たちは老いることなく、永遠の時を生きている。
+
+しかし彼らの心は次第に腐敗し、天使も悪魔も見分けがつかなくなった。
+
+暗黒竜ドラゴスはその城の最深部に潜んでいる。
+かつてエリオスの使いだった龍が、カオスの力に感染し、
+世界を終わらせようとしている。
+
+ドパガキよ——城の門を開く時が来た。`, unlocked: false },
+  { id:'l6', icon:'🌀', title:'虚無について', preview:'虚無とは何か。それを知る者は存在するのか…', text: `虚無——それは全ての存在が消えた後に残るもの。
+
+あるいは、存在する前から既にあったもの。
+
+「虚無の影」はカオスが生み出した最初の兵士だ。
+形を持たず、影だけで存在するその生物は、
+触れた者の記憶と感情を奪ってしまう。
+
+「ヴォイドロード」は虚無空間を支配する王だ。
+彼を倒すには、純粋な意志の力が必要だという。
+
+そして「混沌の神カオス」——
+全ての源であり、全ての終わりでもある存在。
+彼が目覚める時、世界は真の終焉を迎える。`, unlocked: false },
+  { id:'l7', icon:'💀', title:'12のエンディング伝説', preview:'世界には12通りの結末があるという古い予言…', text: `古い予言書にはこう書かれている：
+
+「星の導き子は12の運命の分かれ道に立つ。
+どの道を選ぶかで、世界の形が変わる。」
+
+全ての道には意味がある。
+敗北の道も、逃走の道も、正義の道も。
+
+真の英雄は全ての道を歩み、
+全ての結末を見届けた後に、
+始まりの場所へと戻る。
+
+その時——星の印が光り輝き、
+真のエンディングへの扉が開く。
+
+全12のエンディングを見よ、ドパガキよ。`, unlocked: true },
+  { id:'l8', icon:'🌸', title:'楽園の真実', preview:'楽園と呼ばれる場所。しかしその真実は…', text: `楽園——その名の通り、美しい場所だ。
+
+満開の桜が舞い、妖精たちが踊る。
+ここに来る者は永遠の幸福を約束されるという。
+
+しかし真実は違う。
+
+楽園は「時間の牢獄」だ。
+喜びと幸福を感じている間に、時間の感覚を失い、
+外の世界の事を忘れていく。
+
+ここで永遠を過ごすことを選ぶのも、一つの結末だ。
+だがドパガキよ、本当にそれで良いのか？
+
+楽園の奥に「ユニコーン」がいる。
+彼を倒して戻ることも、一つの選択だ。`, unlocked: false },
+];
+
+// ===== DATA: ACHIEVEMENTS =====
+const ACHIEVEMENTS = [
+  { id:'first_blood', name: 'はじめての一撃', icon: '⚔', desc: '初めての戦闘に勝利' },
+  { id:'level5', name: 'ルーキー', icon: '⭐', desc: 'レベル5に到達' },
+  { id:'level10', name: 'アドベンチャラー', icon: '🌟', desc: 'レベル10に到達' },
+  { id:'level20', name: '伝説の勇者', icon: '💫', desc: 'レベル20に到達' },
+  { id:'first_skill', name: '魔法師見習い', icon: '✨', desc: '初めてスキルを習得' },
+  { id:'rich', name: '大富豪', icon: '💰', desc: 'ゴールドを10000G以上持つ' },
+  { id:'first_boss', name: 'ボスキラー', icon: '🐲', desc: '初めてボスを倒した' },
+  { id:'all_areas', name: '世界の探索者', icon: '🗺', desc: '全エリアを解放' },
+  { id:'gacha10', name: 'ガチャ中毒者', icon: '🎰', desc: 'ガチャを10回引いた' },
+  { id:'legend_pull', name: '伝説の引き', icon: '💎', desc: 'LEGENDアイテムを入手' },
+  { id:'first_craft', name: 'クラフター', icon: '⚒', desc: 'アイテムをクラフトした' },
+  { id:'true_hero', name: '真の勇者', icon: '👑', desc: '全エンディングを達成' },
+];
+
+// ===== DATA: RANDOM EVENTS =====
+const EVENTS = [
+  { weight: 20, fn: ()=> { let g=Math.floor(Math.random()*50)+10; G.gold+=g; saveGame(); return [`<span class="msg-event">💰 道端にコインを発見した！</span>`, `<span class="msg-reward">ゴールドを${g}G手に入れた！</span>`] } },
+  { weight: 15, fn: ()=> { addItem('herb',1); return [`<span class="msg-event">🌿 薬草を発見した！</span>`, `<span class="msg-reward">やくそうをゲット！</span>`] } },
+  { weight: 10, fn: ()=> { gainExp(30); return [`<span class="msg-event">💡 新しいことを学んだ！</span>`, `<span class="msg-reward">EXPを30獲得！</span>`] } },
+  { weight: 8, fn: ()=> { let d=Math.floor(Math.random()*20)+5; G.hp=Math.max(1,G.hp-d); updateHeader(); return [`<span class="msg-danger">🕷 罠にかかってしまった！</span>`, `<span class="msg-danger">ダメージを${d}受けた！</span>`] } },
+  { weight: 6, fn: ()=> { addItem('potion',1); return [`<span class="msg-event">🧪 宝箱を発見！</span>`, `<span class="msg-reward">ポーションをゲット！</span>`] } },
+  { weight: 5, fn: ()=> { G.mp=Math.min(G.maxMp, G.mp+20); updateHeader(); return [`<span class="msg-event">🔮 魔力の泉を発見した！</span>`, `<span class="msg-reward">MPが20回復した！</span>`] } },
+  { weight: 4, fn: ()=> { let g=Math.floor(Math.random()*100)+50; G.gold+=g; saveGame(); return [`<span class="msg-event">🎉 宝の隠し場所を発見！</span>`, `<span class="msg-reward">ゴールドを${g}G手に入れた！</span>`] } },
+  { weight: 3, fn: ()=> { addItem('ore',1); return [`<span class="msg-event">⛏ 鉱脈を発見した！</span>`, `<span class="msg-reward">鉄鉱石をゲット！</span>`] } },
+  { weight: 2, fn: ()=> { gainExp(100); let g=100; G.gold+=g; saveGame(); return [`<span class="msg-event">🌟 古代の遺跡を発見！</span>`, `<span class="msg-reward">EXP100・ゴールド100Gをゲット！</span>`] } },
+  { weight: 1, fn: ()=> { addItem('crystal',1); return [`<span class="msg-event">💎 洞窟の奥に水晶が！</span>`, `<span class="msg-reward">魔力水晶をゲット！！</span>`] } },
+  { weight: 8, fn: ()=> { return [`<span class="msg-system">☁ 穏やかな風が吹いた。何も起こらなかった。</span>`] } },
+  { weight: 5, fn: ()=> { G.hp = Math.min(G.maxHp, G.hp + 15); updateHeader(); return [`<span class="msg-event">🍎 木の実を食べた。HPが15回復した。</span>`] } },
+];
+
+// ===== ENDINGS =====
+const ENDINGS = [
+  { id:'e01', icon:'🏆', title:'真の英雄エンド', color:'#ffbe0b', text: `暗黒竜ドラゴスを倒し、世界に平和が戻った。
+ドパガキは英雄として称えられ、
+世界中の人々から愛された。
+
+「冒険は終わったが、また始まる。
+今度は守るためではなく、
+楽しむために。」
+
+ドパガキの新たな冒険は続く——
+
+    END 01 「真の英雄」` },
+  { id:'e02', icon:'💀', title:'壮絶な死エンド', color:'#e17055', text: `ドパガキは戦いで力尽き、倒れた。
+しかし、その魂は星となり、
+夜空に輝き続けた。
+
+「負けたって、いいじゃないか。
+精一杯戦ったんだから。
+次は、必ず——」
+
+後の時代の歌人は歌った：
+「星の勇者は消えた。だがその光は永遠に残る」
+
+    END 02 「壮絶な死」` },
+  { id:'e03', icon:'🏃', title:'大脱走エンド', color:'#74b9ff', text: `ドパガキは戦いから逃げ出した。
+「俺には向かない！」と叫びながら。
+
+でも逃げた先で、小さな村人たちを助けた。
+英雄じゃなくても、誰かを守れる。
+
+「全力で逃げたら、たどり着いた場所が
+本当の居場所だった。」
+
+    END 03 「大脱走」` },
+  { id:'e04', icon:'😈', title:'闇落ちエンド', color:'#a29bfe', text: `ドパガキは暗黒の力に魅了され、
+カオスの側についた。
+
+「光より闇の方が、ずっと楽だ。
+誰かのために戦う必要もない。」
+
+世界は闇に包まれた。
+しかしドパガキの胸に、小さな後悔の火が燃えていた。
+
+「本当にこれで良かったのか——？」
+
+    END 04 「闇落ち」` },
+  { id:'e05', icon:'🌸', title:'楽園エンド', color:'#fd79a8', text: `ドパガキは楽園にたどり着き、
+そこから出ることを拒んだ。
+
+「ここにいれば、誰も傷つかない。
+誰も悲しまない。」
+
+時間を忘れ、永遠の春の中に。
+桜の花びらが舞い続ける中で。
+
+ドパガキはただ、微笑んでいた。
+
+    END 05 「楽園の夢」` },
+  { id:'e06', icon:'💍', title:'愛と平和エンド', color:'#fd79a8', text: `戦いの果て、ドパガキは大切な人を見つけた。
+剣を捨て、新しい生活を始めた。
+
+「世界を救う必要はなかった。
+この人の笑顔を守ればそれで十分だ。」
+
+小さな村に家を建て、
+子供たちに囲まれて生きた。
+
+    END 06 「愛の選択」` },
+  { id:'e07', icon:'⚔', title:'最強の戦士エンド', color:'#e17055', text: `ドパガキは混沌の神カオスまで倒した。
+戦いの中でしか生きられない——
+そう気づいてしまった。
+
+新たな脅威を求めて、別の次元へ。
+戦い続けることが、ドパガキの答えだった。
+
+「強さを磨き続ける限り、旅は終わらない。」
+
+    END 07 「永遠の戦士」` },
+  { id:'e08', icon:'🌟', title:'伝説エンド', color:'#ffd700', text: `全てのボスを倒し、全エリアを制覇したドパガキ。
+その名は世界中に轟いた。
+
+詩人たちは歌い、絵師たちは絵を描いた。
+「ドパガキ大冒険」という本が出版され、
+何千年もの間、語り継がれた。
+
+「俺の冒険は、終わった。
+でもこれから始まる者のために、
+この言葉を残す——」
+
+「諦めるな。」
+
+    END 08 「伝説の誕生」` },
+  { id:'e09', icon:'🌀', title:'虚無エンド', color:'#6c5ce7', text: `ドパガキは虚無の空間に一人残った。
+全てを倒し、全てを得た。
+しかし何も残らなかった。
+
+「これが……終わりか。」
+
+虚無の中で、ドパガキは目を閉じた。
+やがて新しい世界が生まれた——
+ドパガキを主人公とした新しい物語が。
+
+    END 09 「虚無の先へ」` },
+  { id:'e10', icon:'🔥', title:'火山神エンド', color:'#d63031', text: `火山神ウルカンとの激闘の末、
+ドパガキは炎の力を手に入れた。
+
+「俺が新しい火山の神だ！」
+
+世界の火を守ることを使命とし、
+人々を暖め、光を与え続けた。
+
+山頂から空を見上げ、
+「いい眺めだな」とつぶやいた。
+
+    END 10 「炎の守護者」` },
+  { id:'e11', icon:'🕊', title:'平和外交エンド', color:'#00b894', text: `ドパガキは戦わずに敵と話し合った。
+暗黒竜ドラゴスの涙の理由を聞いた。
+
+「俺はただ、認められたかっただけだ」とドラゴスは言った。
+
+剣を下ろし、手を差し伸べた。
+最強の敵が、最高の友になった。
+
+「力ではなく、言葉で世界を変えることができる。」
+
+    END 11 「平和の使者」` },
+  { id:'e12', icon:'👑', title:'真のエンド〜新たな神話〜', color:'#ffd700', text: `【全12エンディング解放——真のエンディング開放！】
+
+全ての道を歩んだドパガキ。
+全ての結末を見届けた後、
+始まりの場所へと戻った。
+
+額の星の印が黄金色に輝き、
+カオスの封印が完全に修復された。
+
+「エリオスよ、俺はやり遂げた。」
+
+天から光が降り注ぎ、エリオスの声が響く：
+「ありがとう、ドパガキ。
+お前は世界を、いや——
+無数の世界を救った。
+
+今からお前の名前は、
+新しい神話に刻まれる。」
+
+🌟 ドパガキ、世界の支柱となりぬ 🌟
+
+    FINAL END 12 「新たな神話」
+    
+    —— DOPAGAKI GRAND QUEST: COMPLETE ——` },
+];
+
+// ===== QUIZ QUESTIONS =====
+const QUIZ_QUESTIONS = [
+  { q: '日本の首都は？', a: 0, opts: ['東京', '大阪', '京都', '名古屋'] },
+  { q: '1+1=？', a: 1, opts: ['1', '2', '3', '4'] },
+  { q: '太陽系で最も大きな惑星は？', a: 2, opts: ['土星', '天王星', '木星', '海王星'] },
+  { q: '「Apple」の日本語は？', a: 0, opts: ['りんご', 'みかん', 'ぶどう', 'もも'] },
+  { q: '水の化学式は？', a: 3, opts: ['CO2', 'O2', 'H2', 'H2O'] },
+  { q: '三角形の内角の和は？', a: 1, opts: ['90度', '180度', '270度', '360度'] },
+  { q: '世界で最も高い山は？', a: 0, opts: ['エベレスト', '富士山', 'K2', 'マッターホルン'] },
+  { q: 'ドラゴンクエストの主人公の武器は？', a: 2, opts: ['槍', '弓', '剣', '斧'] },
+  { q: '「DOPAGAKI」の文字数は？', a: 3, opts: ['5', '6', '7', '8'] },
+  { q: '12のエンディングのうち最後のエンドは何番？', a: 3, opts: ['10', '11', '13', '12'] },
+];
+
+// ===== INIT =====
+function initGame() {
+  G = {
+    level: 1,
+    exp: 0,
+    nextExp: 100,
+    hp: 100,
+    maxHp: 100,
+    mp: 50,
+    maxMp: 50,
+    atk: 15,
+    def: 5,
+    speed: 10,
+    gold: 50,
+    sp: 0,
+    currentArea: 'village',
+    inventory: {},
+    equipment: { weapon: null, armor: null, accessory: null },
+    skills: {},
+    quests: JSON.parse(JSON.stringify(QUEST_DATA)),
+    achievements: {},
+    endings: [],
+    stats: { battles: 0, wins: 0, kills: {}, totalGold: 0, crafts: 0, gachaCount: 0, gachaHistory: [], explorations: 0 },
+    settings: { sfx: true, anim: true, save: true },
+    loreUnlocked: ['l1', 'l2', 'l7'],
+    classTitle: '冒険者',
+  };
+}
+
+function startNewGame() {
+  initGame();
+  saveGame();
+  enterGame();
+}
+
+function continueGame() {
+  loadGame();
+  enterGame();
+}
+
+function enterGame() {
+  document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  updateAll();
+  buildShop();
+  buildSkills();
+  buildCraft();
+  buildLore();
+  renderQuests();
+  setInterval(autoSave, 30000);
+}
+
+// ===== SAVE / LOAD =====
+function saveGame() {
+  if (!G.settings?.save && !SETTINGS.save) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const d = localStorage.getItem(SAVE_KEY);
+    if (d) {
+      G = JSON.parse(d);
+      // migrate missing fields
+      if (!G.stats.crafts) G.stats.crafts = 0;
+      if (!G.stats.gachaHistory) G.stats.gachaHistory = [];
+      if (!G.endings) G.endings = [];
+      if (!G.loreUnlocked) G.loreUnlocked = ['l1','l2','l7'];
+      if (!G.classTitle) G.classTitle = '冒険者';
+    } else { initGame(); }
+  } catch(e) { initGame(); }
+}
+
+function autoSave() { saveGame(); }
+
+function resetGame() {
+  if (!confirm('本当にリセットしますか？全データが消えます！')) return;
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+  initGame();
+  updateAll();
+  notify('ゲームデータをリセットしました', 'warn');
+}
+
+// Check for save on title
+window.addEventListener('load', () => {
+  try {
+    const d = localStorage.getItem(SAVE_KEY);
+    if (d) document.getElementById('continue-btn').style.display = 'block';
+  } catch(e) {}
+});
+
+// ===== UI HELPERS =====
+function updateAll() {
+  updateHeader();
+  updateStatusPanel();
+  updateInventoryPanel();
+  renderQuests();
+  updateSkillsPanel();
+  renderCraft();
+  document.getElementById('shop-gold').textContent = G.gold;
+  document.getElementById('gacha-gold').textContent = G.gold;
+  document.getElementById('sp-count').textContent = G.sp;
+}
+
+function updateHeader() {
+  document.getElementById('hdr-char').textContent = G.level >= 20 ? '🌟' : G.level >= 15 ? '💫' : G.level >= 10 ? '⭐' : '🐾';
+  document.getElementById('hdr-name').textContent = 'ドパガキ';
+  document.getElementById('hdr-level').textContent = `Lv.${G.level} ${G.classTitle}`;
+  document.getElementById('hdr-gold').textContent = G.gold;
+  const hpPct = Math.max(0, G.hp / G.maxHp * 100);
+  const mpPct = Math.max(0, G.mp / G.maxMp * 100);
+  const expPct = Math.min(100, G.exp / G.nextExp * 100);
+  document.getElementById('bar-hp').style.width = hpPct + '%';
+  document.getElementById('bar-hp').style.background = hpPct < 25 ? '#e17055' : hpPct < 50 ? '#fdcb6e' : 'var(--hp-color)';
+  document.getElementById('bar-mp').style.width = mpPct + '%';
+  document.getElementById('bar-exp').style.width = expPct + '%';
+  document.getElementById('bar-hp-num').textContent = `${G.hp}/${G.maxHp}`;
+  document.getElementById('bar-mp-num').textContent = `${G.mp}/${G.maxMp}`;
+  document.getElementById('bar-exp-num').textContent = `${G.exp}/${G.nextExp}`;
+  document.getElementById('shop-gold').textContent = G.gold;
+  document.getElementById('gacha-gold').textContent = G.gold;
+  document.getElementById('sp-count').textContent = G.sp;
+  checkAchievements();
+  checkQuestProgress();
+}
+
+function switchPanel(name, el) {
+  document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'status') updateStatusPanel();
+  if (name === 'skills') updateSkillsPanel();
+  if (name === 'inventory') updateInventoryPanel();
+  if (name === 'shop') buildShop();
+  if (name === 'craft') renderCraft();
+  if (name === 'lore') buildLore();
+  if (name === 'quests') renderQuests();
+  if (name === 'minigames') { document.getElementById('minigame-home').style.display = ''; document.getElementById('minigame-area').style.display = 'none'; }
+}
+
+function notify(msg, type='') {
+  const area = document.getElementById('notif-area');
+  const n = document.createElement('div');
+  n.className = 'notif ' + type;
+  n.textContent = msg;
+  area.appendChild(n);
+  setTimeout(() => n.remove(), 3000);
+}
+
+function showMessage(lines) {
+  const box = document.getElementById('message-box');
+  box.innerHTML = lines.map(l => `<p>${l}</p>`).join('');
+}
+
+function setArea(areaId) {
+  const area = AREAS.find(a => a.id === areaId);
+  if (!area) return;
+  G.currentArea = areaId;
+  document.getElementById('area-name').textContent = area.name;
+  document.getElementById('area-desc').textContent = area.desc;
+  document.getElementById('scene-art').textContent = area.art;
+  saveGame();
+}
+
+// ===== LEVEL UP =====
+function gainExp(amount) {
+  G.exp += amount;
+  let leveled = false;
+  while (G.exp >= G.nextExp) {
+    G.exp -= G.nextExp;
+    G.level++;
+    G.nextExp = Math.floor(100 * Math.pow(1.4, G.level - 1));
+    G.maxHp += 20;
+    G.hp = G.maxHp;
+    G.maxMp += 8;
+    G.mp = G.maxMp;
+    G.atk += 3;
+    G.def += 2;
+    G.sp += 1;
+    leveled = true;
+    // Update class title
+    if (G.level >= 20) G.classTitle = '世界の救済者';
+    else if (G.level >= 15) G.classTitle = '伝説の勇者';
+    else if (G.level >= 12) G.classTitle = '英雄';
+    else if (G.level >= 10) G.classTitle = '勇者';
+    else if (G.level >= 7) G.classTitle = '戦士';
+    else if (G.level >= 5) G.classTitle = '見習い戦士';
+    else G.classTitle = '冒険者';
+    // Unlock areas
+    AREAS.forEach(a => { if (G.level >= a.minLevel) a.unlocked = true; });
+    notify(`🌟 レベルアップ！ Lv.${G.level}になった！`, 'level');
+    spawnParticles();
+  }
+  updateHeader();
+  saveGame();
+  if (leveled) checkAchievements();
+}
+
+// ===== ADVENTURE ACTIONS =====
+function doExplore() {
+  G.stats.explorations++;
+  const area = AREAS.find(a => a.id === G.currentArea);
+  const event = weightedRandom(EVENTS);
+  const lines = event.fn();
+  showMessage(lines);
+  // Chance to unlock lore
+  if (Math.random() < 0.1) unlockRandomLore();
+  updateHeader();
+  saveGame();
+}
+
+function doBattle() {
+  const area = AREAS.find(a => a.id === G.currentArea);
+  if (!area) return;
+  const enemyId = area.enemies[Math.floor(Math.random() * area.enemies.length)];
+  startBattle(enemyId);
+}
+
+function doRest() {
+  const restHp = Math.floor(G.maxHp * 0.3);
+  const restMp = Math.floor(G.maxMp * 0.3);
+  G.hp = Math.min(G.maxHp, G.hp + restHp);
+  G.mp = Math.min(G.maxMp, G.mp + restMp);
+  updateHeader();
+  saveGame();
+  showMessage([
+    `<span class="msg-system">💤 ドパガキは休んだ。</span>`,
+    `<span class="msg-reward">HPが${restHp}、MPが${restMp}回復した。</span>`,
+  ]);
+}
+
+function doEvent() {
+  const rolls = [
+    () => { let g = Math.floor(Math.random()*200)+20; G.gold += g; return [`<span class="msg-event">🎁 不思議な商人に会った！</span>`, `<span class="msg-reward">ゴールドを${g}G貰った！</span>`]; },
+    () => { gainExp(50); return [`<span class="msg-event">📚 古い本を発見した！</span>`, `<span class="msg-reward">EXPを50獲得！</span>`]; },
+    () => { G.hp=Math.max(1,G.hp-30); return [`<span class="msg-danger">⚡ 突然の嵐！</span>`, `<span class="msg-danger">ダメージを30受けた！</span>`]; },
+    () => { addItem('potion',2); return [`<span class="msg-event">🏺 古代の壺を発見！</span>`, `<span class="msg-reward">ポーションを2つゲット！</span>`]; },
+    () => { gainExp(100); G.gold+=100; return [`<span class="msg-event">🌟 精霊に祝福された！</span>`, `<span class="msg-reward">EXP100 + ゴールド100G！</span>`]; },
+    () => { addItem('crystal',1); return [`<span class="msg-event">💎 洞窟の奥で輝く水晶を発見！</span>`, `<span class="msg-reward">魔力水晶をゲット！</span>`]; },
+    () => { G.mp=G.maxMp; return [`<span class="msg-event">🔮 魔力の泉！</span>`, `<span class="msg-reward">MPが全回復した！</span>`]; },
+    () => { if(Math.random()<0.1){addItem('scale',1);return [`<span class="msg-event">🐉 龍の巣を発見！</span>`, `<span class="msg-reward">ドラゴンの鱗をゲット！</span>`];}; return [`<span class="msg-event">🐉 龍の影を見た…逃げ出した。</span>`]; },
+  ];
+  const fn = rolls[Math.floor(Math.random() * rolls.length)];
+  const lines = fn();
+  showMessage(lines);
+  updateHeader();
+  saveGame();
+}
+
+// ===== BATTLE SYSTEM =====
+let battleEnemy = null;
+let playerStatus = {};
+let enemyStatus = {};
+
+function startBattle(enemyId) {
+  const template = ENEMIES[enemyId];
+  if (!template) return;
+  battleEnemy = JSON.parse(JSON.stringify(template));
+  playerStatus = { shield: 0, regen: 0, berserk: 0, revived: false, freeze: 0, stun: 0, poison: 0 };
+  enemyStatus = { stun: 0, freeze: 0, poison: 0 };
+  G.stats.battles++;
+
+  document.getElementById('b-player-art').textContent = G.level >= 15 ? '💫' : G.level >= 10 ? '⭐' : '🐾';
+  document.getElementById('b-player-name').textContent = 'ドパガキ (Lv.' + G.level + ')';
+  document.getElementById('b-enemy-art').textContent = battleEnemy.art;
+  document.getElementById('b-enemy-name').textContent = battleEnemy.name;
+  if (battleEnemy.isBoss) {
+    document.getElementById('b-enemy-name').textContent = '【BOSS】' + battleEnemy.name;
+    document.getElementById('b-enemy-name').style.color = '#e17055';
+  } else {
+    document.getElementById('b-enemy-name').style.color = '';
+  }
+  updateBattleUI();
+  document.getElementById('battle-log').innerHTML = `<span class="msg-danger">⚔ ${battleEnemy.name}が現れた！</span>\n`;
+  document.getElementById('battle-overlay').classList.add('active');
+  setBattleBtnsEnabled(true);
+}
+
+function updateBattleUI() {
+  if (!battleEnemy) return;
+  const php = Math.max(0, G.hp / G.maxHp * 100);
+  const ehp = Math.max(0, battleEnemy.hp / battleEnemy.maxHp * 100);
+  document.getElementById('b-player-hp').style.width = php + '%';
+  document.getElementById('b-player-hp-text').textContent = `${G.hp}/${G.maxHp}`;
+  document.getElementById('b-player-mp-text').textContent = `MP: ${G.mp}/${G.maxMp}`;
+  document.getElementById('b-enemy-hp').style.width = ehp + '%';
+  document.getElementById('b-enemy-hp-text').textContent = `${battleEnemy.hp}/${battleEnemy.maxHp}`;
+  // Status
+  let statuses = [];
+  if (playerStatus.shield > 0) statuses.push('🛡');
+  if (playerStatus.regen > 0) statuses.push('♻');
+  if (playerStatus.berserk > 0) statuses.push('💢');
+  let eStatuses = [];
+  if (enemyStatus.stun > 0) eStatuses.push('⚡スタン');
+  if (enemyStatus.freeze > 0) eStatuses.push('❄凍結');
+  if (enemyStatus.poison > 0) eStatuses.push('💚毒');
+  document.getElementById('b-enemy-status').textContent = eStatuses.join(' ');
+}
+
+function appendBattleLog(text) {
+  const log = document.getElementById('battle-log');
+  log.innerHTML += text + '\n';
+  log.scrollTop = log.scrollHeight;
+}
+
+function setBattleBtnsEnabled(en) {
+  ['btn-attack','btn-skill','btn-item','btn-flee'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !en;
+  });
+}
+
+function calcPlayerAtk() {
+  let atk = G.atk;
+  if (G.equipment.weapon && ITEM_DATA[G.equipment.weapon]?.effect?.atk) atk += ITEM_DATA[G.equipment.weapon].effect.atk;
+  if (playerStatus.berserk > 0) atk *= 3;
+  return atk;
+}
+function calcPlayerDef() {
+  let def = G.def;
+  if (G.equipment.armor && ITEM_DATA[G.equipment.armor]?.effect?.def) def += ITEM_DATA[G.equipment.armor].effect.def;
+  if (playerStatus.shield > 0) def *= 2;
+  return def;
+}
+
+function battleAction(action) {
+  if (!battleEnemy) return;
+  setBattleBtnsEnabled(false);
+  let playerMsg = '';
+  let dmgDealt = 0;
+
+  if (action === 'attack') {
+    if (enemyStatus.stun > 0) { appendBattleLog('⚡ 敵はスタン中！'); enemyStatus.stun--; }
+    const baseAtk = calcPlayerAtk();
+    dmgDealt = Math.max(1, baseAtk - battleEnemy.def + Math.floor(Math.random() * 10) - 5);
+    if (Math.random() < 0.15) { dmgDealt = Math.floor(dmgDealt * 2); appendBattleLog('<span style="color:#ffbe0b">💥 クリティカルヒット！</span>'); }
+    battleEnemy.hp -= dmgDealt;
+    showDamageFloat(dmgDealt, '#e17055');
+    playerMsg = `⚔ ドパガキの攻撃！ <span style="color:#e17055">${battleEnemy.name}に${dmgDealt}ダメージ！</span>`;
+  } else if (action === 'flee') {
+    const chance = G.speed > battleEnemy.atk ? 0.75 : 0.4;
+    if (Math.random() < chance) {
+      appendBattleLog('💨 うまく逃げ出した！');
+      endBattle(false, true);
+      return;
+    } else {
+      appendBattleLog('<span class="msg-danger">💨 逃げようとしたが失敗した！</span>');
+      // Enemy turn only
+      doEnemyTurn();
+      return;
+    }
+  } else if (action === 'item') {
+    // Auto use best available item
+    if (G.inventory.potion > 0) {
+      useItemInBattle('potion');
+    } else if (G.inventory.highPotion > 0) {
+      useItemInBattle('highPotion');
+    } else if (G.inventory.megaPotion > 0) {
+      useItemInBattle('megaPotion');
+    } else if (G.inventory.bomb > 0) {
+      useItemInBattle('bomb');
+    } else {
+      appendBattleLog('使えるアイテムがない！');
+      setBattleBtnsEnabled(true);
+      return;
+    }
+    return;
+  }
+
+  if (playerMsg) appendBattleLog(playerMsg);
+
+  // Check enemy death
+  if (battleEnemy.hp <= 0) {
+    // Phoenix revival
+    if (battleEnemy.revive && !battleEnemy._revived) {
+      battleEnemy._revived = true;
+      battleEnemy.hp = Math.floor(battleEnemy.maxHp * 0.5);
+      appendBattleLog(`<span style="color:#ff6b35">🦅 フェニックスが復活した！HPが半分で蘇る！</span>`);
+      updateBattleUI();
+      doEnemyTurn();
+      return;
+    }
+    endBattle(true, false);
+    return;
+  }
+
+  updateBattleUI();
+  // Enemy turn
+  setTimeout(() => doEnemyTurn(), 400);
+}
+
+function useItemInBattle(itemId) {
+  if (!G.inventory[itemId] || G.inventory[itemId] <= 0) { setBattleBtnsEnabled(true); return; }
+  const item = ITEM_DATA[itemId];
+  G.inventory[itemId]--;
+  if (item.effect?.hp) { const h = Math.min(G.maxHp - G.hp, item.effect.hp); G.hp = Math.min(G.maxHp, G.hp + item.effect.hp); appendBattleLog(`🧪 ${item.name}を使った！HPが${Math.min(h, item.effect.hp)}回復！`); }
+  if (item.effect?.mp) { G.mp = Math.min(G.maxMp, G.mp + item.effect.mp); appendBattleLog(`🔵 ${item.name}を使った！MPが回復！`); }
+  if (item.effect?.dmg) { battleEnemy.hp -= item.effect.dmg; showDamageFloat(item.effect.dmg, '#ffbe0b'); appendBattleLog(`💣 ${item.name}を投げた！${battleEnemy.name}に${item.effect.dmg}ダメージ！`); }
+  updateBattleUI();
+  if (battleEnemy.hp <= 0) { endBattle(true, false); return; }
+  setTimeout(() => doEnemyTurn(), 400);
+}
+
+function doEnemyTurn() {
+  if (!battleEnemy) return;
+  // Regen
+  if (playerStatus.regen > 0) { const r = 15; G.hp = Math.min(G.maxHp, G.hp + r); appendBattleLog(`♻ リジェネ効果でHPが${r}回復した！`); playerStatus.regen--; }
+  // Enemy regen
+  if (battleEnemy.regen) { battleEnemy.hp = Math.min(battleEnemy.maxHp, battleEnemy.hp + battleEnemy.regen); }
+  // Decrement buffs
+  if (playerStatus.shield > 0) playerStatus.shield--;
+  if (playerStatus.berserk > 0) playerStatus.berserk--;
+  // Enemy stun/freeze
+  if (enemyStatus.stun > 0) { enemyStatus.stun--; appendBattleLog(`${battleEnemy.name}はスタン中で動けない！`); updateBattleUI(); setBattleBtnsEnabled(true); return; }
+  if (enemyStatus.freeze > 0) { enemyStatus.freeze--; appendBattleLog(`${battleEnemy.name}は凍っている！`); updateBattleUI(); setBattleBtnsEnabled(true); return; }
+
+  // Enemy attacks
+  let eAtk = battleEnemy.atk - calcPlayerDef() + Math.floor(Math.random() * 8) - 4;
+  eAtk = Math.max(1, eAtk);
+  if (playerStatus.shield > 0) eAtk = Math.max(1, Math.floor(eAtk * 0.3));
+  
+  // Special abilities
+  if (battleEnemy.poison && Math.random() < 0.3) {
+    playerStatus.poison = 3;
+    appendBattleLog(`<span class="msg-danger">🧪 ${battleEnemy.name}の毒攻撃！毒状態になった！</span>`);
+  }
+  if (battleEnemy.charm && Math.random() < 0.2) {
+    appendBattleLog(`<span class="msg-danger">💕 セイレーンの歌に魅了された！1ターン動けない！</span>`);
+    G.hp -= eAtk;
+    updateBattleUI();
+    setBattleBtnsEnabled(true);
+    return;
+  }
+  if (battleEnemy.isTrueFinal && Math.random() < 0.3) {
+    eAtk = Math.floor(G.maxHp * 0.4);
+    appendBattleLog(`<span class="msg-danger">💀 混沌の神の呪詛！ 大ダメージ！</span>`);
+  }
+
+  // Poison damage
+  if (playerStatus.poison > 0) { const pd = 15; G.hp -= pd; playerStatus.poison--; appendBattleLog(`<span class="msg-danger">🧪 毒ダメージ！${pd}受けた！</span>`); }
+
+  G.hp -= eAtk;
+  showDamageFloat(eAtk, '#8338ec', true);
+  appendBattleLog(`<span class="msg-danger">${battleEnemy.art} ${battleEnemy.name}の攻撃！ ドパガキに${eAtk}ダメージ！</span>`);
+  updateBattleUI();
+  updateHeader();
+
+  if (G.hp <= 0) {
+    // Check revive skill
+    if (G.skills.revive && !playerStatus.revived) {
+      playerStatus.revived = true;
+      G.hp = Math.floor(G.maxHp * 0.3);
+      appendBattleLog(`<span style="color:#ffbe0b">💫 リバイブ発動！HPが${G.hp}で復活！</span>`);
+      updateBattleUI();
+      setBattleBtnsEnabled(true);
+      return;
+    }
+    G.hp = 1;
+    endBattle(false, false);
+    return;
+  }
+  setBattleBtnsEnabled(true);
+}
+
+function openSkillMenu() {
+  const learnedSkills = ALL_SKILLS.filter(s => G.skills[s.id]);
+  if (learnedSkills.length === 0) { appendBattleLog('使えるスキルがない！'); return; }
+  const menu = document.getElementById('skill-menu');
+  menu.style.display = 'grid';
+  menu.style.gridTemplateColumns = '1fr 1fr';
+  menu.style.gap = '6px';
+  menu.innerHTML = learnedSkills.map(s => `
+    <button class="battle-btn skill-btn" onclick="useSkill('${s.id}')" ${G.mp < s.mpCost ? 'disabled' : ''}>
+      ${s.icon} ${s.name}<br><span style="font-size:0.72em;color:var(--mp-color)">MP${s.mpCost}</span>
+    </button>
+  `).join('') + `<button class="battle-btn" onclick="document.getElementById('skill-menu').style.display='none';" style="grid-column:1/-1">キャンセル</button>`;
+}
+
+function useSkill(skillId) {
+  const skill = ALL_SKILLS.find(s => s.id === skillId);
+  if (!skill || G.mp < skill.mpCost) { appendBattleLog('MPが足りない！'); return; }
+  document.getElementById('skill-menu').style.display = 'none';
+  G.mp -= skill.id === 'ultima' ? G.mp : skill.mpCost;
+  if (skill.id === 'ultima') G.mp = 0;
+  
+  if (skill.type === 'attack') {
+    const matk = G.atk + (ITEM_DATA[G.equipment.weapon]?.effect?.matk || 0);
+    let dmg = Math.floor(matk * skill.dmg);
+    if (skill.id === 'holy' && (battleEnemy.id === 'zombie' || battleEnemy.id === 'shadow')) dmg = Math.floor(dmg * 2);
+    if (skill.drain) { const drainHp = Math.floor(dmg * skill.drain); G.hp = Math.min(G.maxHp, G.hp + drainHp); appendBattleLog(`🩸 HPを${drainHp}吸収した！`); }
+    battleEnemy.hp -= dmg;
+    showDamageFloat(dmg, '#ffbe0b');
+    appendBattleLog(`${skill.icon} ${skill.name}！ <span style="color:#ffbe0b">${battleEnemy.name}に${dmg}のダメージ！</span>`);
+    if (skill.stun && Math.random() < skill.stun) { enemyStatus.stun = 2; appendBattleLog('⚡ スタン！'); }
+    if (skill.freeze && Math.random() < skill.freeze) { enemyStatus.freeze = 2; appendBattleLog('❄ 凍結！'); }
+  } else if (skill.type === 'heal') {
+    G.hp = Math.min(G.maxHp, G.hp + skill.heal);
+    appendBattleLog(`${skill.icon} ${skill.name}！ HPが${skill.heal}回復！`);
+    showDamageFloat('+' + skill.heal, '#06d6a0', true);
+  } else if (skill.type === 'buff') {
+    if (skill.id === 'shield') { playerStatus.shield = 3; appendBattleLog('🛡 シールド！3ターン防御UP！'); }
+    if (skill.id === 'regen') { playerStatus.regen = 3; appendBattleLog('♻ リジェネ！3ターンHP回復！'); }
+    if (skill.id === 'berserk') { playerStatus.berserk = 3; appendBattleLog('💢 バーサーク！攻撃力3倍！（防御0）'); }
+  }
+
+  updateBattleUI();
+  updateHeader();
+  if (battleEnemy.hp <= 0) { endBattle(true, false); return; }
+  setTimeout(() => doEnemyTurn(), 400);
+}
+
+function endBattle(won, fled) {
+  document.getElementById('battle-overlay').classList.remove('active');
+  G.stats.battles++;
+  if (won) {
+    G.stats.wins++;
+    if (!G.stats.kills[battleEnemy.name]) G.stats.kills[battleEnemy.name] = 0;
+    G.stats.kills[battleEnemy.name]++;
+    gainExp(battleEnemy.exp);
+    G.gold += battleEnemy.gold;
+    G.stats.totalGold += battleEnemy.gold;
+    showMessage([
+      `<span class="msg-event">🏆 ${battleEnemy.name}を倒した！</span>`,
+      `<span class="msg-reward">EXP +${battleEnemy.exp}、ゴールド +${battleEnemy.gold}G！</span>`,
+    ]);
+    // Drop item
+    const drops = ['herb','ore','potion','crystal','scale','darkShard'];
+    if (Math.random() < 0.35) { const drop = drops[Math.floor(Math.random()*drops.length)]; addItem(drop,1); showMessage([...document.getElementById('message-box').querySelectorAll('p')].map(p=>p.innerHTML), [`<span class="msg-reward">💎 ${ITEM_DATA[drop].icon} ${ITEM_DATA[drop].name}をドロップ！</span>`]); }
+    // Boss check
+    if (battleEnemy.isBoss) { unlockAchievement('first_boss'); checkBossEnding(battleEnemy); }
+    if (!G.achievements['first_blood']) unlockAchievement('first_blood');
+    // Quest updates
+    updateKillQuest(battleEnemy);
+    spawnParticles();
+  } else if (fled) {
+    showMessage([`<span class="msg-system">💨 逃げ出した。</span>`]);
+    // Flee ending
+    if (!G.endings.includes('e03') && Math.random() < 0.1) triggerEnding('e03');
+  } else {
+    G.hp = Math.max(1, Math.floor(G.maxHp * 0.1));
+    showMessage([
+      `<span class="msg-danger">💀 ドパガキは倒れてしまった！</span>`,
+      `<span class="msg-system">村に戻り、かろうじて命をつなぎとめた。</span>`,
+    ]);
+    // Death ending trigger
+    if (G.stats.wins === 0 && !G.endings.includes('e02')) triggerEnding('e02');
+  }
+  updateHeader();
+  saveGame();
+  battleEnemy = null;
+}
+
+function checkBossEnding(enemy) {
+  if (enemy.id === 'finalBoss' && !G.endings.includes('e01')) {
+    // Final boss of sky -> e01
+    setTimeout(() => triggerEnding('e01'), 1000);
+  }
+  if (enemy.isTrueFinal && !G.endings.includes('e07')) {
+    setTimeout(() => triggerEnding('e07'), 1000);
+    setTimeout(() => triggerEnding('e09'), 2000);
+  }
+  if (enemy.id === 'chaos' && !G.endings.includes('e10')) {
+    setTimeout(() => triggerEnding('e10'), 1000);
+  }
+  if (enemy.id === 'phoenix' && !G.endings.includes('e10')) {
+    setTimeout(() => triggerEnding('e10'), 1000);
+  }
+  if (enemy.id === 'volcano' && !G.endings.includes('e10')) {
+    setTimeout(() => triggerEnding('e10'), 1000);
+  }
+  if (enemy.id === 'unicorn' && !G.endings.includes('e05')) {
+    setTimeout(() => triggerEnding('e05'), 1000);
+  }
+  if (enemy.id === 'void' && !G.endings.includes('e09')) {
+    setTimeout(() => triggerEnding('e09'), 1000);
+  }
+}
+
+function updateKillQuest(enemy) {
+  G.quests.forEach(q => {
+    if (q.status !== 'active') return;
+    if (q.target.type === 'kill') {
+      const eName = ENEMIES[q.target.enemy]?.name;
+      if (eName === enemy.name || q.target.enemy === 'finalBoss' && enemy.isBoss) {
+        q.progress = Math.min(q.target.count, (q.progress || 0) + 1);
+      }
+    }
+  });
+  renderQuests();
+}
+
+function showDamageFloat(dmg, color, isLeft = false) {
+  const el = document.createElement('div');
+  el.className = 'damage-float';
+  el.textContent = (typeof dmg === 'string' ? dmg : '-' + dmg);
+  el.style.color = color;
+  el.style.left = (isLeft ? 30 : 55) + '%';
+  el.style.top = '40%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ===== STATUS PANEL =====
+function updateStatusPanel() {
+  const totalKills = Object.values(G.stats.kills).reduce((a,b) => a+b, 0);
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-title">⚔ 戦闘</div>
+      <div class="stat-row"><span class="stat-label">戦闘数</span><span class="stat-value">${G.stats.battles}</span></div>
+      <div class="stat-row"><span class="stat-label">勝利数</span><span class="stat-value">${G.stats.wins}</span></div>
+      <div class="stat-row"><span class="stat-label">総討伐数</span><span class="stat-value">${totalKills}</span></div>
+      <div class="stat-row"><span class="stat-label">探索回数</span><span class="stat-value">${G.stats.explorations}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">📊 ステータス</div>
+      <div class="stat-row"><span class="stat-label">攻撃力</span><span class="stat-value">${calcPlayerAtk()}</span></div>
+      <div class="stat-row"><span class="stat-label">防御力</span><span class="stat-value">${calcPlayerDef()}</span></div>
+      <div class="stat-row"><span class="stat-label">素早さ</span><span class="stat-value">${G.speed}</span></div>
+      <div class="stat-row"><span class="stat-label">SP</span><span class="stat-value">${G.sp}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">💰 経済</div>
+      <div class="stat-row"><span class="stat-label">所持金</span><span class="stat-value">${G.gold}G</span></div>
+      <div class="stat-row"><span class="stat-label">累計獲得</span><span class="stat-value">${G.stats.totalGold}G</span></div>
+      <div class="stat-row"><span class="stat-label">クラフト数</span><span class="stat-value">${G.stats.crafts}</span></div>
+      <div class="stat-row"><span class="stat-label">ガチャ回数</span><span class="stat-value">${G.stats.gachaCount}</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">🎯 エンディング</div>
+      <div class="stat-row"><span class="stat-label">解放数</span><span class="stat-value">${G.endings.length}/12</span></div>
+      <div class="stat-row"><span class="stat-label">真エンド</span><span class="stat-value">${G.endings.includes('e12') ? '✅' : '🔒'}</span></div>
+      <div class="stat-row"><span class="stat-label">ロア</span><span class="stat-value">${G.loreUnlocked.length}/${LORE_DATA.length}</span></div>
+      <div class="stat-row"><span class="stat-label">実績</span><span class="stat-value">${Object.keys(G.achievements).length}/${ACHIEVEMENTS.length}</span></div>
+    </div>
+  `;
+  // Achievements
+  document.getElementById('achievement-grid').innerHTML = ACHIEVEMENTS.map(a => `
+    <div class="achievement-card ${G.achievements[a.id] ? 'unlocked' : ''}">
+      <div class="achievement-icon">${a.icon}</div>
+      <div class="achievement-name">${a.name}</div>
+      <div class="achievement-desc">${a.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ===== SKILLS PANEL =====
+function updateSkillsPanel() {
+  document.getElementById('sp-count').textContent = G.sp;
+  document.getElementById('skills-grid').innerHTML = ALL_SKILLS.map(s => {
+    const learned = G.skills[s.id];
+    const canLearn = !learned && G.level >= s.reqLevel && G.sp >= s.spCost;
+    const locked = G.level < s.reqLevel;
+    return `
+      <div class="skill-card ${learned ? 'learned' : locked ? 'locked' : ''}">
+        <div class="skill-header">
+          <span class="skill-icon">${s.icon}</span>
+          <div>
+            <div class="skill-name">${s.name}</div>
+            <div class="skill-level">必要Lv.${s.reqLevel} | SP${s.spCost}</div>
+          </div>
+        </div>
+        <div class="skill-desc">${s.desc}</div>
+        <div class="skill-cost">MP消費: ${s.mpCost}</div>
+        ${learned ? '<div style="font-size:0.78em;color:var(--accent4);margin-top:6px;">✅ 習得済み</div>' :
+          `<button class="skill-learn-btn" onclick="learnSkill('${s.id}')" ${canLearn ? '' : 'disabled'}>${locked ? '🔒 Lv.'+s.reqLevel+'必要' : canLearn ? '習得する' : 'SP不足'}</button>`
+        }
+      </div>
+    `;
+  }).join('');
+}
+
+function learnSkill(skillId) {
+  const s = ALL_SKILLS.find(x => x.id === skillId);
+  if (!s || G.skills[s.id] || G.sp < s.spCost || G.level < s.reqLevel) return;
+  G.sp -= s.spCost;
+  G.skills[s.id] = true;
+  notify(`${s.icon} ${s.name}を習得した！`, 'level');
+  const learnedCount = Object.keys(G.skills).length;
+  if (learnedCount === 1) unlockAchievement('first_skill');
+  // Quest
+  G.quests.forEach(q => {
+    if (q.target.type === 'skills') q.progress = learnedCount;
+  });
+  updateSkillsPanel();
+  updateHeader();
+  saveGame();
+}
+
+// ===== INVENTORY PANEL =====
+function updateInventoryPanel() {
+  // Equipment slots
+  const slots = [
+    { slot: 'weapon', label: '武器' },
+    { slot: 'armor', label: '防具' },
+    { slot: 'accessory', label: 'アクセ' },
+  ];
+  document.getElementById('equip-grid').innerHTML = slots.map(s => {
+    const eq = G.equipment[s.slot];
+    const item = eq ? ITEM_DATA[eq] : null;
+    return `<div class="equip-slot"><span class="equip-slot-label">${s.label}</span><span class="equip-slot-item">${item ? item.icon + ' ' + item.name : '---'}</span>${eq ? `<button onclick="unequipItem('${s.slot}')" style="margin-left:auto;background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:2px 8px;border-radius:6px;cursor:pointer;font-size:0.72em;">外す</button>` : ''}</div>`;
+  }).join('');
+  // Inventory
+  const items = Object.entries(G.inventory).filter(([k,v]) => v > 0);
+  let slots2 = '';
+  items.forEach(([id, count]) => {
+    const item = ITEM_DATA[id];
+    if (!item) return;
+    slots2 += `<div class="inv-slot" onclick="showItemDetail('${id}')">
+      <div class="inv-slot-icon">${item.icon}</div>
+      <div class="inv-slot-name">${item.name}</div>
+      <div class="inv-slot-count">x${count}</div>
+    </div>`;
+  });
+  if (!items.length) slots2 = '<div style="color:var(--text2);font-size:0.85em;grid-column:1/-1;padding:20px;text-align:center;">アイテムなし</div>';
+  document.getElementById('inventory-grid').innerHTML = slots2;
+}
+
+function showItemDetail(itemId) {
+  const item = ITEM_DATA[itemId];
+  if (!item) return;
+  document.getElementById('item-icon').textContent = item.icon;
+  document.getElementById('item-name').textContent = item.name;
+  document.getElementById('item-desc').textContent = item.desc + (item.effect ? '\n' + Object.entries(item.effect).map(([k,v]) => k+': '+v).join(', ') : '');
+  const btns = document.getElementById('item-btns');
+  let html = '';
+  if (item.type === 'consumable') html += `<button class="item-use-btn" onclick="useItem('${itemId}'); closeItemOverlay();">使う</button>`;
+  if (item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory') html += `<button class="item-equip-btn" onclick="equipItem('${itemId}'); closeItemOverlay();">装備する</button>`;
+  html += `<button class="item-close-btn" onclick="closeItemOverlay()">閉じる</button>`;
+  btns.innerHTML = html;
+  document.getElementById('item-overlay').classList.add('active');
+}
+
+function closeItemOverlay() { document.getElementById('item-overlay').classList.remove('active'); }
+
+function useItem(itemId) {
+  if (!G.inventory[itemId] || G.inventory[itemId] <= 0) return;
+  const item = ITEM_DATA[itemId];
+  if (!item || item.type !== 'consumable') return;
+  G.inventory[itemId]--;
+  if (G.inventory[itemId] <= 0) delete G.inventory[itemId];
+  if (item.effect?.hp) { G.hp = Math.min(G.maxHp, G.hp + item.effect.hp); notify(`💚 HPが${item.effect.hp}回復した！`); }
+  if (item.effect?.mp) { G.mp = Math.min(G.maxMp, G.mp + item.effect.mp); notify(`🔮 MPが回復した！`); }
+  if (item.effect?.cure) notify(`✅ ${item.effect.cure}を治した！`);
+  updateHeader();
+  updateInventoryPanel();
+  saveGame();
+}
+
+function equipItem(itemId) {
+  const item = ITEM_DATA[itemId];
+  if (!item) return;
+  const slot = item.type === 'weapon' ? 'weapon' : item.type === 'armor' ? 'armor' : 'accessory';
+  // Unequip old
+  if (G.equipment[slot]) {
+    const old = G.equipment[slot];
+    addItem(old, 1);
+    const oldData = ITEM_DATA[old];
+    if (oldData?.effect?.hp) G.maxHp -= oldData.effect.hp;
+    if (oldData?.effect?.mp) G.maxMp -= oldData.effect.mp;
+  }
+  // Remove from inv
+  if (G.inventory[itemId] > 1) G.inventory[itemId]--;
+  else delete G.inventory[itemId];
+  G.equipment[slot] = itemId;
+  // Apply effects
+  if (item.effect?.hp) { G.maxHp += item.effect.hp; G.hp = Math.min(G.maxHp, G.hp + item.effect.hp); }
+  if (item.effect?.mp) { G.maxMp += item.effect.mp; G.mp = Math.min(G.maxMp, G.mp + item.effect.mp); }
+  notify(`${item.icon} ${item.name}を装備した！`);
+  updateHeader();
+  updateInventoryPanel();
+  saveGame();
+}
+
+function unequipItem(slot) {
+  const itemId = G.equipment[slot];
+  if (!itemId) return;
+  const item = ITEM_DATA[itemId];
+  addItem(itemId, 1);
+  G.equipment[slot] = null;
+  if (item?.effect?.hp) { G.maxHp -= item.effect.hp; G.hp = Math.min(G.maxHp, G.hp); }
+  if (item?.effect?.mp) { G.maxMp -= item.effect.mp; G.mp = Math.min(G.maxMp, G.mp); }
+  notify(`${item?.icon} ${item?.name}を外した`);
+  updateHeader();
+  updateInventoryPanel();
+  saveGame();
+}
+
+function addItem(id, count) {
+  if (!G.inventory[id]) G.inventory[id] = 0;
+  G.inventory[id] += count;
+  saveGame();
+}
+
+// ===== SHOP =====
+function buildShop() {
+  document.getElementById('shop-grid').innerHTML = SHOP_ITEMS.map(s => {
+    const item = ITEM_DATA[s.id];
+    if (!item) return '';
+    return `
+      <div class="shop-item">
+        <div class="shop-item-header">
+          <div class="shop-item-icon">${item.icon}</div>
+          <div>
+            <div class="shop-item-name">${item.name}</div>
+            <div class="shop-item-type">${item.type}</div>
+          </div>
+        </div>
+        <div class="shop-item-desc">${item.desc}</div>
+        <div class="shop-item-footer">
+          <div class="shop-price">💰 ${s.price}G</div>
+          <button class="shop-buy-btn" onclick="buyItem('${s.id}', ${s.price})" ${G.gold < s.price ? 'disabled' : ''}>購入</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buyItem(id, price) {
+  if (G.gold < price) { notify('ゴールドが足りない！', 'warn'); return; }
+  G.gold -= price;
+  addItem(id, 1);
+  notify(`${ITEM_DATA[id].icon} ${ITEM_DATA[id].name}を購入した！`);
+  buildShop();
+  updateHeader();
+  // Quest check
+  G.quests.forEach(q => { if (q.target.type === 'gold' && G.gold >= q.target.amount) q.progress = q.target.amount; });
+  saveGame();
+}
+
+// ===== GACHA =====
+function pullGacha() {
+  const totalWeight = GACHA_POOL.reduce((a, b) => a + b.weight, 0);
+  let rand = Math.random() * totalWeight;
+  for (const item of GACHA_POOL) {
+    rand -= item.weight;
+    if (rand <= 0) return item;
+  }
+  return GACHA_POOL[0];
+}
+
+function singleGacha() {
+  if (G.gold < 50) { notify('ゴールドが足りない！(50G必要)', 'warn'); return; }
+  G.gold -= 50;
+  G.stats.gachaCount++;
+  const result = pullGacha();
+  addItem(result.id, 1);
+  G.stats.gachaHistory.unshift({ id: result.id, rarity: result.rarity });
+  if (G.stats.gachaHistory.length > 20) G.stats.gachaHistory.pop();
+  showGachaResult([result]);
+  // Quest
+  G.quests.forEach(q => { if (q.target.type === 'gacha') q.progress = G.stats.gachaCount; });
+  if (G.stats.gachaCount >= 10) unlockAchievement('gacha10');
+  if (result.rarity === 'LEGEND') unlockAchievement('legend_pull');
+  updateHeader();
+  saveGame();
+}
+
+function tenGacha() {
+  if (G.gold < 450) { notify('ゴールドが足りない！(450G必要)', 'warn'); return; }
+  G.gold -= 450;
+  G.stats.gachaCount += 10;
+  const results = [];
+  for (let i = 0; i < 9; i++) results.push(pullGacha());
+  // Guaranteed R+ on 10th
+  const r_plus = GACHA_POOL.filter(g => ['R','SR','SSR','LEGEND'].includes(g.rarity));
+  const totalW = r_plus.reduce((a,b)=>a+b.weight,0);
+  let rand = Math.random()*totalW;
+  let guaranteed = r_plus[0];
+  for (const item of r_plus) { rand -= item.weight; if (rand <= 0) { guaranteed = item; break; } }
+  results.push(guaranteed);
+  results.forEach(r => { addItem(r.id, 1); G.stats.gachaHistory.unshift({ id: r.id, rarity: r.rarity }); });
+  if (G.stats.gachaHistory.length > 20) G.stats.gachaHistory.length = 20;
+  showGachaResult(results, true);
+  G.quests.forEach(q => { if (q.target.type === 'gacha') q.progress = G.stats.gachaCount; });
+  if (G.stats.gachaCount >= 10) unlockAchievement('gacha10');
+  const hasLegend = results.some(r => r.rarity === 'LEGEND');
+  if (hasLegend) unlockAchievement('legend_pull');
+  updateHeader();
+  saveGame();
+}
+
+function showGachaResult(results, isTen = false) {
+  const box = document.getElementById('gacha-result');
+  box.style.display = 'block';
+  if (!isTen) {
+    const r = results[0];
+    const item = ITEM_DATA[r.id];
+    const rarityColors = { N:'#888', R:'#4fc3f7', SR:'#ba68c8', SSR:'#ffbe0b', LEGEND:'gold' };
+    box.innerHTML = `
+      <div class="gacha-rarity rarity-${r.rarity}">${r.rarity}</div>
+      <div class="gacha-item-icon">${item.icon}</div>
+      <div class="gacha-item-name" style="color:${rarityColors[r.rarity]}">${item.name}</div>
+      <div class="gacha-item-desc">${item.desc}</div>
+    `;
+    if (r.rarity === 'LEGEND') { spawnParticles(); box.style.boxShadow = '0 0 30px gold'; } else box.style.boxShadow = '';
+  } else {
+    const rarityColors = { N:'#888', R:'#4fc3f7', SR:'#ba68c8', SSR:'#ffbe0b', LEGEND:'gold' };
+    box.innerHTML = `
+      <div style="font-size:0.85em;color:var(--accent2);margin-bottom:12px;">10連結果！</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+        ${results.map(r => {
+          const item = ITEM_DATA[r.id];
+          return `<div style="text-align:center;padding:6px;background:var(--bg3);border-radius:8px;border:1px solid ${rarityColors[r.rarity]}">
+            <div style="font-size:1.5em">${item.icon}</div>
+            <div style="font-size:0.62em;color:${rarityColors[r.rarity]}">${r.rarity}</div>
+            <div style="font-size:0.62em;color:var(--text2)">${item.name}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+    if (results.some(r => r.rarity === 'LEGEND' || r.rarity === 'SSR')) { spawnParticles(); }
+  }
+  // History
+  document.getElementById('gacha-history').innerHTML = '過去20件: ' + G.stats.gachaHistory.slice(0,10).map(h => {
+    const c = {N:'#888',R:'#4fc3f7',SR:'#ba68c8',SSR:'#ffbe0b',LEGEND:'gold'}[h.rarity];
+    return `<span style="color:${c}">${ITEM_DATA[h.id]?.icon||'?'}</span>`;
+  }).join('');
+}
+
+// ===== CRAFTING =====
+function buildCraft() { renderCraft(); }
+function renderCraft() {
+  document.getElementById('craft-grid').innerHTML = RECIPES.map(r => {
+    const resultItem = ITEM_DATA[r.result];
+    const canCraft = r.materials.every(m => (G.inventory[m.id] || 0) >= m.count);
+    return `
+      <div class="craft-recipe">
+        <div class="craft-result">
+          <div class="craft-icon">${r.icon}</div>
+          <div>
+            <div class="craft-name">${r.name}</div>
+            <div class="craft-quality">${resultItem?.desc?.slice(0,20)||''}</div>
+          </div>
+        </div>
+        <div class="craft-materials">
+          ${r.materials.map(m => {
+            const mi = ITEM_DATA[m.id];
+            const have = G.inventory[m.id] || 0;
+            return `<div class="material-row">
+              <span class="material-icon">${mi?.icon||'?'}</span>
+              <span class="material-name">${mi?.name||m.id}</span>
+              <span class="material-have ${have >= m.count ? 'enough' : 'lack'}">${have}/${m.count}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <button class="craft-btn" onclick="craftItem('${r.result}')" ${canCraft ? '' : 'disabled'}>⚒ クラフト</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function craftItem(resultId) {
+  const recipe = RECIPES.find(r => r.result === resultId);
+  if (!recipe) return;
+  const canCraft = recipe.materials.every(m => (G.inventory[m.id] || 0) >= m.count);
+  if (!canCraft) { notify('素材が足りない！', 'warn'); return; }
+  recipe.materials.forEach(m => { G.inventory[m.id] -= m.count; if (G.inventory[m.id] <= 0) delete G.inventory[m.id]; });
+  addItem(resultId, 1);
+  G.stats.crafts++;
+  notify(`⚒ ${ITEM_DATA[resultId].icon} ${ITEM_DATA[resultId].name}を作った！`, 'gold');
+  spawnParticles();
+  if (G.stats.crafts === 1) unlockAchievement('first_craft');
+  G.quests.forEach(q => { if (q.target.type === 'craft') q.progress = G.stats.crafts; });
+  renderCraft();
+  updateHeader();
+  saveGame();
+}
+
+// ===== QUESTS =====
+function renderQuests() {
+  const list = document.getElementById('quest-list');
+  if (!list) return;
+  list.innerHTML = G.quests.map(q => {
+    const maxProg = q.target.count || q.target.amount || 1;
+    const prog = Math.min(q.progress || 0, maxProg);
+    const pct = Math.floor(prog / maxProg * 100);
+    const reward = [];
+    if (q.reward.gold) reward.push(`💰${q.reward.gold}G`);
+    if (q.reward.exp) reward.push(`✨EXP${q.reward.exp}`);
+    if (q.reward.item) reward.push(`${ITEM_DATA[q.reward.item]?.icon||'?'}${ITEM_DATA[q.reward.item]?.name||q.reward.item}`);
+    if (q.reward.sp) reward.push(`✦SP+${q.reward.sp}`);
+    return `
+      <div class="quest-card ${q.status}">
+        <div class="quest-header">
+          <span class="quest-icon">${q.icon}</span>
+          <span class="quest-name">${q.name}</span>
+          <span class="quest-status ${q.status}">${q.status === 'active' ? '進行中' : q.status === 'completed' ? '完了' : 'ロック'}</span>
+        </div>
+        <div class="quest-desc">${q.desc}</div>
+        ${q.status !== 'locked' ? `
+          <div class="quest-progress"><div class="quest-progress-fill" style="width:${pct}%"></div></div>
+          <div style="font-size:0.75em;color:var(--text2);">${prog} / ${maxProg}</div>
+        ` : ''}
+        <div class="quest-reward">報酬: ${reward.join(' | ')}</div>
+        ${q.status === 'active' && prog >= maxProg ? `<button class="quest-complete-btn" onclick="completeQuest('${q.id}')">✅ 報酬を受け取る</button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function checkQuestProgress() {
+  G.quests.forEach(q => {
+    if (q.status !== 'active') return;
+    if (q.target.type === 'gold') q.progress = Math.min(q.target.amount, G.gold);
+    if (q.target.type === 'level') q.progress = Math.min(q.target.amount, G.level);
+    if (q.target.type === 'gacha') q.progress = Math.min(q.target.count, G.stats.gachaCount);
+    if (q.target.type === 'craft') q.progress = Math.min(q.target.count, G.stats.crafts);
+    if (q.target.type === 'skills') q.progress = Math.min(q.target.count, Object.keys(G.skills).length);
+    if (q.target.type === 'area') q.progress = AREAS.find(a => a.id === q.target.area)?.unlocked ? 1 : 0;
+  });
+  // Unlock quests
+  const unlockers = { 'q2': 'q1', 'q5': 'q7', 'q9': 'q2' };
+  Object.entries(unlockers).forEach(([questId, prereqId]) => {
+    const prereq = G.quests.find(q => q.id === prereqId);
+    const quest = G.quests.find(q => q.id === questId);
+    if (prereq?.status === 'completed' && quest?.status === 'locked') quest.status = 'active';
+  });
+  if (G.level >= 10) { const q10 = G.quests.find(q => q.id === 'q10'); if (q10?.status === 'locked') q10.status = 'active'; }
+}
+
+function completeQuest(questId) {
+  const q = G.quests.find(x => x.id === questId);
+  if (!q || q.status !== 'active') return;
+  const maxProg = q.target.count || q.target.amount || 1;
+  if (q.progress < maxProg) { notify('まだ達成できていない！', 'warn'); return; }
+  q.status = 'completed';
+  if (q.reward.gold) { G.gold += q.reward.gold; notify(`💰 ${q.reward.gold}G を受け取った！`, 'gold'); }
+  if (q.reward.exp) gainExp(q.reward.exp);
+  if (q.reward.item) { addItem(q.reward.item, 1); notify(`${ITEM_DATA[q.reward.item]?.icon} ${ITEM_DATA[q.reward.item]?.name} を受け取った！`); }
+  if (q.reward.sp) { G.sp += q.reward.sp; notify(`✦ SP+${q.reward.sp}！`); }
+  spawnParticles();
+  updateHeader();
+  saveGame();
+  renderQuests();
+}
+
+// ===== WORLD MAP =====
+function openMap() {
+  const grid = document.getElementById('map-grid');
+  grid.innerHTML = AREAS.map(a => `
+    <div class="map-area ${a.unlocked ? '' : 'locked'} ${G.currentArea === a.id ? 'current' : ''}" onclick="${a.unlocked ? `travelTo('${a.id}')` : ''}">
+      <div class="map-area-icon">${a.icon}</div>
+      <div class="map-area-name">${a.name}</div>
+      <div class="map-area-level">${a.unlocked ? (G.currentArea === a.id ? '📍 現在地' : `Lv.${a.minLevel}+`) : `🔒 Lv.${a.minLevel}以上`}</div>
+    </div>
+  `).join('');
+  document.getElementById('map-overlay').classList.add('active');
+}
+
+function closeMap() { document.getElementById('map-overlay').classList.remove('active'); }
+
+function travelTo(areaId) {
+  const area = AREAS.find(a => a.id === areaId);
+  if (!area || !area.unlocked) return;
+  setArea(areaId);
+  closeMap();
+  switchPanel('adventure', document.querySelector('[data-panel="adventure"]'));
+  showMessage([`<span class="msg-system">🗺 ${area.name}に移動した。</span>`, `<span class="msg-event">${area.desc}</span>`]);
+  // Check paradise ending trigger
+  if (areaId === 'paradise' && !G.endings.includes('e05') && Math.random() < 0.5) {
+    setTimeout(() => { notify('🌸 楽園に惹きつけられる…'); setTimeout(() => triggerEnding('e05'), 2000); }, 1000);
+  }
+  // Quest area
+  G.quests.forEach(q => { if (q.target.type === 'area' && q.target.area === areaId) q.progress = 1; });
+  // Check all areas
+  if (AREAS.filter(a => a.unlocked).length === AREAS.length) unlockAchievement('all_areas');
+  checkQuestProgress();
+  updateHeader();
+  saveGame();
+}
+
+// ===== LORE =====
+function buildLore() {
+  const list = document.getElementById('lore-list');
+  if (!list) return;
+  list.innerHTML = LORE_DATA.map(l => {
+    const unlocked = G.loreUnlocked.includes(l.id);
+    return `
+      <div class="lore-card ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `openLore('${l.id}')` : ''}">
+        <div class="lore-header">
+          <span class="lore-icon">${l.icon}</span>
+          <span class="lore-title">${unlocked ? l.title : '???'}</span>
+        </div>
+        <div class="lore-preview">${unlocked ? l.preview : '解放されていない…'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openLore(loreId) {
+  const l = LORE_DATA.find(x => x.id === loreId);
+  if (!l) return;
+  document.getElementById('lore-icon').textContent = l.icon;
+  document.getElementById('lore-title').textContent = l.title;
+  document.getElementById('lore-text').textContent = l.text;
+  document.getElementById('lore-overlay').classList.add('active');
+}
+
+function closeLore() { document.getElementById('lore-overlay').classList.remove('active'); }
+
+function unlockRandomLore() {
+  const locked = LORE_DATA.filter(l => !G.loreUnlocked.includes(l.id));
+  if (locked.length === 0) return;
+  const l = locked[Math.floor(Math.random() * locked.length)];
+  G.loreUnlocked.push(l.id);
+  notify(`📖 新しいロアが解放された：「${l.title}」`, 'level');
+  buildLore();
+}
+
+// ===== MINI GAMES =====
+function startMinigame(type) {
+  document.getElementById('minigame-home').style.display = 'none';
+  const area = document.getElementById('minigame-area');
+  area.style.display = 'block';
+  if (type === 'memory') startMemory(area);
+  else if (type === 'numbers') startNumbers(area);
+  else if (type === 'fishing') startFishing(area);
+  else if (type === 'quiz') startQuiz(area);
+}
+
+function backToMinigameHome() {
+  document.getElementById('minigame-home').style.display = '';
+  document.getElementById('minigame-area').style.display = 'none';
+  fishingState = null;
+}
+
+// --- MEMORY GAME ---
+function startMemory(area) {
+  const icons = ['🐾','🌟','🔥','⚔','💎','💰','🎮','🏆'];
+  const cards = [...icons, ...icons].sort(() => Math.random() - 0.5);
+  memoryState = { cards, flipped: [], matched: [], moves: 0, locked: false };
+  area.innerHTML = `
+    <button class="back-btn" onclick="backToMinigameHome()">← 戻る</button>
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:0.85em;color:var(--text2);">ペアを全部見つけよう！</div>
+      <div id="mem-moves" style="font-size:0.85em;color:var(--accent2);margin-top:4px;">手数: 0</div>
+    </div>
+    <div class="memory-grid" id="memory-grid">
+      ${cards.map((_,i) => `<div class="memory-card" id="mc-${i}" onclick="flipCard(${i})">❓</div>`).join('')}
+    </div>
+    <div id="mem-result" style="text-align:center;font-size:0.9em;margin-top:12px;"></div>
+  `;
+}
+
+function flipCard(i) {
+  if (!memoryState || memoryState.locked) return;
+  if (memoryState.flipped.includes(i) || memoryState.matched.includes(i)) return;
+  if (memoryState.flipped.length >= 2) return;
+  memoryState.flipped.push(i);
+  const el = document.getElementById('mc-' + i);
+  el.textContent = memoryState.cards[i];
+  el.classList.add('flipped');
+  if (memoryState.flipped.length === 2) {
+    memoryState.moves++;
+    document.getElementById('mem-moves').textContent = '手数: ' + memoryState.moves;
+    memoryState.locked = true;
+    const [a, b] = memoryState.flipped;
+    if (memoryState.cards[a] === memoryState.cards[b]) {
+      memoryState.matched.push(a, b);
+      document.getElementById('mc-' + a).classList.add('matched');
+      document.getElementById('mc-' + b).classList.add('matched');
+      memoryState.flipped = [];
+      memoryState.locked = false;
+      if (memoryState.matched.length === memoryState.cards.length) {
+        const reward = Math.max(50, 200 - memoryState.moves * 5);
+        const expR = 50;
+        G.gold += reward;
+        gainExp(expR);
+        saveGame();
+        document.getElementById('mem-result').innerHTML = `<span class="msg-reward">🏆 クリア！ゴールド${reward}G + EXP${expR}獲得！</span><br><button class="title-btn" style="margin-top:12px;font-size:0.85em;padding:10px 30px;" onclick="startMinigame('memory')">もう一度</button>`;
+        spawnParticles();
+      }
+    } else {
+      setTimeout(() => {
+        document.getElementById('mc-' + a).textContent = '❓';
+        document.getElementById('mc-' + a).classList.remove('flipped');
+        document.getElementById('mc-' + b).textContent = '❓';
+        document.getElementById('mc-' + b).classList.remove('flipped');
+        memoryState.flipped = [];
+        memoryState.locked = false;
+      }, 800);
+    }
+  }
+}
+
+// --- NUMBER MEMORY ---
+function startNumbers(area) {
+  numberState = { phase: 'show', targetNum: '', inputNum: '', round: 0, score: 0 };
+  area.innerHTML = `
+    <button class="back-btn" onclick="backToMinigameHome()">← 戻る</button>
+    <div style="text-align:center;">
+      <div style="font-size:0.85em;color:var(--text2);margin-bottom:8px;">表示された数字を覚えて入力せよ！</div>
+      <div id="num-score" style="font-size:0.85em;color:var(--accent2);margin-bottom:8px;">スコア: 0</div>
+      <div class="num-display" id="num-display">準備中…</div>
+      <div id="num-input-area"></div>
+      <div id="num-result" style="margin-top:12px;font-size:0.9em;"></div>
+    </div>
+  `;
+  setTimeout(() => nextNumberRound(), 500);
+}
+
+function nextNumberRound() {
+  if (!numberState) return;
+  numberState.round++;
+  const digits = Math.min(3 + Math.floor(numberState.round / 2), 8);
+  numberState.targetNum = Array.from({length: digits}, () => Math.floor(Math.random()*10)).join('');
+  document.getElementById('num-display').textContent = numberState.targetNum;
+  document.getElementById('num-input-area').innerHTML = '';
+  document.getElementById('num-result').innerHTML = '';
+  const showTime = 1500 + digits * 300;
+  setTimeout(() => {
+    if (!document.getElementById('num-display')) return;
+    document.getElementById('num-display').textContent = '？？？？';
+    document.getElementById('num-input-area').innerHTML = `
+      <div class="num-input-row">
+        <input class="num-input" id="num-input" maxlength="${digits}" placeholder="${'_'.repeat(digits)}" type="text" pattern="[0-9]*" inputmode="numeric">
+        <button class="num-submit-btn" onclick="submitNumber()">答える</button>
+      </div>
+    `;
+    document.getElementById('num-input')?.focus();
+  }, showTime);
+}
+
+function submitNumber() {
+  if (!numberState) return;
+  const input = document.getElementById('num-input')?.value || '';
+  if (input === numberState.targetNum) {
+    numberState.score++;
+    document.getElementById('num-score').textContent = 'スコア: ' + numberState.score;
+    document.getElementById('num-result').innerHTML = '<span class="msg-reward">✅ 正解！</span>';
+    gainExp(30 * numberState.round);
+    if (numberState.round >= 5) {
+      G.gold += 100;
+      document.getElementById('num-result').innerHTML += ' <span class="msg-reward">+100G!</span>';
+    }
+    updateHeader();
+    saveGame();
+    setTimeout(() => nextNumberRound(), 1000);
+  } else {
+    document.getElementById('num-result').innerHTML = `<span class="msg-danger">❌ 不正解！正解は: ${numberState.targetNum}</span>`;
+    const finalExp = numberState.score * 20;
+    gainExp(finalExp);
+    G.gold += numberState.score * 30;
+    updateHeader();
+    saveGame();
+    document.getElementById('num-input-area').innerHTML = `<div class="msg-reward">スコア${numberState.score}！EXP${finalExp}獲得！</div><button class="title-btn" style="margin-top:12px;font-size:0.85em;padding:10px 30px;" onclick="startMinigame('numbers')">もう一度</button>`;
+  }
+}
+
+// --- FISHING ---
+function startFishing(area) {
+  fishingState = { waiting: false, caught: false, waitTime: 0, maxWait: 0, timer: null };
+  area.innerHTML = `
+    <button class="back-btn" onclick="clearFishingTimer(); backToMinigameHome();">← 戻る</button>
+    <div class="fishing-area">
+      <div style="font-size:0.85em;color:var(--text2);margin-bottom:8px;">魚が引っかかったら「釣る！」を押せ！</div>
+      <div class="fishing-scene">
+        <div class="fishing-rod">🎣</div>
+        <div class="fishing-bobber" id="bobber">🔵</div>
+      </div>
+      <div class="fishing-wait-bar"><div class="fishing-wait-fill" id="fish-bar" style="width:0%"></div></div>
+      <div id="fish-status" style="font-size:0.85em;color:var(--text2);margin:8px 0;">釣り糸を垂らした…</div>
+      <button class="fishing-catch-btn" id="fish-btn" onclick="catchFish()">🎣 釣る！</button>
+      <button class="title-btn" style="font-size:0.85em;padding:10px 30px;margin-top:12px;" onclick="castFishingLine()" id="cast-btn">🎣 投げる</button>
+      <div id="fish-result" style="margin-top:16px;font-size:0.9em;"></div>
+    </div>
+  `;
+}
+
+function clearFishingTimer() { if (fishingState?.timer) clearTimeout(fishingState.timer); if (fishingState?.barTimer) clearInterval(fishingState.barTimer); }
+
+function castFishingLine() {
+  if (!fishingState) return;
+  document.getElementById('cast-btn').style.display = 'none';
+  document.getElementById('fish-status').textContent = '待っている… 🎣';
+  document.getElementById('fish-result').innerHTML = '';
+  fishingState.waiting = true;
+  const waitMs = 2000 + Math.random() * 4000;
+  fishingState.maxWait = waitMs;
+  fishingState.waitTime = 0;
+  let fill = 0;
+  fishingState.barTimer = setInterval(() => {
+    fill = Math.min(100, fill + 100 / (waitMs / 100));
+    const el = document.getElementById('fish-bar');
+    if (el) el.style.width = fill + '%';
+  }, 100);
+  fishingState.timer = setTimeout(() => {
+    clearInterval(fishingState.barTimer);
+    const el = document.getElementById('fish-bar');
+    if (el) el.style.width = '100%';
+    document.getElementById('fish-status').textContent = '⚡ 引っかかった！';
+    const btn = document.getElementById('fish-btn');
+    if (btn) { btn.style.display = 'inline-block'; }
+    const bobber = document.getElementById('bobber');
+    if (bobber) bobber.style.bottom = '30px';
+    fishingState.caught = false;
+    fishingState.timer = setTimeout(() => {
+      if (!fishingState?.caught) {
+        if (document.getElementById('fish-status')) document.getElementById('fish-status').textContent = '逃げられた…';
+        const b = document.getElementById('fish-btn'); if (b) b.style.display = 'none';
+        setTimeout(() => { const cb = document.getElementById('cast-btn'); if (cb) { cb.style.display = ''; cb.textContent = '🎣 もう一度'; } }, 1000);
+      }
+    }, 1500);
+  }, waitMs);
+}
+
+function catchFish() {
+  if (!fishingState) return;
+  fishingState.caught = true;
+  const btn = document.getElementById('fish-btn');
+  if (btn) btn.style.display = 'none';
+  clearTimeout(fishingState.timer);
+  const fishes = [
+    { name:'小魚', icon:'🐟', chance:0.35, reward:'herb', count:1 },
+    { name:'大魚', icon:'🐠', chance:0.25, reward:'potion', count:1 },
+    { name:'タコ', icon:'🐙', chance:0.15, reward:'ore', count:1 },
+    { name:'鮫', icon:'🦈', chance:0.1, reward:'scale', count:1 },
+    { name:'黄金の魚', icon:'🌟', chance:0.08, reward:'crystal', count:1, gold:200 },
+    { name:'伝説の魚', icon:'🔱', chance:0.07, reward:'darkShard', count:1, gold:500, exp:200 },
+  ];
+  let rand = Math.random();
+  let fish = fishes[0];
+  for (const f of fishes) { rand -= f.chance; if (rand <= 0) { fish = f; break; } }
+  addItem(fish.reward, fish.count);
+  const g = fish.gold || 20;
+  G.gold += g;
+  let resHtml = `<span class="msg-reward">${fish.icon} ${fish.name}を釣った！</span><br><span class="msg-reward">${ITEM_DATA[fish.reward]?.icon} ${ITEM_DATA[fish.reward]?.name} + ${g}G</span>`;
+  if (fish.exp) { gainExp(fish.exp); resHtml += `<br><span class="msg-reward">EXP +${fish.exp}！</span>`; }
+  document.getElementById('fish-result').innerHTML = resHtml;
+  if (fish.name === '伝説の魚') spawnParticles();
+  updateHeader();
+  saveGame();
+  const castBtn = document.getElementById('cast-btn');
+  if (castBtn) { castBtn.style.display = ''; castBtn.textContent = '🎣 もう一度'; }
+  document.getElementById('fish-status').textContent = '釣り糸を垂らした…';
+}
+
+// --- QUIZ ---
+function startQuiz(area) {
+  quizState = { questions: QUIZ_QUESTIONS.sort(() => Math.random()-0.5).slice(0,5), current: 0, score: 0 };
+  area.innerHTML = `<button class="back-btn" onclick="backToMinigameHome()">← 戻る</button><div id="quiz-area"></div>`;
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if (!quizState) return;
+  const q = quizState.questions[quizState.current];
+  if (!q) { endQuiz(); return; }
+  document.getElementById('quiz-area').innerHTML = `
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:0.78em;color:var(--text2);">問題 ${quizState.current+1}/${quizState.questions.length}</div>
+      <div style="font-size:0.95em;font-weight:700;margin:12px 0;line-height:1.6;">${q.q}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      ${q.opts.map((opt,i) => `<button class="action-btn" onclick="answerQuiz(${i})">${opt}</button>`).join('')}
+    </div>
+    <div id="quiz-result" style="text-align:center;margin-top:12px;font-size:0.9em;"></div>
+  `;
+}
+
+function answerQuiz(i) {
+  if (!quizState) return;
+  const q = quizState.questions[quizState.current];
+  const correct = i === q.a;
+  if (correct) { quizState.score++; document.getElementById('quiz-result').innerHTML = '<span class="msg-reward">✅ 正解！</span>'; }
+  else { document.getElementById('quiz-result').innerHTML = `<span class="msg-danger">❌ 不正解。正解は「${q.opts[q.a]}」</span>`; }
+  quizState.current++;
+  setTimeout(() => showQuizQuestion(), 1000);
+}
+
+function endQuiz() {
+  const score = quizState.score;
+  const total = quizState.questions.length;
+  const reward = score * 100;
+  const itemReward = score >= 4 ? 'crystal' : score >= 2 ? 'ore' : 'herb';
+  G.gold += reward;
+  gainExp(score * 50);
+  addItem(itemReward, 1);
+  updateHeader();
+  saveGame();
+  document.getElementById('quiz-area').innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:2em;margin-bottom:12px;">${score >= 4 ? '🏆' : score >= 2 ? '⭐' : '😅'}</div>
+      <div style="font-size:1.1em;font-weight:700;color:var(--accent2);margin-bottom:8px;">${score}/${total} 正解！</div>
+      <div class="msg-reward">💰 ${reward}G + EXP${score*50} + ${ITEM_DATA[itemReward]?.icon} ${ITEM_DATA[itemReward]?.name} をゲット！</div>
+      <button class="title-btn" style="margin-top:16px;font-size:0.85em;padding:10px 30px;" onclick="startMinigame('quiz')">もう一度</button>
+    </div>
+  `;
+  if (score === total) spawnParticles();
+}
+
+// ===== ACHIEVEMENTS =====
+function unlockAchievement(id) {
+  if (G.achievements[id]) return;
+  G.achievements[id] = true;
+  const a = ACHIEVEMENTS.find(x => x.id === id);
+  if (a) notify(`🏅 実績解除！「${a.name}」`, 'gold');
+  // Check all achievements
+  if (Object.keys(G.achievements).length >= ACHIEVEMENTS.length - 1) {
+    // Almost done
+  }
+  saveGame();
+}
+
+function checkAchievements() {
+  if (G.level >= 5 && !G.achievements['level5']) unlockAchievement('level5');
+  if (G.level >= 10 && !G.achievements['level10']) unlockAchievement('level10');
+  if (G.level >= 20 && !G.achievements['level20']) unlockAchievement('level20');
+  if (G.gold >= 10000 && !G.achievements['rich']) unlockAchievement('rich');
+  // Love ending
+  if (G.level >= 10 && G.stats.wins >= 20 && !G.endings.includes('e06') && Math.random() < 0.01) triggerEnding('e06');
+  // Darkness ending
+  if (G.stats.kills['混沌の神'] && !G.endings.includes('e04') && Math.random() < 0.3) triggerEnding('e04');
+  // True hero check
+  if (G.endings.length >= 12 && !G.achievements['true_hero']) {
+    unlockAchievement('true_hero');
+    triggerEnding('e12');
+  } else if (G.endings.length >= 8 && !G.endings.includes('e08')) {
+    triggerEnding('e08');
+  }
+  // Legend
+  if (G.level >= 15 && G.stats.wins >= 30 && !G.endings.includes('e08')) {
+    // Already handled above
+  }
+}
+
+// ===== ENDINGS =====
+function triggerEnding(endId) {
+  if (G.endings.includes(endId)) return;
+  G.endings.push(endId);
+  const end = ENDINGS.find(e => e.id === endId);
+  if (!end) return;
+  const box = document.getElementById('ending-box');
+  const gradColor = end.color || '#ffbe0b';
+  box.style.borderColor = gradColor;
+  box.innerHTML = `
+    <div class="ending-title" style="color:${gradColor}">${end.title}</div>
+    <div style="font-size:0.75em;color:var(--text2);margin-bottom:4px;">エンディング ${G.endings.length}/12</div>
+    <div class="ending-icon">${end.icon}</div>
+    <div class="ending-text">${end.text}</div>
+    <div class="ending-stats">
+      <div class="ending-stat-row"><span>レベル</span><span>Lv.${G.level}</span></div>
+      <div class="ending-stat-row"><span>戦闘勝利数</span><span>${G.stats.wins}</span></div>
+      <div class="ending-stat-row"><span>所持金</span><span>${G.gold}G</span></div>
+      <div class="ending-stat-row"><span>解放エンディング</span><span>${G.endings.length}/12</span></div>
+    </div>
+    <div style="font-size:0.82em;color:var(--text2);margin-bottom:12px;">残り${12 - G.endings.length}エンディング未解放</div>
+    <button class="ending-btn" onclick="closeEnding()">✕ 冒険を続ける</button>
+    ${G.endings.length >= 12 ? '' : `<button class="ending-btn" style="background:linear-gradient(135deg,var(--accent2),var(--accent));" onclick="closeEnding()">🌟 全エンディングを目指す！</button>`}
+  `;
+  document.getElementById('ending-overlay').classList.add('active');
+  spawnParticles();
+  saveGame();
+  notify(`📖 エンディング解放！「${end.title}」`, 'gold');
+  // Check true hero achievement
+  if (G.endings.length >= ENDINGS.length) unlockAchievement('true_hero');
+}
+
+function closeEnding() {
+  document.getElementById('ending-overlay').classList.remove('active');
+  // Check endings count for e12
+  if (G.endings.length >= 11 && !G.endings.includes('e12')) {
+    setTimeout(() => triggerEnding('e12'), 1500);
+  }
+}
+
+// ===== PARTICLES =====
+function spawnParticles() {
+  const anim = document.getElementById('reward-anim');
+  anim.classList.add('active');
+  const particles = ['⭐','✨','💫','🌟','💎','🎉','🎊','🏆'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'reward-particle';
+    p.textContent = particles[Math.floor(Math.random()*particles.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.top = '60vh';
+    p.style.animationDelay = Math.random() * 0.5 + 's';
+    anim.appendChild(p);
+  }
+  setTimeout(() => { anim.classList.remove('active'); anim.innerHTML = ''; }, 2000);
+}
+
+// ===== SETTINGS =====
+function showSettings() { /* Title screen settings */ }
+function toggleSetting(key) {
+  const el = document.getElementById('toggle-' + key);
+  el.classList.toggle('on');
+  if (key === 'save') G.settings = G.settings || {}; 
+  SETTINGS[key] = el.classList.contains('on');
+}
+
+// ===== UTILITY =====
+function weightedRandom(items) {
+  const total = items.reduce((a, b) => a + b.weight, 0);
+  let rand = Math.random() * total;
+  for (const item of items) { rand -= item.weight; if (rand <= 0) return item; }
+  return items[0];
+}
+
+// ===== TRIGGER STORY ENDINGS VIA EXPLORATION =====
+function checkRandomEnding() {
+  if (G.level >= 10 && G.currentArea === 'forest' && !G.endings.includes('e11') && Math.random() < 0.02) {
+    // Peace ending - found through talking
+    setTimeout(() => triggerEnding('e11'), 500);
+  }
+  if (G.currentArea === 'void' && !G.endings.includes('e09') && Math.random() < 0.05) {
+    triggerEnding('e09');
+  }
+}
+
+// Patch doExplore to also check endings
+const _origExplore = doExplore;
+window.doExplore = function() {
+  _origExplore();
+  checkRandomEnding();
+};
+
+// ===== INITIAL TITLE CHECK =====
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const d = localStorage.getItem(SAVE_KEY);
+    if (d) document.getElementById('continue-btn').style.display = 'block';
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
