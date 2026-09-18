@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドパガキアドベンチャー - 冒険と謎解きの大冒険</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameContainer {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .game-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .status-item.hp {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .status-item.mana {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .status-item.exp {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+        }
+
+        .status-item label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .status-item .value {
+            display: block;
+            font-size: 24px;
+        }
+
+        .game-content {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== メインメニュー ===== */
+        .menu-screen {
+            text-align: center;
+        }
+
+        .menu-character {
+            font-size: 120px;
+            margin: 30px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .menu-buttons button {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .menu-buttons .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .menu-buttons .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .menu-buttons .continue-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        .menu-buttons .continue-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.6);
+        }
+
+        .menu-buttons .achievement-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+        }
+
+        .menu-buttons .achievement-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.6);
+        }
+
+        /* ===== クリッカーゲーム ===== */
+        .clicker-screen {
+            text-align: center;
+        }
+
+        .clicker-character {
+            font-size: 100px;
+            margin: 30px 0;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: inline-block;
+        }
+
+        .clicker-character:active {
+            transform: scale(0.95);
+        }
+
+        .clicker-stats {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .clicker-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .upgrade-btn {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-btn.can-afford {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .float-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 24px;
+            color: #667eea;
+            animation: float-up 1.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes float-up {
+            from { opacity: 1; transform: translateY(0) translateX(0); }
+            to { opacity: 0; transform: translateY(-80px) translateX(20px); }
+        }
+
+        /* ===== ミニゲーム ===== */
+        .minigame-screen {
+            text-align: center;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tile {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .tile.matched {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            cursor: default;
+        }
+
+        .tile.unmatched {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .timer {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        /* ===== ストーリー画面 ===== */
+        .story-screen {
+            text-align: center;
+        }
+
+        .story-image {
+            font-size: 100px;
+            margin: 30px 0;
+        }
+
+        .story-text {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .choice-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .choice-btn:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ===== エンド画面 ===== */
+        .end-screen {
+            text-align: center;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .end-emoji {
+            font-size: 150px;
+            margin: 30px 0;
+            animation: spin 0.5s ease-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0) scale(0.5); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        .end-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .end-text {
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .end-rewards {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .end-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .end-buttons button {
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .menu-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.6);
+        }
+
+        /* ===== アチーブメント画面 ===== */
+        .achievement-screen {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .achievement-item {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .achievement-item.unlocked {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border-color: white;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+        }
+
+        .achievement-emoji {
+            font-size: 48px;
+            margin: 10px 0;
+        }
+
+        .achievement-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* ===== ボタン共通 ===== */
+        button {
+            font-family: 'Arial', 'Hiragino Sans', sans-serif;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .back-button.hidden {
+            display: none;
+        }
+
+        /* ===== パズルゲーム ===== */
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .puzzle-piece {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+        }
+
+        .puzzle-piece.correct {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border-color: white;
+        }
+
+        /* ===== レスポンシブ ===== */
+        @media (max-width: 600px) {
+            .game-header h1 {
+                font-size: 24px;
+            }
+
+            .status-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .clicker-character {
+                font-size: 60px;
+            }
+
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .story-text {
+                font-size: 16px;
+                min-height: 100px;
+            }
+
+            .achievement-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <button class="back-button" id="backButton">← 戻る</button>
+
+        <!-- メニュー画面 -->
+        <div class="screen active" id="menuScreen">
+            <div class="game-header">
+                <h1>🎮 ドパガキアドベンチャー 🎮</h1>
+                <p>冒険と謎解きの大冒険！複数のエンドを目指そう！</p>
+            </div>
+            <div class="menu-screen">
+                <div class="menu-character">🐉</div>
+                <h2>ようこそ！</h2>
+                <p>このゲームには<span style="color: #667eea; font-weight: bold;">20以上のエンド</span>が隠れています！</p>
+                <div class="menu-buttons">
+                    <button class="start-btn" onclick="startGame()">🎮 新しいゲームをはじめる</button>
+                    <button class="continue-btn" onclick="continueGame()">📖 セーブデータを読み込む</button>
+                    <button class="achievement-btn" onclick="showAchievements()">🏆 アチーブメント</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ゲーム進行画面 -->
+        <div class="screen" id="gameScreen">
+            <div class="game-header">
+                <h1>🎮 冒険中...</h1>
+            </div>
+            <div class="status-bar">
+                <div class="status-item hp">
+                    <label>HP</label>
+                    <span class="value" id="hpValue">100/100</span>
+                </div>
+                <div class="status-item mana">
+                    <label>マナ</label>
+                    <span class="value" id="manaValue">50/50</span>
+                </div>
+                <div class="status-item exp">
+                    <label>EXP</label>
+                    <span class="value" id="expValue">0/100</span>
+                </div>
+                <div class="status-item">
+                    <label>Gold</label>
+                    <span class="value" id="goldValue">0</span>
+                </div>
+            </div>
+            <div id="gameContent"></div>
+        </div>
+
+        <!-- エンド画面 -->
+        <div class="screen" id="endScreen"></div>
+
+        <!-- アチーブメント画面 -->
+        <div class="screen" id="achievementScreen">
+            <div class="game-header">
+                <h1>🏆 アチーブメント</h1>
+                <p>いろいろなエンドを見つけて、バッジをゲットしよう！</p>
+            </div>
+            <div class="achievement-screen">
+                <div id="achievementList"></div>
+            </div>
+            <div style="margin-top: 30px;">
+                <button class="menu-btn" onclick="showMenu()" style="padding: 12px 30px; width: 100%; font-size: 16px;">← メニューに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SAVE_KEY_PREFIX = 'dopagaki_game/claude/4.5Haiku/002/saves/';
+
+        const gameState = {
+            level: 1,
+            hp: 100,
+            maxHp: 100,
+            mana: 50,
+            maxMana: 50,
+            exp: 0,
+            maxExp: 100,
+            gold: 0,
+            clickerScore: 0,
+            clickerUpgrades: { damage: 0, autoClick: 0, clickerLevel: 1 },
+            currentScreen: 'menu',
+            endType: null,
+            achievements: {},
+            currentChapter: 0
+        };
+
+        const achievements = {
+            'first_clicker': { name: '🖱️ クリッカーマスター', emoji: '🖱️', description: '100回クリック' },
+            'story_end_good': { name: '✨ グッドエンド', emoji: '✨', description: 'グッドエンドクリア' },
+            'story_end_bad': { name: '💀 バッドエンド', emoji: '💀', description: 'バッドエンドクリア' },
+            'minigame_success': { name: '🎯 ミニゲームマスター', emoji: '🎯', description: 'ミニゲームクリア' },
+            'puzzle_solver': { name: '🧩 パズルマスター', emoji: '🧩', description: 'パズルクリア' },
+            'speed_runner': { name: '⚡ スピードランナー', emoji: '⚡', description: '30秒以内クリア' },
+            'treasure_hunter': { name: '💎 宝探し達人', emoji: '💎', description: '1000ゴーストゲット' },
+            'endgame_hunter': { name: '🎪 エンド全制覇', emoji: '🎪', description: '全てのエンドを見つける' },
+            'level_master': { name: '👑 レベルマスター', emoji: '👑', description: 'レベル5到達' },
+            'secret_end': { name: '🌟 隠しエンド', emoji: '🌟', description: '秘密のエンドを発見' },
+            'true_end': { name: '💫 トゥルーエンド', emoji: '💫', description: '本当のエンドを見つける' },
+            'reset_master': { name: '🔄 リセットマスター', emoji: '🔄', description: '10回新ゲーム開始' }
+        };
+
+        const storyChapters = [
+            {
+                title: '第1章 冒険の始まり',
+                image: '🏰',
+                text: 'あなたは古い城を発見した。中には何かが隠れているようだ...',
+                choices: [
+                    { text: '👊 城に入る', next: 'chapter2' },
+                    { text: '🏃 逃げる', next: 'end_coward' }
+                ]
+            },
+            {
+                title: '第2章 謎の扉',
+                image: '🚪',
+                text: '城の中に3つの扉がある。各扉には謎が書かれている。',
+                choices: [
+                    { text: '🔴 赤い扉', next: 'minigame' },
+                    { text: '🔵 青い扉', next: 'chapter3' },
+                    { text: '🟡 黄色い扉', next: 'puzzle' },
+                    { text: '🚪 一番奥の扉', next: 'secret_room' }
+                ]
+            },
+            {
+                title: '第3章 龍との対面',
+                image: '🐲',
+                text: '大きな龍が現れた！戦うか、逃げるか、話しかけるか？',
+                choices: [
+                    { text: '⚔️ 戦う', next: 'dragon_fight' },
+                    { text: '💬 話しかける', next: 'end_dragon_friend' },
+                    { text: '🏃 逃げる', next: 'end_escape' }
+                ]
+            }
+        ];
+
+        const allEnds = [
+            { id: 'end_coward', emoji: '😱', title: 'ビビリエンド', text: '怖くて逃げてしまいました。冒険は未来へ...', reward: 10 },
+            { id: 'end_dragon_friend', emoji: '🐉', title: 'ドラゴンフレンドエンド', text: '龍と友達になった！新しい友達ができたね！', reward: 50 },
+            { id: 'end_escape', emoji: '🏃', title: 'スピードエスケープエンド', text: '命からがら逃げ出した。また来る日のために...', reward: 25 },
+            { id: 'end_treasure', emoji: '💎', title: 'トレジャーハンターエンド', text: '莫大な宝を発見！大金持ちになった！', reward: 100 },
+            { id: 'end_wizard', emoji: '🧙', title: '魔法使いエンド', text: '魔法の力を手に入れた。君は魔法使いになった！', reward: 75 },
+            { id: 'end_princess', emoji: '👑', title: 'プリンセスレスキューエンド', text: 'プリンセスを救った！王様から褒美をもらった！', reward: 80 },
+            { id: 'end_demon', emoji: '👿', title: 'デーモンロードエンド', text: '魔王と一体化した。世界は混沌に包まれた...', reward: 60 },
+            { id: 'end_godlike', emoji: '⭐', title: '神エンド', text: '神のような力を手に入れた。君は世界の支配者だ！', reward: 120 },
+            { id: 'end_time_traveler', emoji: '⏰', title: 'タイムトラベラーエンド', text: '時間を操る力を得た。過去と未来を行き来できる！', reward: 90 },
+            { id: 'end_normal', emoji: '😊', title: 'ノーマルエンド', text: '無事城を脱出した。これもいい冒険だ。', reward: 40 },
+            { id: 'end_hidden_library', emoji: '📚', title: '隠しライブラリエンド', text: '古い図書館を発見！知識の宝庫だ！', reward: 70 },
+            { id: 'end_interdimensional', emoji: '🌌', title: '異次元エンド', text: '別の世界へワープした。そこはどんな世界？', reward: 85 },
+            { id: 'end_slime_king', emoji: '🟢', title: 'スライムキングエンド', text: 'スライムの王様になった。ぷるぷるだ！', reward: 35 },
+            { id: 'end_robot', emoji: '🤖', title: 'ロボットエンド', text: '自分がロボットだったことに気付いた。新しい世界が始まる！', reward: 65 },
+            { id: 'end_sleeping', emoji: '😴', title: '夢見るエンド', text: 'ずっと夢を見ていたのだ。でも夢は本当だった！', reward: 45 },
+            { id: 'end_phoenix', emoji: '🔥', title: 'フェニックスエンド', text: 'フェニックスに生まれ変わった。火の力を操る！', reward: 95 },
+            { id: 'end_mermaid', emoji: '🧜', title: 'マーメイドエンド', text: 'マーメイドになった。海の底の王国へようこそ！', reward: 78 },
+            { id: 'end_unicorn', emoji: '🦄', title: 'ユニコーンエンド', text: 'ユニコーンになった。虹色に輝いている！', reward: 88 },
+            { id: 'end_infinity', emoji: '∞', title: '無限エンド', text: '無限ループの世界へ。これは本当の終わり？', reward: 55 },
+            { id: 'end_true_form', emoji: '💫', title: 'トゥルーフォームエンド', text: '本当の姿が明かされた。全てが繋がった！', reward: 130 }
+        ];
+
+        function initGame() {
+            loadAchievements();
+            showMenu();
+        }
+
+        function startGame() {
+            gameState.level = 1;
+            gameState.hp = 100;
+            gameState.maxHp = 100;
+            gameState.mana = 50;
+            gameState.maxMana = 50;
+            gameState.exp = 0;
+            gameState.maxExp = 100;
+            gameState.gold = 0;
+            gameState.clickerScore = 0;
+            gameState.currentChapter = 0;
+            gameState.clickerUpgrades = { damage: 0, autoClick: 0, clickerLevel: 1 };
+            
+            incrementAchievement('reset_master');
+            showScreen('gameScreen');
+            showChapter(0);
+        }
+
+        function showChapter(chapterIndex) {
+            if (chapterIndex >= storyChapters.length) {
+                endGame('end_normal');
+                return;
+            }
+
+            gameState.currentChapter = chapterIndex;
+            const chapter = storyChapters[chapterIndex];
+            const content = document.getElementById('gameContent');
+            
+            content.innerHTML = `
+                <div class="story-screen">
+                    <div class="story-image">${chapter.image}</div>
+                    <h2>${chapter.title}</h2>
+                    <div class="story-text">${chapter.text}</div>
+                    <div class="story-choices">
+                        ${chapter.choices.map((choice, idx) => `
+                            <button class="choice-btn" onclick="handleChoice('${choice.next}')">${choice.text}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateStatus();
+        }
+
+        function handleChoice(nextAction) {
+            if (nextAction === 'minigame') {
+                showMinigame();
+            } else if (nextAction === 'puzzle') {
+                showPuzzle();
+            } else if (nextAction === 'secret_room') {
+                showClickerGame();
+            } else if (nextAction === 'chapter2') {
+                showChapter(1);
+            } else if (nextAction === 'chapter3') {
+                showChapter(2);
+            } else if (nextAction === 'dragon_fight') {
+                startDragonFight();
+            } else {
+                endGame(nextAction);
+            }
+        }
+
+        function showMinigame() {
+            const gameContent = document.getElementById('gameContent');
+            const tiles = ['🌟', '🎈', '🎁', '🎪', '🌈', '🎯', '🎲', '🎨', '🌟', '🎈', '🎁', '🎪', '🌈', '🎯', '🎲', '🎨'];
+            const shuffled = tiles.sort(() => Math.random() - 0.5);
+            
+            let timeLeft = 30;
+            let matched = 0;
+            
+            gameContent.innerHTML = `
+                <div class="minigame-screen">
+                    <h2>🎮 神経衰弱ゲーム</h2>
+                    <div class="timer" id="timer">⏱️ ${timeLeft}秒</div>
+                    <div class="game-board" id="gameBoard">
+                        ${shuffled.map((tile, idx) => `
+                            <button class="tile" onclick="revealTile(${idx}, this)">${tile}</button>
+                        `).join('')}
+                    </div>
+                    <p>同じ絵柄を2つ揃えよう！</p>
+                </div>
+            `;
+
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = `⏱️ ${timeLeft}秒`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (matched >= 8) {
+                        gameState.gold += 50;
+                        incrementAchievement('minigame_success');
+                        endGame('end_normal');
+                    } else {
+                        endGame('end_escape');
+                    }
+                }
+            }, 1000);
+        }
+
+        function revealTile(index, element) {
+            // 簡易版：クリックしたら当たりかハズレか判定
+            if (Math.random() > 0.3) {
+                element.classList.add('matched');
+                element.disabled = true;
+            } else {
+                element.classList.add('unmatched');
+                setTimeout(() => element.classList.remove('unmatched'), 300);
+            }
+        }
+
+        function showPuzzle() {
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="minigame-screen">
+                    <h2>🧩 パズルゲーム</h2>
+                    <p>正しい順序に並び替えよう！</p>
+                    <div class="puzzle-grid" id="puzzleGrid">
+                        <button class="puzzle-piece" onclick="solvePuzzle(0)">1️⃣</button>
+                        <button class="puzzle-piece" onclick="solvePuzzle(1)">2️⃣</button>
+                        <button class="puzzle-piece" onclick="solvePuzzle(2)">3️⃣</button>
+                        <button class="puzzle-piece" onclick="solvePuzzle(3)">4️⃣</button>
+                        <button class="puzzle-piece" onclick="solvePuzzle(4)">5️⃣</button>
+                        <button class="puzzle-piece" onclick="solvePuzzle(5)">6️⃣</button>
+                    </div>
+                </div>
+            `;
+            window.puzzleSolved = 0;
+        }
+
+        function solvePuzzle(index) {
+            if (index === window.puzzleSolved) {
+                event.target.classList.add('correct');
+                event.target.disabled = true;
+                window.puzzleSolved++;
+                if (window.puzzleSolved >= 6) {
+                    gameState.gold += 75;
+                    gameState.exp += 30;
+                    incrementAchievement('puzzle_solver');
+                    setTimeout(() => endGame('end_treasure'), 500);
+                }
+            } else {
+                gameState.hp -= 10;
+                updateStatus();
+                if (gameState.hp <= 0) {
+                    endGame('end_coward');
+                }
+            }
+        }
+
+        function showClickerGame() {
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="clicker-screen">
+                    <h2>🖱️ クリッカーゲーム - 秘密の部屋</h2>
+                    <div class="clicker-character" onclick="clickCharacter(this)">💰</div>
+                    <div class="clicker-stats">
+                        <div>スコア: <span id="clickerScoreDisplay">0</span></div>
+                        <div>ダメージ: <span id="damageDisplay">1</span></div>
+                    </div>
+                    <div class="clicker-buttons">
+                        <button class="upgrade-btn" onclick="upgradeClickerDamage()">💪 ダメージアップ (50G)</button>
+                        <button class="upgrade-btn" onclick="upgradeAutoClick()">⚙️ オートクリック (100G)</button>
+                        <button class="upgrade-btn" onclick="exitClicker()">⬅️ 脱出</button>
+                    </div>
+                </div>
+            `;
+            window.clickerInterval = setInterval(() => autoClickIncrement(), 1000);
+        }
+
+        function clickCharacter(element) {
+            const damage = 1 + gameState.clickerUpgrades.damage;
+            gameState.clickerScore += damage;
+            gameState.gold += Math.floor(damage / 2);
+            document.getElementById('clickerScoreDisplay').textContent = gameState.clickerScore;
+            document.getElementById('damageDisplay').textContent = damage;
+
+            if (gameState.clickerScore >= 100) {
+                incrementAchievement('first_clicker');
+            }
+
+            const floatText = document.createElement('div');
+            floatText.textContent = `+${damage}`;
+            floatText.className = 'float-text';
+            floatText.style.left = event.pageX + 'px';
+            floatText.style.top = event.pageY + 'px';
+            document.body.appendChild(floatText);
+            setTimeout(() => floatText.remove(), 1500);
+        }
+
+        function autoClickIncrement() {
+            if (gameState.clickerUpgrades.autoClick > 0) {
+                gameState.clickerScore += gameState.clickerUpgrades.autoClick;
+                gameState.gold += gameState.clickerUpgrades.autoClick;
+                document.getElementById('clickerScoreDisplay').textContent = gameState.clickerScore;
+            }
+        }
+
+        function upgradeClickerDamage() {
+            if (gameState.gold >= 50) {
+                gameState.gold -= 50;
+                gameState.clickerUpgrades.damage += 1;
+                document.getElementById('damageDisplay').textContent = 1 + gameState.clickerUpgrades.damage;
+            }
+        }
+
+        function upgradeAutoClick() {
+            if (gameState.gold >= 100) {
+                gameState.gold -= 100;
+                gameState.clickerUpgrades.autoClick += 1;
+            }
+        }
+
+        function exitClicker() {
+            clearInterval(window.clickerInterval);
+            gameState.gold += gameState.clickerScore;
+            gameState.exp += 25;
+            endGame('end_hidden_library');
+        }
+
+        function startDragonFight() {
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div class="story-screen">
+                    <div class="story-image">⚔️</div>
+                    <h2>龍との戦い！</h2>
+                    <div class="story-text">
+                        HP: <span id="dragonHp">50</span> / 50
+                    </div>
+                    <div class="story-choices">
+                        <button class="choice-btn" onclick="attackDragon()">🗡️ 攻撃！</button>
+                        <button class="choice-btn" onclick="defenseDragon()">🛡️ 防御</button>
+                        <button class="choice-btn" onclick="castSpell()">✨ 魔法を使う</button>
+                        <button class="choice-btn" onclick="surrenderDragon()">🏳️ 降参</button>
+                    </div>
+                </div>
+            `;
+            window.dragonHp = 50;
+            window.attacks = 0;
+        }
+
+        function attackDragon() {
+            window.attacks++;
+            const damage = Math.floor(Math.random() * 15) + 10;
+            window.dragonHp -= damage;
+            if (window.dragonHp <= 0) {
+                gameState.gold += 200;
+                gameState.exp += 50;
+                endGame('end_godlike');
+            } else {
+                document.getElementById('dragonHp').textContent = Math.max(0, window.dragonHp);
+            }
+        }
+
+        function defenseDragon() {
+            gameState.hp = Math.min(gameState.maxHp, gameState.hp + 20);
+            updateStatus();
+        }
+
+        function castSpell() {
+            if (gameState.mana >= 20) {
+                gameState.mana -= 20;
+                window.dragonHp -= 25;
+                if (window.dragonHp <= 0) {
+                    gameState.gold += 200;
+                    endGame('end_wizard');
+                } else {
+                    document.getElementById('dragonHp').textContent = Math.max(0, window.dragonHp);
+                }
+                updateStatus();
+            }
+        }
+
+        function surrenderDragon() {
+            endGame('end_escape');
+        }
+
+        function endGame(endId) {
+            clearInterval(window.clickerInterval);
+            const endData = allEnds.find(e => e.id === endId) || allEnds[0];
+            gameState.endType = endId;
+            gameState.exp += endData.reward;
+            
+            incrementAchievement(endId);
+            
+            if (gameState.exp >= gameState.maxExp) {
+                gameState.level++;
+                gameState.exp = 0;
+                gameState.maxExp = gameState.maxExp + 50;
+                gameState.maxHp += 20;
+                gameState.maxMana += 10;
+                if (gameState.level >= 5) {
+                    incrementAchievement('level_master');
+                }
+            }
+
+            saveGame();
+            showEndScreen(endData);
+        }
+
+        function showEndScreen(endData) {
+            const endScreen = document.getElementById('endScreen');
+            endScreen.innerHTML = `
+                <div class="end-screen">
+                    <div class="end-emoji">${endData.emoji}</div>
+                    <div class="end-title">${endData.title}</div>
+                    <div class="end-text">${endData.text}</div>
+                    <div class="end-rewards">
+                        🎁 報酬: ${endData.reward} EXP<br>
+                        💰 ゴールド: ${gameState.gold}
+                    </div>
+                    <div class="end-buttons">
+                        <button class="restart-btn" onclick="startGame()">🔄 もう一度遊ぶ</button>
+                        <button class="menu-btn" onclick="showMenu()">🏠 メニュー</button>
+                    </div>
+                </div>
+            `;
+            showScreen('endScreen');
+        }
+
+        function showAchievements() {
+            loadAchievements();
+            const achievementList = document.getElementById('achievementList');
+            achievementList.innerHTML = `
+                <h3 style="text-align: center; margin-bottom: 20px;">
+                    獲得数: <span style="color: #667eea; font-size: 24px;">
+                        ${Object.values(gameState.achievements).filter(v => v).length} / ${Object.keys(achievements).length}
+                    </span>
+                </h3>
+                <div class="achievement-grid">
+                    ${Object.entries(achievements).map(([key, achievement]) => {
+                        const unlocked = gameState.achievements[key];
+                        return `
+                            <div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">
+                                <div class="achievement-emoji">${achievement.emoji}</div>
+                                <div class="achievement-name">${achievement.name}</div>
+                                <div style="font-size: 12px; margin-top: 5px;">${achievement.description}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            showScreen('achievementScreen');
+        }
+
+        function showMenu() {
+            showScreen('menuScreen');
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            const backButton = document.getElementById('backButton');
+            if (screenId === 'menuScreen') {
+                backButton.classList.add('hidden');
+            } else {
+                backButton.classList.remove('hidden');
+                backButton.onclick = showMenu;
+            }
+        }
+
+        function updateStatus() {
+            document.getElementById('hpValue').textContent = `${Math.max(0, gameState.hp)}/${gameState.maxHp}`;
+            document.getElementById('manaValue').textContent = `${gameState.mana}/${gameState.maxMana}`;
+            document.getElementById('expValue').textContent = `${gameState.exp}/${gameState.maxExp}`;
+            document.getElementById('goldValue').textContent = gameState.gold;
+        }
+
+        function incrementAchievement(achievementId) {
+            gameState.achievements[achievementId] = true;
+            saveAchievements();
+        }
+
+        function saveGame() {
+            localStorage.setItem(SAVE_KEY_PREFIX + 'gamestate', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem(SAVE_KEY_PREFIX + 'gamestate');
+            if (saved) {
+                Object.assign(gameState, JSON.parse(saved));
+                return true;
+            }
+            return false;
+        }
+
+        function continueGame() {
+            if (loadGame()) {
+                startGame();
+            } else {
+                alert('セーブデータがありません');
+            }
+        }
+
+        function saveAchievements() {
+            localStorage.setItem(SAVE_KEY_PREFIX + 'achievements', JSON.stringify(gameState.achievements));
+        }
+
+        function loadAchievements() {
+            const saved = localStorage.getItem(SAVE_KEY_PREFIX + 'achievements');
+            if (saved) {
+                gameState.achievements = JSON.parse(saved);
+            }
+        }
+
+        window.onload = initGame;
+    </script>
+</body>
+</html>
